@@ -1,0 +1,30 @@
+{
+  "version": "3.0",
+  "defaultProvider": "cdnjs",
+  "libraries": [
+    {
+      "library": "font-awesome@7.0.1",
+      "destination": "wwwroot/lib/font-awesome/"
+    },
+    {
+      "library": "sweetalert2@11.23.0",
+      "destination": "wwwroot/js/sweetalert2/"
+    },
+    {
+      "provider": "jsdelivr",
+      "library": "summernote@0.9.1",
+      "destination": "wwwroot/lib/summernote/",
+      "files": [
+        "dist/summernote-bs5.min.css",
+        "dist/summernote-bs5.min.js",
+        "dist/summernote.min.css",
+        "dist/summernote.min.js",
+        "dist/font/summernote.eot",
+        "dist/font/summernote.hash",
+        "dist/font/summernote.ttf",
+        "dist/font/summernote.woff",
+        "dist/font/summernote.woff2"
+      ]
+    }
+  ]
+}

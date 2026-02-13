@@ -1,0 +1,87 @@
+﻿@model ProductViewModel;
+
+@{
+    var tilte = Model.ProductId == 0 ? "Nuevo Producto" : "Editar Producto";
+    var btnAction = Model.ProductId == 0 ? "Agregar" : "Guardar";
+}
+
+
+<div class="row">
+
+    <h2>@tilte</h2>
+    <hr />
+    <div class="col-6">
+
+        <form action="/Product/AddEdit" method="post" enctype="multipart/form-data">
+            <input type="hidden" asp-for="ProductId" />
+
+            <div class="mb-3">
+                <label class="form-label">Category</label>
+                <select class="form-select" asp-for="Category.CategoryId" asp-items="@Model.Categories">
+                    <option selected disabled>--select--</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Name</label>
+                <input type="text" class="form-control" asp-for="Name" autocomplete="off">
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Description</label>
+                <textarea id="summernote" class="form-control" asp-for="Description" autocomplete="off">
+                </textarea>
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Price</label>
+                <input type="number" class="form-control" asp-for="Price" autocomplete="off">
+                <span asp-validation-for="Price" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Stock</label>
+                <input type="number" class="form-control" asp-for="Stock" autocomplete="off">
+                <span asp-validation-for="Stock" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Upload Image</label>
+                <input type="file" class="form-control" asp-for="ImageFile">
+
+            </div>
+
+            @if (ViewBag.message != null)
+            {
+                <div class="alert alert-success" role="alert">
+                    @ViewBag.message
+                </div>
+            }
+
+            <div class="d-grid gap-2 d-md-block mt-4">
+                <button class="btn btn-primary" type="submit">@btnAction</button>
+                <a href="/Product/Index" class="btn btn-warning">Volver</a>
+            </div>
+        </form>
+    </div>
+
+    <div class="col-6">
+        <img src="~/images/@Model.ImageName" class="rounded" width="300" height="320" alt="@Model.Name" />
+    </div>
+</div>
+
+@section Styles {
+    <link href="~/lib/summernote/dist/summernote.min.css" rel="stylesheet" />
+    <link href="~/lib/summernote/dist/summernote-bs5.min.css" rel="stylesheet" />
+}
+
+@section Scripts {
+    <script src="~/lib/summernote/dist/summernote.min.js"></script>
+    <script src="~/lib/summernote/dist/summernote-bs5.min.js"></script>
+
+    <script>
+        $( document ).ready( function () {
+            $( '#summernote' ).summernote();
+        } );
+    </script>
+}

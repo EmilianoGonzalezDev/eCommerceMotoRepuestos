@@ -1,0 +1,38 @@
+﻿@model List<OrderViewModel>
+
+<div class="row justify-content-between mt-4">
+    <div class="col-4">
+        <h4>My Orders</h4>
+    </div>
+</div>
+<hr />
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Order Date</th>
+            <th>Total Amount</th>
+            <th>Order Items</th>
+        </tr>
+
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.OrderDate</td>
+                <td>@item.TotalAmount</td>
+                <td>
+                    <ol class="list-group list-group-numbered">
+                        @foreach (var element in item.OrderItems)
+                        {
+                            <li class="list-group-item">
+                                @(element.ProductName + " + " + element.Quantity + " x " + element.Price)
+                            </li>
+                        }
+                    </ol>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

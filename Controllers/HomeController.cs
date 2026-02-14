@@ -27,7 +27,6 @@ namespace eCommerceMotoRepuestos.Controllers
         {
             var categories = await _categoryService.GetAllAsync();
             var products = await _productService.GetCatalogAsync(categoryId: id);
-
             var catalog = new CatalogViewModel { Categories = categories, Products = products, FilterBy = name };
             return View("Index", catalog);
         }
@@ -37,7 +36,6 @@ namespace eCommerceMotoRepuestos.Controllers
         {
             var categories = await _categoryService.GetAllAsync();
             var products = await _productService.GetCatalogAsync(search: value);
-
             var catalog = new CatalogViewModel { Categories = categories, Products = products, FilterBy = $"Results for: {value}" };
             return View("Index", catalog);
         }
@@ -47,15 +45,13 @@ namespace eCommerceMotoRepuestos.Controllers
         {
             var product = await _productService.GetByIdAsync(id);
             return View(product);
-
         }
 
         [HttpPost]
         public async Task<IActionResult> AddItemToCart(int productId, int quantity)
         {
             var product = await _productService.GetByIdAsync(productId);
-
-            var cart = HttpContext.Session.Get<List<CartItemViewModel>>("Cart") ?? new List<CartItemViewModel>();
+            var cart = GetCart();
 
             if (cart.Find(x => x.ProductId == productId) == null)
             {
@@ -78,25 +74,22 @@ namespace eCommerceMotoRepuestos.Controllers
             HttpContext.Session.Set("Cart", cart);
             ViewBag.message = "Product added to cart";
             return View("ProductDetail", product);
-
         }
 
 
         public IActionResult ViewCart()
         {
-            var cart = HttpContext.Session.Get<List<CartItemViewModel>>("Cart") ?? new List<CartItemViewModel>();
+            var cart = GetCart();
             return View(cart);
         }
 
 
         public IActionResult RemoveItemToCart(int productId)
         {
-            var cart = HttpContext.Session.Get<List<CartItemViewModel>>("Cart");
-
+            var cart = GetCart();
             var product = cart.Find(x => x.ProductId == productId);
             cart.Remove(product!);
             HttpContext.Session.Set("Cart", cart);
-
             return View("ViewCart", cart);
         }
 
@@ -104,20 +97,21 @@ namespace eCommerceMotoRepuestos.Controllers
         [HttpPost]
         public async Task<IActionResult> PayNow()
         {
-            var cart = HttpContext.Session.Get<List<CartItemViewModel>>("Cart");
-
+            var cart = GetCart();
             var userId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
             await _orderService.AddAsync(cart, int.Parse(userId));
-
             HttpContext.Session.Remove("Cart");
-
             return View("SaleCompleted");
         }
-
 
         public IActionResult SaleCompleted()
         {
             return View();
+        }
+
+        public List<CartItemViewModel> GetCart()
+        {
+            return HttpContext.Session.Get<List<CartItemViewModel>>("Cart") ?? new List<CartItemViewModel>();
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
@@ -125,7 +119,5 @@ namespace eCommerceMotoRepuestos.Controllers
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
-
-
     }
 }

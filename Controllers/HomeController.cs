@@ -52,10 +52,10 @@ namespace eCommerceMotoRepuestos.Controllers
         {
             var product = await _productService.GetByIdAsync(productId);
             var cart = GetCart();
+            var cartItem = cart.Find(x => x.ProductId == productId);
 
-            if (cart.Find(x => x.ProductId == productId) == null)
+            if (cartItem is null)
             {
-
                 cart.Add(new CartItemViewModel
                 {
                     ProductId = productId,
@@ -67,8 +67,7 @@ namespace eCommerceMotoRepuestos.Controllers
             }
             else
             {
-                var updateProduct = cart.Find(x => x.ProductId == productId);
-                updateProduct!.Quantity += quantity;
+                cartItem.Quantity += quantity;
             }
 
             HttpContext.Session.Set("Cart", cart);
@@ -87,8 +86,8 @@ namespace eCommerceMotoRepuestos.Controllers
         public IActionResult RemoveItemToCart(int productId)
         {
             var cart = GetCart();
-            var product = cart.Find(x => x.ProductId == productId);
-            cart.Remove(product!);
+            var cartItem = cart.Find(x => x.ProductId == productId);
+            cart.Remove(cartItem!);
             HttpContext.Session.Set("Cart", cart);
             return View("ViewCart", cart);
         }

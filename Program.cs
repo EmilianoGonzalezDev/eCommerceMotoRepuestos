@@ -1,13 +1,25 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Localization;
 using eCommerceMotoRepuestos.Context;
 using eCommerceMotoRepuestos.Repositories;
 using eCommerceMotoRepuestos.Services;
 using Microsoft.EntityFrameworkCore;
+using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddLocalization();
+
+var supportedCulture = new CultureInfo("es-AR");
+builder.Services.Configure<RequestLocalizationOptions>(options =>
+{
+    options.DefaultRequestCulture = new RequestCulture(supportedCulture);
+    options.DefaultRequestCulture.Culture.NumberFormat.CurrencyDecimalDigits = 0;
+    options.SupportedCultures = [supportedCulture];
+    options.SupportedUICultures = [supportedCulture];
+});
 
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
@@ -36,6 +48,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 var app = builder.Build();
 
 app.UseSession();
+app.UseRequestLocalization();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

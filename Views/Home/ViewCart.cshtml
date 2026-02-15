@@ -1,4 +1,4 @@
-ï»¿@model List<CartItemViewModel>;
+@model List<CartItemViewModel>;
 
 
 @if (Model.Count() != 0)
@@ -80,32 +80,32 @@ else
                     <div class="row g-3">
 
                         <div class="col-12">
-                            <input type="email" class="form-control" placeholder="Email" />
+                            <input type="email" class="form-control" name="email" placeholder="Email" required maxlength="100" />
                         </div>
                         <div class="col-12">
-                            <input type="text" class="form-control" placeholder="DirecciÃ³n" />
+                            <input type="text" class="form-control" name="address" placeholder="Dirección" required minlength="5" maxlength="120" />
                         </div>
                         <div class="col-6">
-                            <input type="text" class="form-control" placeholder="PaÃ­s" />
+                            <input type="text" class="form-control" name="country" placeholder="País" required minlength="2" maxlength="60" />
                         </div>
                         <div class="col-6">
-                            <input type="text" class="form-control" placeholder="Ciudad" />
+                            <input type="text" class="form-control" name="city" placeholder="Ciudad" required minlength="2" maxlength="60" />
                         </div>
                         <hr />
                         <div class="col-12">
-                            <input type="text" class="form-control" placeholder="Nombre del Titular" />
+                            <input type="text" class="form-control" name="cardHolderName" placeholder="Nombre del titular" required minlength="3" maxlength="100" />
                         </div>
                         <div class="col-12">
-                            <input type="text" class="form-control" placeholder="NÃºmero de Tarjeta" />
+                            <input type="text" class="form-control" name="cardNumber" placeholder="Número de tarjeta" required inputmode="numeric" pattern="[0-9]{16}" maxlength="16" title="Ingresa 16 dígitos" />
                         </div>
                         <div class="col-3">
-                            <input type="number" class="form-control" placeholder="MM" />
+                            <input type="number" class="form-control" name="expirationMonth" placeholder="MM" required min="1" max="12" />
                         </div>
                         <div class="col-3">
-                            <input type="number" class="form-control" placeholder="AAAA" />
+                            <input type="number" class="form-control" name="expirationYear" placeholder="AAAA" required min="2022" max="2100" />
                         </div>
                         <div class="col-6">
-                            <input type="number" class="form-control" placeholder="CVV" />
+                            <input type="text" class="form-control" name="cvv" placeholder="CVV" required inputmode="numeric" pattern="[0-9]{3,4}" minlength="3" maxlength="4" title="Ingresa 3 o 4 dígitos" />
                         </div>
                     </div>
                 </div>

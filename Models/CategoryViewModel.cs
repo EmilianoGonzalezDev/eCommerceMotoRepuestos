@@ -5,6 +5,6 @@ namespace eCommerceMotoRepuestos.Models;
 public class CategoryViewModel
 {
     public int CategoryId { get; set; }
-    [Required]
+    [Required (ErrorMessage = "Indicar un nombre.")]
     public string Name { get; set; }
 }

@@ -27,7 +27,7 @@ public class AccountController(UserService _userService) : Controller
 
         if (found.UserId == 0)
         {
-            ViewBag.message = "No matches found.";
+            ViewBag.message = "Email o Contraseña incorrectos.";
             return View();
         }
         else

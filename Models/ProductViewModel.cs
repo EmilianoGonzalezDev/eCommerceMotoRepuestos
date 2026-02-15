@@ -10,9 +10,9 @@ public class ProductViewModel
     public CategoryViewModel Category { get; set; }
     public List<SelectListItem> Categories { get; set; }
 
-    [Required]
+    [Required(ErrorMessage = "Indicar un nombre.")]
     public string Name { get; set; }
-    [Required]
+    [Required(ErrorMessage = "Indicar descripción para el producto.")]
     public string Description { get; set; }
     [Required]
     public decimal Price { get; set; }

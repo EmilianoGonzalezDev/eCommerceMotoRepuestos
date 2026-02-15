@@ -36,7 +36,7 @@ namespace eCommerceMotoRepuestos.Controllers
         {
             var categories = await _categoryService.GetAllAsync();
             var products = await _productService.GetCatalogAsync(search: value);
-            var catalog = new CatalogViewModel { Categories = categories, Products = products, FilterBy = $"Results for: {value}" };
+            var catalog = new CatalogViewModel { Categories = categories, Products = products, FilterBy = $"Resultados para: {value}" };
             return View("Index", catalog);
         }
 
@@ -71,7 +71,7 @@ namespace eCommerceMotoRepuestos.Controllers
             }
 
             HttpContext.Session.Set("Cart", cart);
-            ViewBag.message = "Product added to cart";
+            ViewBag.message = "Producto agregado al carrito";
             return View("ProductDetail", product);
         }
 

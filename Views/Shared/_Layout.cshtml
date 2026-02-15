@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="es-AR">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -16,7 +16,7 @@
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">MyStore</a>
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">MotoRepuestos!</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -24,7 +24,7 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Inicio</a>
                         </li>
 
                         @if (User.Identity!.IsAuthenticated)
@@ -32,10 +32,10 @@
                             @if (User.IsInRole("Admin"))
                             {
                                 <li class="nav-item">
-                                    <a class="nav-link text-dark" asp-area="" asp-controller="Category" asp-action="Index">Category</a>
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Category" asp-action="Index">Categorías</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link text-dark" asp-area="" asp-controller="Product" asp-action="Index">Products</a>
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Product" asp-action="Index">Productos</a>
                                 </li>
 
                             }
@@ -50,16 +50,16 @@
                                     @User.Claims.Where(c => c.Type == ClaimTypes.Email).Select(c => c.Value).SingleOrDefault()
                                 </a>
                                 <ul class="dropdown-menu">
-                                    <li><a class="dropdown-item text-dark" href="/User/MyOrders">My orders</a></li>
+                                    <li><a class="dropdown-item text-dark" href="/User/MyOrders">Mis órdenes</a></li>
                                     <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item text-dark" href="/Account/Logout">Logout</a></li>
+                                    <li><a class="dropdown-item text-dark" href="/Account/Logout">Salir</a></li>
                                 </ul>
                             </li>
                         }
                         else
                         {
                             <li class="nav-item ms-2">
-                                <a class="btn btn-outline-dark" href="/Account/Login">Log In</a>
+                                <a class="btn btn-outline-dark" href="/Account/Login">Ingresar</a>
                             </li>
                         }
 
@@ -77,7 +77,7 @@
 
     <footer class="border-top footer text-muted">
         <div class="container">
-            &copy; 2025 - MyStore - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            &copy; 2026 - Moto Repuestos!
         </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
@@ -85,6 +85,7 @@
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="~/lib/font-awesome/js/all.min.js"></script>
     <script src="~/lib/sweetalert2/sweetalert2.min.js"></script>
+    <script src="~/lib/jquery-validation/dist/localization/messages_es.js"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

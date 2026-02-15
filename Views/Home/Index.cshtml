@@ -1,13 +1,13 @@
 ﻿@model CatalogViewModel;
 @{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Moto Repuestos!";
 }
 
 <div class="row p-5 bg-light mt-4">
     <div class="col-sm-12 col-md-3 col-lg-3">
         <div class="d-grid">
             <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#exampleModal">
-                Categories
+                Categorías
             </button>
         </div>
     </div>
@@ -15,7 +15,7 @@
     <div class="col-sm-12 col-md-9 col-lg-9">
         <form action="/Home/FilterBySearch" method="post">
             <div class="input-group">
-                <input type="text" class="form-control" name="value" autocomplete="off" placeholder="What are you looking for?" />
+                <input type="text" class="form-control" name="value" autocomplete="off" placeholder="¿Qué estás buscando?" />
                 <button class="btn btn-outline-secondary" type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
             </div>
         </form>
@@ -46,7 +46,7 @@
                 </div>
                 <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
                     <div class="text-center">
-                        <a class="btn btn-outline-dark mt-auto" href="/Home/ProductDetail?id=@p.ProductId" role="button">View Detail</a>
+                        <a class="btn btn-outline-dark mt-auto" href="/Home/ProductDetail?id=@p.ProductId" role="button">Ver Detalles</a>
                     </div>
                 </div>
             </div>
@@ -61,8 +61,8 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title fs-5" id="exampleModalLabel">Categories</h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Categorís</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <div class="modal-body">
                 <div class="row row-cols-2 g-2">
@@ -71,7 +71,7 @@
                            asp-controller="Home" asp-action="FilterByCategory"
                            asp-route-id="0"
                            asp-route-name="All Categories">
-                            All categories
+                            Todas las categorías
                         </a>
                     </div>
                     @foreach (var category in Model.Categories)
@@ -89,7 +89,7 @@
 
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
             </div>
         </div>
     </div>

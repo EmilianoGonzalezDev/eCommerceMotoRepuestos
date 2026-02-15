@@ -59,7 +59,7 @@ public class CategoryService(GenericRepository<Category> _categoryRepository)
 
     public async Task DeleteAsync(int id)
     {
-        var category = await _categoryRepository.GetByIdAsync(id) ?? throw new Exception("Category not found");
+        var category = await _categoryRepository.GetByIdAsync(id) ?? throw new Exception("Categoría no encontrada");
         await _categoryRepository.DeleteAsync(category);
     }
 

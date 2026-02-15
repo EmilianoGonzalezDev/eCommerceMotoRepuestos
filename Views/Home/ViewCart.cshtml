@@ -6,11 +6,11 @@
 
     <div class="row justify-content-between mt-4">
         <div class="col-4">
-            <h4>Cart Items</h4>
+            <h4>Carrito</h4>
         </div>
         <div class="col-4 text-end">
             <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#exampleModal">
-                Order Now
+                Finalizar Compra
             </button>
         </div>
     </div>
@@ -21,9 +21,9 @@
             <tr>
 
                 <th style="width:120px"></th>
-                <th>Name</th>
-                <th>Price</th>
-                <th>Quantity</th>
+                <th>Nombre</th>
+                <th>Precio</th>
+                <th>Cantidad</th>
                 <th>Total</th>
                 <th style="width:120px"></th>
             </tr>
@@ -60,7 +60,7 @@ else
 {
 
     <div class="alert alert-warning mt-4" role="alert">
-        There are no product in the cart
+        No hay productos en el carrito
     </div>
 
 }
@@ -73,7 +73,7 @@ else
 
             <form action="/Home/PayNow" method="post">
                 <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="exampleModalLabel">Payment form</h1>
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">Forma de pago</h1>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -83,26 +83,26 @@ else
                             <input type="email" class="form-control" placeholder="Email" />
                         </div>
                         <div class="col-12">
-                            <input type="text" class="form-control" placeholder="Address" />
+                            <input type="text" class="form-control" placeholder="Dirección" />
                         </div>
                         <div class="col-6">
-                            <input type="text" class="form-control" placeholder="Country" />
+                            <input type="text" class="form-control" placeholder="País" />
                         </div>
                         <div class="col-6">
-                            <input type="text" class="form-control" placeholder="City" />
+                            <input type="text" class="form-control" placeholder="Ciudad" />
                         </div>
                         <hr />
                         <div class="col-12">
-                            <input type="text" class="form-control" placeholder="Cardholder Name" />
+                            <input type="text" class="form-control" placeholder="Nombre del Titular" />
                         </div>
                         <div class="col-12">
-                            <input type="text" class="form-control" placeholder="Card Number" />
+                            <input type="text" class="form-control" placeholder="Número de Tarjeta" />
                         </div>
                         <div class="col-3">
                             <input type="number" class="form-control" placeholder="MM" />
                         </div>
                         <div class="col-3">
-                            <input type="number" class="form-control" placeholder="YYYY" />
+                            <input type="number" class="form-control" placeholder="AAAA" />
                         </div>
                         <div class="col-6">
                             <input type="number" class="form-control" placeholder="CVV" />
@@ -110,8 +110,8 @@ else
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary">Pay Now</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="submit" class="btn btn-primary">Pagar</button>
                 </div>
             </form>
 

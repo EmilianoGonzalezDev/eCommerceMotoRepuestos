@@ -16,8 +16,7 @@ public class ProductService(
     public async Task<IEnumerable<ProductViewModel>> GetAllAsync()
     {
         var products = await _productRepository.GetAllAsync(
-                //includes: new Expression<Func<Product, object>>[] { x => x.Category! } //versión del video
-                includes: [x => x.Category!] //versión resumida
+                includes: [x => x.Category!]
             );
 
 

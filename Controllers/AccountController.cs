@@ -66,7 +66,7 @@ public class AccountController(UserService _userService) : Controller
         try
         {
             await _userService.Register(viewmodel);
-            ViewBag.message = "Your account has been registered, please try logging in.";
+            ViewBag.message = "Tu cuenta ha sido registrada!";
             ViewBag.Class = "alert-success";
         }
         catch (Exception ex)

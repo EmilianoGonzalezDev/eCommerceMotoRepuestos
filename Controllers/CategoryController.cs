@@ -34,12 +34,12 @@ public class CategoryController(CategoryService _categoryService) : Controller
             await _categoryService.AddAsync(viewModel);
             ModelState.Clear();
             viewModel = new CategoryViewModel();
-            ViewBag.message = "Created category";
+            ViewBag.message = "Categoría creada";
         }
         else
         {
             await _categoryService.EditAsync(viewModel);
-            ViewBag.message = "edited category";
+            ViewBag.message = "Categoría editada";
         }
 
         return View(viewModel);

@@ -34,12 +34,12 @@ public class ProductController(ProductService _productService) : Controller
             await _productService.AddAsync(entityVM);
             ModelState.Clear();
             entityVM = new ProductViewModel();
-            ViewBag.message = "Created product";
+            ViewBag.message = "Producto creado";
         }
         else
         {
             await _productService.EditAsync(entityVM);
-            ViewBag.message = "Edited product";
+            ViewBag.message = "Producto editado";
         }
         return View(entityVM);
     }

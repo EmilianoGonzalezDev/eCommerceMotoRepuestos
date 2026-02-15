@@ -33,7 +33,7 @@ public class UserService(GenericRepository<User> _userRepository)
     public async Task Register(UserViewModel userVM)
     {
         if (userVM.Password != userVM.RepeatPassword)
-            throw new InvalidOperationException("The passwords are not the same");
+            throw new InvalidOperationException("Las contraseñas no coinciden");
 
         var conditions = new List<Expression<Func<User, bool>>>()
         {
@@ -43,7 +43,7 @@ public class UserService(GenericRepository<User> _userRepository)
         var foundEmail = await _userRepository.GetByFilter(conditions: conditions.ToArray());
 
         if (foundEmail != null)
-            throw new InvalidOperationException("the email address is already registered");
+            throw new InvalidOperationException("La dirección de email ya se encuentra registrada");
 
 
         var entity = new User()

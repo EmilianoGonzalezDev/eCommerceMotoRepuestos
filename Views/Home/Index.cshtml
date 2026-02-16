@@ -36,7 +36,7 @@
     @foreach (var p in Model.Products)
     {
         <div class="col">
-            <div class="card shadow-sm">
+            <div class="card shadow-sm h-100">
                 <img class="card-img-top" src="~/images/@p.ImageName" alt="..." />
                 <div class="card-body p-4">
                     <div class="text-center">
@@ -46,7 +46,7 @@
                 </div>
                 <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
                     <div class="text-center">
-                        <a class="btn btn-outline-dark mt-auto" href="/Home/ProductDetail?id=@p.ProductId" role="button">Ver Detalles</a>
+                        <a class="btn btn-outline-dark mt-auto stretched-link" href="/Home/ProductDetail?id=@p.ProductId" role="button">Ver Detalles</a>
                     </div>
                 </div>
             </div>

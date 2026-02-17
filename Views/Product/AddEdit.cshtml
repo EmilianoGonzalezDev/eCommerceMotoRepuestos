@@ -3,6 +3,7 @@
 @{
     var tilte = Model.ProductId == 0 ? "Nuevo Producto" : "Editar Producto";
     var btnAction = Model.ProductId == 0 ? "Agregar" : "Guardar";
+    var previewImage = string.IsNullOrWhiteSpace(Model.ImageName) ? "default.png" : Model.ImageName;
 }
 
 
@@ -47,8 +48,7 @@
 
             <div class="mb-3">
                 <label class="form-label">Subir Imagen</label>
-                <input type="file" class="form-control" asp-for="ImageFile">
-
+                <input type="file" class="form-control" asp-for="ImageFile" id="imageFileInput" accept="image/*">
             </div>
 
             @if (ViewBag.message != null)
@@ -66,7 +66,7 @@
     </div>
 
     <div class="col-6">
-        <img src="~/images/@Model.ImageName" class="rounded" width="300" height="320" alt="@Model.Name" />
+        <img src="~/images/@previewImage" id="previewImage" class="rounded" width="300" height="320" alt="@Model.Name" />
     </div>
 </div>
 
@@ -80,8 +80,42 @@
     <script src="~/lib/summernote/dist/summernote-bs5.min.js"></script>
 
     <script>
-        $( document ).ready( function () {
+        $( document ).ready(function() {
+            
+            //Initialize summernote
             $( '#summernote' ).summernote();
-        } );
+
+            // Manage the product image (default, selected, original) in the form
+            const imageFileInput = document.getElementById('imageFileInput');
+            const previewImage = document.getElementById('previewImage');
+            const basePreviewSrc = previewImage?.src;
+            let currentObjectUrl = null;
+
+            imageFileInput?.addEventListener('click', function () {
+                imageFileInput.value = '';
+                if (previewImage && basePreviewSrc) {
+                    previewImage.src = basePreviewSrc;
+                }
+                if (currentObjectUrl) {
+                    URL.revokeObjectURL(currentObjectUrl);
+                    currentObjectUrl = null;
+                }
+            });
+            imageFileInput?.addEventListener('change', function (event) {
+                const file = event.target.files?.[0];
+                if (!file) {
+                    if (previewImage && basePreviewSrc) {
+                        previewImage.src = basePreviewSrc;
+                    }
+                    return;
+                }
+                if (currentObjectUrl) {
+                    URL.revokeObjectURL(currentObjectUrl);
+                }
+                currentObjectUrl = URL.createObjectURL(file);
+                previewImage.src = currentObjectUrl;
+            });
+
+        });
     </script>
 }

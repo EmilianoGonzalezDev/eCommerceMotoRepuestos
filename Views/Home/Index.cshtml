@@ -37,7 +37,7 @@
     {
         <div class="col">
             <div class="card shadow-sm h-100">
-                <img class="card-img-top" src="~/images/@p.ImageName" alt="..." />
+                <img class="card-img-top" src="~/images/@(string.IsNullOrWhiteSpace(p.ImageName) ? "default.png" : p.ImageName)" alt="@p.Name" />
                 <div class="card-body p-4">
                     <div class="text-center">
                         <h5 class="fw-bolder">@p.Name</h5>

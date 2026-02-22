@@ -1,8 +1,9 @@
-ï»¿using eCommerceMotoRepuestos.Entities;
+using eCommerceMotoRepuestos.Entities;
 using eCommerceMotoRepuestos.Models;
 using eCommerceMotoRepuestos.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace eCommerceMotoRepuestos.Controllers;
 
@@ -18,21 +19,18 @@ public class CategoryController(CategoryService _categoryService) : Controller
     [HttpGet]
     public IActionResult Add()
     {
-        var categoryViewModel = _categoryService.GetAddViewModel();
-        return View("AddEdit", categoryViewModel);
+        return View("AddEdit", new CategoryViewModel());
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Add(CategoryViewModel viewModel)
     {
-        ViewBag.message = null;
-
         if (!ModelState.IsValid) return View("AddEdit", viewModel);
+
         await _categoryService.AddAsync(viewModel);
-        ModelState.Clear();
-        ViewBag.message = "CategorÃ­a creada";
-        return View("AddEdit", _categoryService.GetAddViewModel());
+        TempData["SuccessMessage"] = "Categoría creada.";
+        return RedirectToAction("Index");
     }
 
     [HttpGet]
@@ -51,13 +49,26 @@ public class CategoryController(CategoryService _categoryService) : Controller
         if (!ModelState.IsValid) return View("AddEdit", viewModel);
 
         await _categoryService.EditAsync(viewModel);
-        ViewBag.message = "CategorÃ­a editada";
+        ViewBag.message = "Categoría editada";
         return View("AddEdit", viewModel);
     }
 
     public async Task<IActionResult> Delete(int id)
     {
-        await _categoryService.DeleteAsync(id);
+        try
+        {
+            await _categoryService.DeleteAsync(id);
+            TempData["SuccessMessage"] = "Categoría eliminada.";
+        }
+        catch (InvalidOperationException ex)
+        {
+            TempData["ErrorMessage"] = ex.Message;
+        }
+        catch
+        {
+            TempData["ErrorMessage"] = "No se pudo eliminar la categoría.";
+        }
+
         return RedirectToAction("Index");
     }
 

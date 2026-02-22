@@ -5,7 +5,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace eCommerceMotoRepuestos.Services;
 
-public class CategoryService(GenericRepository<Category> _categoryRepository)
+public class CategoryService(
+    GenericRepository<Category> _categoryRepository,
+    GenericRepository<Product> _productRepository)
 {
     public async Task<IEnumerable<CategoryViewModel>> GetAllAsync()
     {
@@ -22,11 +24,6 @@ public class CategoryService(GenericRepository<Category> _categoryRepository)
         return categoriesVieModel;
     }
 
-    public CategoryViewModel GetAddViewModel()
-    {
-        return new CategoryViewModel();
-    }
-
     public async Task AddAsync(CategoryViewModel viewModel)
     {
         var entity = new Category
@@ -40,6 +37,7 @@ public class CategoryService(GenericRepository<Category> _categoryRepository)
     public async Task<CategoryViewModel?> GetEditViewModelAsync(int id)
     {
         var category = await _categoryRepository.GetByIdAsync(id);
+
         if (category == null) return null;
 
         var categoryViewModel = new CategoryViewModel
@@ -70,7 +68,13 @@ public class CategoryService(GenericRepository<Category> _categoryRepository)
 
     public async Task DeleteAsync(int id)
     {
-        var category = await _categoryRepository.GetByIdAsync(id) ?? throw new Exception("Categoría no encontrada");
+        var category = await _categoryRepository.GetByIdAsync(id);
+        var productsInCategory = await _productRepository.GetAllAsync(
+            conditions: [p => p.CategoryId == id]);
+
+        if (productsInCategory.Any())
+            throw new InvalidOperationException("No se puede eliminar la categoría porque tiene productos asociados.");
+
         await _categoryRepository.DeleteAsync(category);
     }
 

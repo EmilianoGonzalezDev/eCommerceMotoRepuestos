@@ -5,7 +5,7 @@
         <h4>Productos</h4>
     </div>
     <div class="col-4 text-end">
-        <a href="/Product/AddEdit" class="btn btn-success"><i class="fa-solid fa-plus"></i>Agregar</a>
+        <a href="/Product/Add" class="btn btn-success"><i class="fa-solid fa-plus"></i>Agregar</a>
     </div>
 </div>
 
@@ -30,7 +30,7 @@
                 <td>@item.Price</td>
                 <td>@item.Stock</td>
                 <td style="width: 120px;">
-                    <a href="/Product/AddEdit/@item.ProductId" class="btn btn-primary btn-sm"><i class="fa-solid fa-pen"></i></a>
+                    <a href="/Product/Edit/@item.ProductId" class="btn btn-primary btn-sm"><i class="fa-solid fa-pen"></i></a>
                     <a href="#" class="btn btn-danger btn-sm" onclick="deleteItem(@item.ProductId)"><i class="fa-solid fa-trash"></i></a>
                 </td>
             </tr>

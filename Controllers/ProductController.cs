@@ -15,33 +15,59 @@ public class ProductController(ProductService _productService) : Controller
     }
 
     [HttpGet]
-    public async Task<IActionResult> AddEdit(int id)
+    public async Task<IActionResult> Add()
     {
-        var productVM = await _productService.GetByIdAsync(id);
-        return View(productVM);
+        var productVM = await _productService.GetAddViewModelAsync();
+        return View("AddEdit", productVM);
     }
 
     [HttpPost]
-    public async Task<IActionResult> AddEdit(ProductViewModel entityVM)
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Add(ProductViewModel entityVM)
     {
         ViewBag.message = null;
         ModelState.Remove("Categories");
         ModelState.Remove("Category.Name");
-        if (!ModelState.IsValid) return View(entityVM);
+        if (!ModelState.IsValid)
+        {
+            entityVM.Category ??= new CategoryViewModel();
+            await _productService.PopulateCategoriesAsync(entityVM);
+            return View("AddEdit", entityVM);
+        }
 
-        if (entityVM.ProductId == 0)
+        await _productService.AddAsync(entityVM);
+        ModelState.Clear();
+        entityVM = await _productService.GetAddViewModelAsync();
+        ViewBag.message = "Producto creado";
+        return View("AddEdit", entityVM);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Edit(int id)
+    {
+        var productVM = await _productService.GetEditViewModelAsync(id);
+        if (productVM == null) return NotFound();
+        return View("AddEdit", productVM);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Edit(ProductViewModel entityVM)
+    {
+        ViewBag.message = null;
+        ModelState.Remove("Categories");
+        ModelState.Remove("Category.Name");
+        if (!ModelState.IsValid)
         {
-            await _productService.AddAsync(entityVM);
-            ModelState.Clear();
-            entityVM = new ProductViewModel();
-            ViewBag.message = "Producto creado";
+            entityVM.Category ??= new CategoryViewModel();
+            await _productService.PopulateCategoriesAsync(entityVM);
+            return View("AddEdit", entityVM);
         }
-        else
-        {
-            await _productService.EditAsync(entityVM);
-            ViewBag.message = "Producto editado";
-        }
-        return View(entityVM);
+
+        await _productService.EditAsync(entityVM);
+        await _productService.PopulateCategoriesAsync(entityVM);
+        ViewBag.message = "Producto editado";
+        return View("AddEdit", entityVM);
     }
 
 

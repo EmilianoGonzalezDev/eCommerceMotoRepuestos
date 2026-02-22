@@ -16,33 +16,43 @@ public class CategoryController(CategoryService _categoryService) : Controller
     }
 
     [HttpGet]
-    public async Task<IActionResult> AddEdit(int id)
+    public IActionResult Add()
     {
-        var categoryViewModel = await _categoryService.GetByIdAsync(id);
-        return View(categoryViewModel);
+        var categoryViewModel = _categoryService.GetAddViewModel();
+        return View("AddEdit", categoryViewModel);
     }
 
     [HttpPost]
-    public async Task<IActionResult> AddEdit(CategoryViewModel viewModel)
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Add(CategoryViewModel viewModel)
     {
         ViewBag.message = null;
 
-        if (!ModelState.IsValid) return View(viewModel);
+        if (!ModelState.IsValid) return View("AddEdit", viewModel);
+        await _categoryService.AddAsync(viewModel);
+        ModelState.Clear();
+        ViewBag.message = "Categoría creada";
+        return View("AddEdit", _categoryService.GetAddViewModel());
+    }
 
-        if (viewModel.CategoryId == 0)
-        {
-            await _categoryService.AddAsync(viewModel);
-            ModelState.Clear();
-            viewModel = new CategoryViewModel();
-            ViewBag.message = "Categoría creada";
-        }
-        else
-        {
-            await _categoryService.EditAsync(viewModel);
-            ViewBag.message = "Categoría editada";
-        }
+    [HttpGet]
+    public async Task<IActionResult> Edit(int id)
+    {
+        var categoryViewModel = await _categoryService.GetEditViewModelAsync(id);
+        if (categoryViewModel == null) return NotFound();
+        return View("AddEdit", categoryViewModel);
+    }
 
-        return View(viewModel);
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Edit(CategoryViewModel viewModel)
+    {
+        ViewBag.message = null;
+        if (!ModelState.IsValid) return View("AddEdit", viewModel);
+
+        await _categoryService.EditAsync(viewModel);
+        ViewBag.message = "Categoría editada";
+        return View("AddEdit", viewModel);
     }
 
     public async Task<IActionResult> Delete(int id)

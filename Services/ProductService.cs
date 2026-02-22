@@ -39,39 +39,74 @@ public class ProductService(
         return productsVM;
     }
 
+    public async Task<ProductViewModel> GetAddViewModelAsync()
+    {
+        var productVM = new ProductViewModel
+        {
+            Category = new CategoryViewModel()
+        };
+
+        await PopulateCategoriesAsync(productVM);
+        return productVM;
+    }
+
+    public async Task<ProductViewModel?> GetEditViewModelAsync(int id)
+    {
+        var product = await _productRepository.GetByIdAsync(id);
+        if (product == null) return null;
+
+        var productVM = new ProductViewModel
+        {
+            ProductId = product.ProductId,
+            Category = new CategoryViewModel
+            {
+                CategoryId = product.CategoryId
+            },
+            Name = product.Name,
+            Description = product.Description,
+            Price = product.Price,
+            Stock = product.Stock,
+            ImageName = product.ImageName
+        };
+
+        await PopulateCategoriesAsync(productVM);
+        return productVM;
+    }
+
     public async Task<ProductViewModel> GetByIdAsync(int id)
     {
         var product = await _productRepository.GetByIdAsync(id);
-        var categories = await _categoryRepository.GetAllAsync();
-        var productVM = new ProductViewModel();
-
-        if (product != null)
+        if (product == null)
         {
-            productVM = new ProductViewModel
+            return new ProductViewModel
             {
-                ProductId = product.ProductId,
-                Category = new CategoryViewModel
-                {
-                    CategoryId = product.Category!.CategoryId,
-                    Name = product.Category.Name,
-                },
-                Name = product.Name,
-                Description = product.Description,
-                Price = product.Price,
-                Stock = product.Stock,
-                ImageName = product.ImageName
+                Category = new CategoryViewModel()
             };
-
         }
 
+        return new ProductViewModel
+        {
+            ProductId = product.ProductId,
+            Category = new CategoryViewModel
+            {
+                CategoryId = product.CategoryId
+            },
+            Name = product.Name,
+            Description = product.Description,
+            Price = product.Price,
+            Stock = product.Stock,
+            ImageName = product.ImageName
+        };
+    }
+
+    public async Task PopulateCategoriesAsync(ProductViewModel productVM)
+    {
+        var categories = await _categoryRepository.GetAllAsync();
         productVM.Categories = categories.Select(category => new SelectListItem
         {
             Value = category.CategoryId.ToString(),
             Text = category.Name,
-
         }).ToList();
-
-        return productVM;
     }
 
     public async Task AddAsync(ProductViewModel viewModel)

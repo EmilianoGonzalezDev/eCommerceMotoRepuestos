@@ -11,7 +11,7 @@
         <h2>@title</h2>
         <hr />
 
-        <form action="/Category/AddEdit" method="post">
+        <form asp-action="@(Model.CategoryId == 0 ? "Add" : "Edit")" method="post">
             <input type="hidden" asp-for="CategoryId" />
             <div class="mb-3">
                 <label class="form-label">Nombre</label>

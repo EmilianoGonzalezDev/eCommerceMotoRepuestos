@@ -5,7 +5,7 @@
         <h4>Categorías</h4>
     </div>
     <div class="col-4 text-end">
-        <a href="/Category/AddEdit" class="btn btn-success"><i class="fa-solid fa-plus"></i>Agregar</a>
+        <a href="/Category/Add" class="btn btn-success"><i class="fa-solid fa-plus"></i>Agregar</a>
     </div>
 </div>
 
@@ -24,7 +24,7 @@
             <tr>
                 <td>@item.Name</td>
                 <td style="width: 120px;">
-                    <a href="/Category/AddEdit/@item.CategoryId" class="btn btn-primary btn-sm"><i class="fa-solid fa-pen"></i></a>
+                    <a href="/Category/Edit/@item.CategoryId" class="btn btn-primary btn-sm"><i class="fa-solid fa-pen"></i></a>
                     <a href="#" class="btn btn-danger btn-sm" onclick="deleteItem(@item.CategoryId)"><i class="fa-solid fa-trash"></i></a>
                 </td>
             </tr>

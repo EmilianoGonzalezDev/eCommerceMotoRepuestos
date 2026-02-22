@@ -22,6 +22,11 @@ public class CategoryService(GenericRepository<Category> _categoryRepository)
         return categoriesVieModel;
     }
 
+    public CategoryViewModel GetAddViewModel()
+    {
+        return new CategoryViewModel();
+    }
+
     public async Task AddAsync(CategoryViewModel viewModel)
     {
         var entity = new Category
@@ -32,18 +37,24 @@ public class CategoryService(GenericRepository<Category> _categoryRepository)
         await _categoryRepository.AddAsync(entity);
     }
 
-    public async Task<CategoryViewModel?> GetByIdAsync(int id)
+    public async Task<CategoryViewModel?> GetEditViewModelAsync(int id)
     {
         var category = await _categoryRepository.GetByIdAsync(id);
-        var categoryViewModel = new CategoryViewModel();
+        if (category == null) return null;
 
-        if (category != null)
+        var categoryViewModel = new CategoryViewModel
         {
-            categoryViewModel.Name = category.Name;
-            categoryViewModel.CategoryId = category.CategoryId;
-        }
+            Name = category.Name,
+            CategoryId = category.CategoryId
+        };
 
         return categoryViewModel;
+    }
+
+    public async Task<bool> ExistsAsync(int id)
+    {
+        var category = await _categoryRepository.GetByIdAsync(id);
+        return category != null;
     }
 
     public async Task EditAsync(CategoryViewModel viewModel)

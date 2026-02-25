@@ -25,9 +25,9 @@ public class ProductController(ProductService _productService) : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Add(ProductViewModel entityVM)
     {
-        ViewBag.message = null;
         ModelState.Remove("Categories");
         ModelState.Remove("Category.Name");
+
         if (!ModelState.IsValid)
         {
             entityVM.Category ??= new CategoryViewModel();
@@ -36,10 +36,9 @@ public class ProductController(ProductService _productService) : Controller
         }
 
         await _productService.AddAsync(entityVM);
-        ModelState.Clear();
         entityVM = await _productService.GetAddViewModelAsync();
-        ViewBag.message = "Producto creado";
-        return View("AddEdit", entityVM);
+        TempData["SuccessMessage"] = "Producto creado.";
+        return RedirectToAction("Index");
     }
 
     [HttpGet]
@@ -73,7 +72,16 @@ public class ProductController(ProductService _productService) : Controller
 
     public async Task<IActionResult> Delete(int id)
     {
-        await _productService.DeleteAsync(id);
+        try
+        {
+            await _productService.DeleteAsync(id);
+            TempData["SuccessMessage"] = "Producto eliminado.";
+        }
+        catch
+        {
+            TempData["ErrorMessage"] = "No se pudo eliminar el producto.";
+        }
+
         return RedirectToAction("Index");
     }
 }

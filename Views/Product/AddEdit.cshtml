@@ -19,7 +19,7 @@
             <div class="mb-3">
                 <label class="form-label">Categoría</label>
                 <select class="form-select" asp-for="Category.CategoryId" asp-items="@Model.Categories">
-                    <option selected disabled>--select--</option>
+                    <option selected disabled>--seleccionar--</option>
                 </select>
             </div>
 
@@ -50,13 +50,6 @@
                 <label class="form-label">Subir Imagen</label>
                 <input type="file" class="form-control" asp-for="ImageFile" id="imageFileInput" accept="image/*">
             </div>
-
-            @if (ViewBag.message != null)
-            {
-                <div class="alert alert-success" role="alert">
-                    @ViewBag.message
-                </div>
-            }
 
             <div class="d-grid gap-2 d-md-block mt-4">
                 <button class="btn btn-primary" type="submit">@btnAction</button>

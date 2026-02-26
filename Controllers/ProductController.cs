@@ -45,7 +45,7 @@ public class ProductController(ProductService _productService) : Controller
     public async Task<IActionResult> Edit(int id)
     {
         var productVM = await _productService.GetEditViewModelAsync(id);
-        if (productVM == null) return NotFound();
+        if (productVM is null) return NotFound();
         return View("AddEdit", productVM);
     }
 

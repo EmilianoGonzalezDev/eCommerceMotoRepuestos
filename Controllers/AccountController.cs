@@ -25,7 +25,7 @@ public class AccountController(UserService _userService) : Controller
         var found = await _userService.Login(viewmodel);
 
 
-        if (found.UserId == 0)
+        if (found.UserId is 0)
         {
             ViewBag.message = "Email o Contraseña incorrectos.";
             return View();

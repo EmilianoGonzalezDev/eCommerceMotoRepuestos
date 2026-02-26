@@ -37,7 +37,7 @@ public class CategoryController(CategoryService _categoryService) : Controller
     public async Task<IActionResult> Edit(int id)
     {
         var categoryViewModel = await _categoryService.GetEditViewModelAsync(id);
-        if (categoryViewModel == null) return NotFound();
+        if (categoryViewModel is null) return NotFound();
         return View("AddEdit", categoryViewModel);
     }
 

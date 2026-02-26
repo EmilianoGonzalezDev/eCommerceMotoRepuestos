@@ -38,7 +38,7 @@ public class CategoryService(
     {
         var category = await _categoryRepository.GetByIdAsync(id);
 
-        if (category == null) return null;
+        if (category is null) return null;
 
         var categoryViewModel = new CategoryViewModel
         {

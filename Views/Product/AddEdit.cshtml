@@ -1,8 +1,8 @@
 ﻿@model ProductViewModel;
 
 @{
-    var tilte = Model.ProductId == 0 ? "Nuevo Producto" : "Editar Producto";
-    var btnAction = Model.ProductId == 0 ? "Agregar" : "Guardar";
+    var tilte = Model.ProductId is 0 ? "Nuevo Producto" : "Editar Producto";
+    var btnAction = Model.ProductId is 0 ? "Agregar" : "Guardar";
     var previewImage = string.IsNullOrWhiteSpace(Model.ImageName) ? "default.png" : Model.ImageName;
 }
 
@@ -13,7 +13,7 @@
     <hr />
     <div class="col-6">
 
-        <form asp-action="@(Model.ProductId == 0 ? "Add" : "Edit")" method="post" enctype="multipart/form-data">
+        <form asp-action="@(Model.ProductId is 0 ? "Add" : "Edit")" method="post" enctype="multipart/form-data">
             <input type="hidden" asp-for="ProductId" />
 
             <div class="mb-3">

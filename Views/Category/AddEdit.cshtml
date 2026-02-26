@@ -1,8 +1,8 @@
 ﻿@model CategoryViewModel;
 
 @{
-    var title = Model.CategoryId == 0 ? "Nueva Categoría" : "Editar Categoría";
-    var btnAction = Model.CategoryId == 0 ? "Agregar" : "Guardar";
+    var title = Model.CategoryId is 0 ? "Nueva Categoría" : "Editar Categoría";
+    var btnAction = Model.CategoryId is 0 ? "Agregar" : "Guardar";
 }
 
 <div class="row">
@@ -11,7 +11,7 @@
         <h2>@title</h2>
         <hr />
 
-        <form asp-action="@(Model.CategoryId == 0 ? "Add" : "Edit")" method="post">
+        <form asp-action="@(Model.CategoryId is 0 ? "Add" : "Edit")" method="post">
             <input type="hidden" asp-for="CategoryId" />
             <div class="mb-3">
                 <label class="form-label">Nombre</label>

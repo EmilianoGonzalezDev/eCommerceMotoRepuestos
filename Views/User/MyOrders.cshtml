@@ -2,7 +2,7 @@
 
 <div class="row justify-content-between mt-4">
     <div class="col-4">
-        <h4>My Orders</h4>
+        <h4>Mis Pedidos</h4>
     </div>
 </div>
 <hr />
@@ -10,27 +10,27 @@
 <table class="table table-striped">
     <thead>
         <tr>
-            <th>Order Date</th>
-            <th>Total Amount</th>
-            <th>Order Items</th>
+            <th>Fecha de compra</th>
+            <th>Total</th>
+            <th>Productos</th>
         </tr>
 
     </thead>
     <tbody>
-        @foreach (var item in Model)
+        @foreach (var order in Model)
         {
             <tr>
-                <td>@item.OrderDate</td>
-                <td>@item.TotalAmount</td>
+                <td>@order.OrderDateFormatted</td>
+                <td>@order.TotalAmountFormatted</td>
                 <td>
-                    <ol class="list-group list-group-numbered">
-                        @foreach (var element in item.OrderItems)
+                    <ul>
+                        @foreach (var orderItem in order.OrderItems)
                         {
                             <li class="list-group-item">
-                                @(element.ProductName + " + " + element.Quantity + " x " + element.Price)
+                                @orderItem.OrderItemSummary
                             </li>
                         }
-                    </ol>
+                    </ul>
                 </td>
             </tr>
         }

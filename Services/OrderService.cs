@@ -33,7 +33,7 @@ public class OrderService(OrderRepository _orderRepository)
 
         var ordersVM = orders.Select(x => new OrderViewModel
         {
-            OrderDate = x.OrderDate.ToString("dd/MM/yyyy"),
+            OrderDate = x.OrderDate.ToString("dd/MM/yyyy HH:mm"),
             TotalAmount = x.TotalAmount.ToString("C2"),
             OrderItems = x.OrderItems.Select(x => new OrderItemViewModel
             {

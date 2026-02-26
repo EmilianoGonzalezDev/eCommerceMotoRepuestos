@@ -11,7 +11,6 @@ public class OrderRepository : GenericRepository<Order>
     {
         _dbContext = dbContext;
     }
-
     public override async Task AddAsync(Order order)
     {
         using var transaction = await _dbContext.Database.BeginTransactionAsync();
@@ -37,12 +36,14 @@ public class OrderRepository : GenericRepository<Order>
 
     }
 
-
     public async Task<IEnumerable<Order>> GetAllWithDetailAsync(int userId)
     {
-        var orders = await _dbContext.Order.Where(x => x.UserId == userId)
-            .Include(x => x.OrderItems).ThenInclude(x => x.Product).ToListAsync();
+        var orders = await _dbContext.Order
+                            .Where(x => x.UserId == userId)
+                            .Include(x => x.OrderItems)
+                            .ThenInclude(x => x.Product)
+                            .OrderByDescending(x => x.OrderDate)
+                            .ToListAsync();
         return orders;
     }
-
 }

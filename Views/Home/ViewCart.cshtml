@@ -34,7 +34,7 @@
             {
                 <tr class="align-middle">
                     <td style="width:120px">
-                        <img class="card-img-top rounded" src="~/images/@item.ImageName" alt="Product image"
+                        <img class="card-img-top rounded" src="~/images/@(item.ImageName ?? "default.png")" alt="Product image"
                              loading="lazy" style="width:100px" />
                     </td>
                     <td>@item.Name</td>

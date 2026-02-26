@@ -15,6 +15,7 @@
 
         <form asp-action="@(Model.ProductId is 0 ? "Add" : "Edit")" method="post" enctype="multipart/form-data">
             <input type="hidden" asp-for="ProductId" />
+            <input type="hidden" asp-for="ImageName" />
 
             <div class="mb-3">
                 <label class="form-label">Categoría</label>

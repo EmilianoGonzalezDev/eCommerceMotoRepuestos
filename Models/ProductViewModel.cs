@@ -14,9 +14,9 @@ public class ProductViewModel
     public string Name { get; set; }
     [Required(ErrorMessage = "Indicar descripción para el producto.")]
     public string Description { get; set; }
-    [Required]
+    [Required(ErrorMessage = "Indicar precio.")]
     public decimal Price { get; set; }
-    [Required]
+    [Required(ErrorMessage = "Indicar stock.")]
     public int Stock { get; set; }
     public string? ImageName { get; set; } = null;
 

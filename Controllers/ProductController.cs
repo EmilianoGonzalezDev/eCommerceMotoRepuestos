@@ -74,7 +74,7 @@ public class ProductController(ProductService _productService) : Controller
         try
         {
             await _productService.DeleteAsync(id);
-            TempData["SuccessMessage"] = "Producto eliminado.";
+            TempData["SuccessMessage"] = "Producto eliminado correctamente.";
         }
         catch
         {

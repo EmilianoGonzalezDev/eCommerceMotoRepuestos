@@ -20,6 +20,15 @@
                 <div class="card show">
                     <div class="card-body p-4">
                         <h2 class="card-title text-center mb-4">Ingresar</h2>
+
+                        @if (TempData["SuccessMessage"] != null)
+                        {
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                @TempData["SuccessMessage"]
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        }
+
                         <form action="/Account/Login" method="post">
 
                             <div class="mb-3">
@@ -36,8 +45,9 @@
 
                             @if (ViewBag.message != null)
                             {
-                                <div class="alert alert-success" role="alert">
+                                <div class="alert alert-success alert-dismissible fade show" role="alert">
                                     @ViewBag.message
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                                 </div>
                             }
 
@@ -56,6 +66,6 @@
         </div>
     </div>
 
-
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

@@ -66,18 +66,19 @@ public class AccountController(UserService _userService) : Controller
         try
         {
             await _userService.Register(viewmodel);
-            ViewBag.message = "Tu cuenta ha sido registrada!";
-            ViewBag.Class = "alert-success";
+            TempData["SuccessMessage"] = "Tu cuenta ha sido registrada!";
+            return RedirectToAction("Login");
+        }
+        catch (InvalidOperationException ex)
+        {
+            TempData["ErrorMessage"] = "El email ya se encuentra registrado";
+            return RedirectToAction("Register");
         }
         catch (Exception ex)
         {
-            ViewBag.message = ex.Message;
-            ViewBag.Class = "alert-danger";
+            TempData["ErrorMessage"] = "No se pudo registrar la cuenta. Intenta nuevamente";
+            return RedirectToAction("Register");
         }
-
-        return View();
-
-
     }
 
     public async Task<IActionResult> Logout()

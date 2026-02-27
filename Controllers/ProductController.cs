@@ -53,7 +53,6 @@ public class ProductController(ProductService _productService) : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(ProductViewModel entityVM)
     {
-        ViewBag.message = null;
         ModelState.Remove("Categories");
         ModelState.Remove("Category.Name");
         if (!ModelState.IsValid)
@@ -65,8 +64,8 @@ public class ProductController(ProductService _productService) : Controller
 
         await _productService.EditAsync(entityVM);
         await _productService.PopulateCategoriesAsync(entityVM);
-        ViewBag.message = "Producto editado";
-        return View("AddEdit", entityVM);
+        TempData["SuccessMessage"] = "Producto editado correctamente.";
+        return RedirectToAction("Index");
     }
 
 

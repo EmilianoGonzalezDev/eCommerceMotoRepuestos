@@ -27,8 +27,9 @@
             <div class="mb-3">
                 <label class="form-label">Categoría</label>
                 <select class="form-select" asp-for="Category.CategoryId" asp-items="@Model.Categories">
-                    <option selected disabled>--seleccionar--</option>
+                    <option value="" selected disabled>--seleccionar--</option>
                 </select>
+                <span asp-validation-for="Category.CategoryId" class="text-danger"></span>
             </div>
 
             <div class="mb-3">

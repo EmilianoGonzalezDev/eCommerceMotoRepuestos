@@ -51,6 +51,12 @@ namespace eCommerceMotoRepuestos.Controllers
         public async Task<IActionResult> AddItemToCart(int productId, int quantity)
         {
             var product = await _productService.GetByIdAsync(productId);
+            if (quantity > product.Stock)
+            {
+                ViewBag.message = "En este momento no está disponible en stock la cantidad de unidades indicada.";
+                ViewBag.alertType = "danger";
+                return View("ProductDetail", product);
+            }
             var cart = GetCart();
             var cartItem = cart.Find(x => x.ProductId == productId);
 
@@ -72,6 +78,7 @@ namespace eCommerceMotoRepuestos.Controllers
 
             HttpContext.Session.Set("Cart", cart);
             ViewBag.message = "Producto agregado al carrito";
+            ViewBag.alertType = "success";
             return View("ProductDetail", product);
         }
 

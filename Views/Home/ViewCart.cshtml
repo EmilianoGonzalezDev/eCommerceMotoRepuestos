@@ -9,9 +9,24 @@
             <h4>Carrito</h4>
         </div>
         <div class="col-4 text-end">
-            <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#exampleModal">
-                Finalizar Compra
-            </button>
+            @if (User.Identity.IsAuthenticated)
+            {
+                <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#paymentDetailsModal">
+                    Finalizar Compra
+                </button>
+            }
+            else
+            {
+                <button disabled type="button" class="btn btn-secondary">
+                    Finalizar Compra
+                </button>
+
+                <a href="/Account/Login" class="text-decoration-none">
+                    <div class="alert alert-warning mt-1 text-center" role="alert">
+                        Ingrese a su cuenta para finalizar compra
+                    </div>
+                </a>
+            }
         </div>
     </div>
     <hr />
@@ -58,23 +73,21 @@
 }
 else
 {
-
     <div class="alert alert-warning alert-dismissible fade show mt-4" role="alert">
         No hay productos en el carrito
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
-
 }
 
 
 <!-- Modal -->
-<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="paymentDetailsModal" tabindex="-1" aria-labelledby="paymentDetailsModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
 
             <form action="/Home/PayNow" method="post">
                 <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="exampleModalLabel">Forma de pago</h1>
+                    <h1 class="modal-title fs-5" id="paymentDetailsModalLabel">Forma de pago</h1>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -84,10 +97,10 @@ else
                             <input type="email" class="form-control" name="email" placeholder="Email" required maxlength="100" />
                         </div>
                         <div class="col-12">
-                            <input type="text" class="form-control" name="address" placeholder="Dirección" required minlength="5" maxlength="120" />
+                            <input type="text" class="form-control" name="address" placeholder="DirecciÃ³n" required minlength="5" maxlength="120" />
                         </div>
                         <div class="col-6">
-                            <input type="text" class="form-control" name="country" placeholder="País" required minlength="2" maxlength="60" />
+                            <input type="text" class="form-control" name="country" placeholder="PaÃ­s" required minlength="2" maxlength="60" />
                         </div>
                         <div class="col-6">
                             <input type="text" class="form-control" name="city" placeholder="Ciudad" required minlength="2" maxlength="60" />
@@ -97,7 +110,7 @@ else
                             <input type="text" class="form-control" name="cardHolderName" placeholder="Nombre del titular" required minlength="3" maxlength="100" />
                         </div>
                         <div class="col-12">
-                            <input type="text" class="form-control" name="cardNumber" placeholder="Número de tarjeta" required inputmode="numeric" pattern="[0-9]{16}" maxlength="16" title="Ingresa 16 dígitos" />
+                            <input type="text" class="form-control" name="cardNumber" placeholder="NÃºmero de tarjeta" required inputmode="numeric" pattern="[0-9]{16}" maxlength="16" title="Ingresa 16 dÃ­gitos" />
                         </div>
                         <div class="col-3">
                             <input type="number" class="form-control" name="expirationMonth" placeholder="MM" required min="1" max="12" />
@@ -106,7 +119,7 @@ else
                             <input type="number" class="form-control" name="expirationYear" placeholder="AAAA" required min="2022" max="2100" />
                         </div>
                         <div class="col-6">
-                            <input type="text" class="form-control" name="cvv" placeholder="CVV" required inputmode="numeric" pattern="[0-9]{3,4}" minlength="3" maxlength="4" title="Ingresa 3 o 4 dígitos" />
+                            <input type="text" class="form-control" name="cvv" placeholder="CVV" required inputmode="numeric" pattern="[0-9]{3,4}" minlength="3" maxlength="4" title="Ingresa 3 o 4 dÃ­gitos" />
                         </div>
                     </div>
                 </div>

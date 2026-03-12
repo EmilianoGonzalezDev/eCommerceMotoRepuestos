@@ -1,25 +1,212 @@
 ﻿@model ErrorViewModel
 @{
-    ViewData["Title"] = "Error";
+    ViewData["Title"] = Model.GetErrorTitle();
 }
 
-<h1 class="text-danger">Error.</h1>
-<h2 class="text-danger">Se produjo un error al intentar procesar tu solicitud.</h2>
+<style>
+    .error-container {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 20px;
+    }
 
-@if (Model.ShowRequestId)
-{
-    <p>
-        <strong>Request ID:</strong> <code>@Model.RequestId</code>
-    </p>
-}
+    .error-content {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        max-width: 600px;
+        width: 100%;
+        padding: 60px 40px;
+        text-align: center;
+        animation: slideIn 0.5s ease-out;
+    }
 
-<h3>Development Mode</h3>
-<p>
-    Swapping to <strong>Development</strong> environment will display more detailed information about the error that occurred.
-</p>
-<p>
-    <strong>The Development environment shouldn't be enabled for deployed applications.</strong>
-    It can result in displaying sensitive information from exceptions to end users.
-    For local debugging, enable the <strong>Development</strong> environment by setting the <strong>ASPNETCORE_ENVIRONMENT</strong> environment variable to <strong>Development</strong>
-    and restarting the app.
-</p>
+    @@keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .error-icon {
+        font-size: 80px;
+        margin-bottom: 20px;
+        display: block;
+        animation: bounce 2s infinite;
+    }
+
+    @@keyframes bounce {
+        0%, 100% {
+            transform: translateY(0);
+        }
+        50% {
+            transform: translateY(-10px);
+        }
+    }
+
+    .error-title {
+        font-size: 2.5rem;
+        color: #333;
+        font-weight: 700;
+        margin-bottom: 15px;
+    }
+
+    .error-code {
+        font-size: 1rem;
+        color: #667eea;
+        font-weight: 600;
+        letter-spacing: 2px;
+        margin-bottom: 20px;
+    }
+
+    .error-description {
+        font-size: 1.1rem;
+        color: #666;
+        line-height: 1.6;
+        margin-bottom: 30px;
+    }
+
+    .error-actions {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-top: 40px;
+    }
+
+    .btn-primary-error {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 12px 30px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+        display: inline-block;
+    }
+
+    .btn-primary-error:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-secondary-error {
+        background: #f0f0f0;
+        color: #333;
+        padding: 12px 30px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+        display: inline-block;
+    }
+
+    .btn-secondary-error:hover {
+        background: #e0e0e0;
+        transform: translateY(-2px);
+    }
+
+    .error-details {
+        background: #f9f9f9;
+        border-left: 4px solid #667eea;
+        padding: 15px;
+        margin-top: 30px;
+        border-radius: 5px;
+        text-align: left;
+        font-size: 0.9rem;
+        color: #666;
+    }
+
+    .error-details strong {
+        color: #333;
+    }
+
+    .support-section {
+        margin-top: 40px;
+        padding-top: 30px;
+        border-top: 2px solid #eee;
+    }
+
+    .support-text {
+        color: #999;
+        font-size: 0.95rem;
+        margin-bottom: 10px;
+    }
+
+    .contact-links {
+        display: flex;
+        gap: 20px;
+        justify-content: center;
+        margin-top: 15px;
+    }
+
+    .contact-link {
+        color: #667eea;
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: color 0.3s ease;
+    }
+
+    .contact-link:hover {
+        color: #764ba2;
+        text-decoration: underline;
+    }
+</style>
+
+<div class="error-container">
+    <div class="error-content">
+        <span class="error-icon">@Model.GetErrorIcon()</span>
+        
+        <div class="error-code">
+            @if (Model.StatusCode.HasValue)
+            {
+                <span>Error @Model.StatusCode</span>
+            }
+            else
+            {
+                <span>Error Inesperado</span>
+            }
+        </div>
+
+        <h1 class="error-title">@Model.GetErrorTitle()</h1>
+
+        <p class="error-description">
+            @Model.GetErrorDescription()
+        </p>
+
+        <div class="error-actions">
+            <a href="@Url.Action("Index", "Home")" class="btn-primary-error">
+                🏠 Volver al Inicio
+            </a>
+            <a href="javascript:history.back()" class="btn-secondary-error">
+                ← Volver Atrás
+            </a>
+        </div>
+
+        @if (Model.ShowRequestId)
+        {
+            <div class="error-details">
+                <strong>ID de Solicitud:</strong> <code>@Model.RequestId</code>
+            </div>
+        }
+
+        <div class="support-section">
+            <div class="contact-links">
+                <a href="@Url.Action("Index", "Home")" class="contact-link">Catálogo de Productos</a>
+                <span style="color: #ddd;">|</span>
+                <a href="@Url.Action("MyOrders", "User")" class="contact-link">Mis Órdenes</a>
+            </div>
+        </div>
+    </div>
+</div>

@@ -69,12 +69,12 @@ public class AccountController(UserService _userService) : Controller
             TempData["SuccessMessage"] = "Tu cuenta ha sido registrada!";
             return RedirectToAction("Login");
         }
-        catch (InvalidOperationException ex)
+        catch (InvalidOperationException)
         {
             TempData["ErrorMessage"] = "El email ya se encuentra registrado";
             return RedirectToAction("Register");
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             TempData["ErrorMessage"] = "No se pudo registrar la cuenta. Intenta nuevamente";
             return RedirectToAction("Register");

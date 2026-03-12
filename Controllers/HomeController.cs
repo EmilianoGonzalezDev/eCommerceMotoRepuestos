@@ -16,7 +16,7 @@ namespace eCommerceMotoRepuestos.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var categories = await _categoryService.GetAllAsync();
+            var categories = await _categoryService.GetAllActiveAsync();
             var products = await _productService.GetCatalogAsync();
             var catalog = new CatalogViewModel { Categories = categories, Products = products };
             return View(catalog);
@@ -25,7 +25,7 @@ namespace eCommerceMotoRepuestos.Controllers
 
         public async Task<IActionResult> FilterByCategory(int id, string name)
         {
-            var categories = await _categoryService.GetAllAsync();
+            var categories = await _categoryService.GetAllActiveAsync();
             var products = await _productService.GetCatalogAsync(categoryId: id);
             var catalog = new CatalogViewModel { Categories = categories, Products = products, FilterBy = name };
             return View("Index", catalog);
@@ -34,7 +34,7 @@ namespace eCommerceMotoRepuestos.Controllers
         [HttpPost]
         public async Task<IActionResult> FilterBySearch(string value)
         {
-            var categories = await _categoryService.GetAllAsync();
+            var categories = await _categoryService.GetAllActiveAsync();
             var products = await _productService.GetCatalogAsync(search: value);
             var catalog = new CatalogViewModel { Categories = categories, Products = products, FilterBy = $"Resultados para: {value}" };
             return View("Index", catalog);

@@ -8,4 +8,5 @@ public class CategoryViewModel
     public int CategoryId { get; set; }
     [Required (ErrorMessage = "Indicar un nombre.")]
     public string Name { get; set; }
+    public bool IsActive { get; set; }
 }

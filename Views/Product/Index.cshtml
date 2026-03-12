@@ -47,7 +47,14 @@
                 <td>@item.Stock</td>
                 <td style="width: 120px;">
                     <a href="/Product/Edit/@item.ProductId" class="btn btn-primary btn-sm"><i class="fa-solid fa-pen"></i></a>
-                    <a href="#" class="btn btn-danger btn-sm" onclick="deleteItem(@item.ProductId)"><i class="fa-solid fa-trash"></i></a>
+                    @if (item.IsActive)
+                    {
+                        <a href="#" class="btn btn-danger btn-sm" onclick="toggleItem(@item.ProductId, @(item.IsActive.ToString().ToLower()))"><i class="fa-solid fa-trash"></i></a>
+                    }
+                    else
+                    {
+                        <a href="#" class="btn btn-success btn-sm" onclick="toggleItem(@item.ProductId, @(item.IsActive.ToString().ToLower()))"><i class="fa-solid fa-arrow-rotate-left"></i></a>
+                    }
                 </td>
             </tr>
         }
@@ -56,19 +63,22 @@
 
 @section Scripts {
     <script>
-        function deleteItem(id)
+        function toggleItem(id, isActive)
         {
+            const confirmText = isActive ? "Si, Dar de baja!" : "Si, Reactivar!";
+            const titleText = isActive ? "Estás seguro?" : "Reactivar producto?";
+            const iconType = isActive ? "warning" : "question";
             Swal.fire({
-            title: "Estás seguro?",
-            icon: "warning",
+            title: titleText,
+            icon: iconType,
             showCancelButton: true,
             confirmButtonColor: "#3085d6",
             cancelButtonColor: "#d33",
-            confirmButtonText: "Si, Eliminar!",
+            confirmButtonText: confirmText,
             cancelButtonText: "No, Regresar"
             }).then((result) => {
             if (result.isConfirmed) {
-                window.location.href = `/Product/Delete/${id}`;
+                window.location.href = `/Product/ToggleStatus/${id}`;
             }
             });
         }

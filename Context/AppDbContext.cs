@@ -24,15 +24,17 @@ public class AppDbContext : DbContext
         {
             //c.HasKey("CategoryId"); //no es necesario, EF lo asume automaticamente
             //c.Property("CategoryId").ValueGeneratedOnAdd(); //no es necesario, EF lo asume automaticamente
+            c.Property(x => x.IsActive).HasDefaultValue(true);
             c.HasData(
-                new Category { CategoryId = 1, Name = "Technology" },
-                new Category { CategoryId = 2, Name = "Bedroom" }
+                new Category { CategoryId = 1, Name = "Technology", IsActive = true },
+                new Category { CategoryId = 2, Name = "Bedroom", IsActive = true }
             );
         });
 
         modelBuilder.Entity<Product>(p =>
         {
             p.Property("Price").HasColumnType("decimal(10,2)");
+            p.Property(x => x.IsActive).HasDefaultValue(true);
             p.HasOne(p => p.Category).WithMany(c => c.Products)
              .HasForeignKey(p => p.CategoryId)
              .OnDelete(DeleteBehavior.Restrict); //para evitar eliminar los productos de una categoria al eliminar dicha categoria

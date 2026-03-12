@@ -7,6 +7,7 @@ namespace eCommerceMotoRepuestos.Models;
 public class ProductViewModel
 {
     public int ProductId { get; set; }
+    public bool IsActive { get; set; }
     public CategoryViewModel Category { get; set; }
     public List<SelectListItem> Categories { get; set; }
 

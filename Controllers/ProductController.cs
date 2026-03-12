@@ -69,16 +69,22 @@ public class ProductController(ProductService _productService) : Controller
     }
 
 
-    public async Task<IActionResult> Delete(int id)
+    public async Task<IActionResult> ToggleStatus(int id)
     {
         try
         {
-            await _productService.DeleteAsync(id);
-            TempData["SuccessMessage"] = "Producto eliminado correctamente.";
+            var isActive = await _productService.ToggleActiveAsync(id);
+            TempData["SuccessMessage"] = isActive
+                ? "Se volvió a dar de alta el Producto."
+                : "Producto dado de baja correctamente.";
+        }
+        catch (InvalidOperationException ex)
+        {
+            TempData["ErrorMessage"] = ex.Message;
         }
         catch
         {
-            TempData["ErrorMessage"] = "No se pudo eliminar el producto.";
+            TempData["ErrorMessage"] = "No se pudo actualizar el producto.";
         }
 
         return RedirectToAction("Index");

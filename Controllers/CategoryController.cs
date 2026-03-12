@@ -51,12 +51,12 @@ public class CategoryController(CategoryService _categoryService) : Controller
         return RedirectToAction("Index");
     }
 
-    public async Task<IActionResult> Delete(int id)
+    public async Task<IActionResult> ToggleStatus(int id)
     {
         try
         {
-            await _categoryService.DeleteAsync(id);
-            TempData["SuccessMessage"] = "Categoría eliminada correctamente.";
+            var isActive = await _categoryService.ToggleActiveAsync(id);
+            TempData["SuccessMessage"] = isActive ? "Se volvió a dar de alta la categoría." : "Categoría dada de baja correctamente.";
         }
         catch (InvalidOperationException ex)
         {
@@ -64,10 +64,11 @@ public class CategoryController(CategoryService _categoryService) : Controller
         }
         catch
         {
-            TempData["ErrorMessage"] = "No se pudo eliminar la categoría.";
+            TempData["ErrorMessage"] = "No se pudo actualizar la categoría.";
         }
 
         return RedirectToAction("Index");
     }
 
 }
+

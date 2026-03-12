@@ -24,10 +24,12 @@ public class ProductService(
             new ProductViewModel
             {
                 ProductId = product.ProductId,
+                IsActive = product.IsActive,
                 Category = new CategoryViewModel
                 {
                     CategoryId = product.Category!.CategoryId,
                     Name = product.Category.Name,
+                    IsActive = product.Category.IsActive
                 },
                 Name = product.Name,
                 Description = product.Description,
@@ -58,6 +60,7 @@ public class ProductService(
         var productVM = new ProductViewModel
         {
             ProductId = product.ProductId,
+            IsActive = product.IsActive,
             Category = new CategoryViewModel
             {
                 CategoryId = product.CategoryId
@@ -87,6 +90,7 @@ public class ProductService(
         return new ProductViewModel
         {
             ProductId = product.ProductId,
+            IsActive = product.IsActive,
             Category = new CategoryViewModel
             {
                 CategoryId = product.CategoryId
@@ -101,7 +105,8 @@ public class ProductService(
 
     public async Task PopulateCategoriesAsync(ProductViewModel productVM)
     {
-        var categories = await _categoryRepository.GetAllAsync();
+        var categories = await _categoryRepository.GetAllAsync(
+            conditions: [c => c.IsActive || c.CategoryId == productVM.Category.CategoryId]);
         productVM.Categories = categories.Select(category => new SelectListItem
         {
             Value = category.CategoryId.ToString(),
@@ -127,6 +132,7 @@ public class ProductService(
         var entity = new Product
         {
             CategoryId = viewModel.Category.CategoryId,
+            IsActive = true,
             Name = viewModel.Name,
             Description = viewModel.Description,
             Price = viewModel.Price,
@@ -176,10 +182,14 @@ public class ProductService(
 
         await _productRepository.EditAsync(product);
     }
-    public async Task DeleteAsync(int id)
+    public async Task<bool> ToggleActiveAsync(int id)
     {
         var product = await _productRepository.GetByIdAsync(id);
-        await _productRepository.DeleteAsync(product!);
+        if (product is null) throw new InvalidOperationException("Producto no encontrado.");
+
+        product.IsActive = !product.IsActive;
+        await _productRepository.EditAsync(product);
+        return product.IsActive;
     }
 
     public async Task<IEnumerable<ProductViewModel>> GetCatalogAsync(int categoryId = 0, string search = "")
@@ -187,7 +197,9 @@ public class ProductService(
 
         var conditions = new List<Expression<Func<Product, bool>>>
             {
-                x => x.Stock > 0
+                x => x.Stock > 0,
+                x => x.IsActive,
+                x => x.Category != null && x.Category.IsActive
             };
 
         if (categoryId != 0) conditions.Add(x => x.CategoryId == categoryId);
@@ -200,6 +212,7 @@ public class ProductService(
             new ProductViewModel
             {
                 ProductId = item.ProductId,
+                IsActive = item.IsActive,
                 Name = item.Name,
                 Description = item.Description,
                 Price = item.Price,

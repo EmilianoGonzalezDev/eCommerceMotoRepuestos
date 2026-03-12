@@ -17,7 +17,25 @@ public class CategoryService(
         new CategoryViewModel
         {
             CategoryId = item.CategoryId,
-            Name = item.Name
+            Name = item.Name,
+            IsActive = item.IsActive
+        }
+        ).ToList();
+
+        return categoriesVieModel;
+    }
+
+    public async Task<IEnumerable<CategoryViewModel>> GetAllActiveAsync()
+    {
+        var categories = await _categoryRepository.GetAllAsync(
+            conditions: [c => c.IsActive]);
+
+        var categoriesVieModel = categories.Select(item =>
+        new CategoryViewModel
+        {
+            CategoryId = item.CategoryId,
+            Name = item.Name,
+            IsActive = item.IsActive
         }
         ).ToList();
 
@@ -28,7 +46,8 @@ public class CategoryService(
     {
         var entity = new Category
         {
-            Name = viewModel.Name
+            Name = viewModel.Name,
+            IsActive = true
         };
 
         await _categoryRepository.AddAsync(entity);
@@ -43,7 +62,8 @@ public class CategoryService(
         var categoryViewModel = new CategoryViewModel
         {
             Name = category.Name,
-            CategoryId = category.CategoryId
+            CategoryId = category.CategoryId,
+            IsActive = category.IsActive
         };
 
         return categoryViewModel;
@@ -57,25 +77,30 @@ public class CategoryService(
 
     public async Task EditAsync(CategoryViewModel viewModel)
     {
-        var entity = new Category
-        {
-            CategoryId = viewModel.CategoryId,
-            Name = viewModel.Name
-        };
+        var category = await _categoryRepository.GetByIdAsync(viewModel.CategoryId);
+        if (category is null) return;
 
-        await _categoryRepository.EditAsync(entity);
+        category.Name = viewModel.Name;
+        await _categoryRepository.EditAsync(category);
     }
 
-    public async Task DeleteAsync(int id)
+    public async Task<bool> ToggleActiveAsync(int id)
     {
         var category = await _categoryRepository.GetByIdAsync(id);
-        var productsInCategory = await _productRepository.GetAllAsync(
-            conditions: [p => p.CategoryId == id]);
+        if (category is null) throw new InvalidOperationException("Categoría no encontrada.");
 
-        if (productsInCategory.Any())
-            throw new InvalidOperationException("No se puede eliminar la categoría porque tiene productos asociados.");
+        if (category.IsActive)
+        {
+            var productsInCategory = await _productRepository.GetAllAsync(
+                conditions: [p => p.CategoryId == id && p.IsActive]);
 
-        await _categoryRepository.DeleteAsync(category);
+            if (productsInCategory.Any())
+                throw new InvalidOperationException("No se puede dar de baja la categoría porque tiene productos activos asociados.");
+        }
+
+        category.IsActive = !category.IsActive;
+        await _categoryRepository.EditAsync(category);
+        return category.IsActive;
     }
 
 }

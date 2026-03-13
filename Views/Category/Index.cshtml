@@ -1,8 +1,8 @@
-Ôªø@model List<CategoryViewModel>
+@model PagedResult<CategoryViewModel>
 
 <div class="row justify-content-between mt-4">
     <div class="col-4">
-        <h4>Categor√≠as</h4>
+        <h4>CategorÌas</h4>
     </div>
     <div class="col-4 text-end">
         <a href="/Category/Add" class="btn btn-success"><i class="fa-solid fa-plus"></i>Agregar</a>
@@ -35,7 +35,7 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model)
+        @foreach (var item in Model.Items)
         {
             <tr>
                 <td>@item.Name</td>
@@ -55,12 +55,31 @@
     </tbody>
 </table>
 
+@if (Model.TotalPages > 1)
+{
+    <nav aria-label="PaginaciÛn">
+        <ul class="pagination justify-content-center">
+            <li class="page-item @(Model.HasPrevious ? "" : "disabled")">
+                <a class="page-link" href="@(Model.HasPrevious ? Url.Action("Index", "Category", new { page = Model.PageNumber - 1 }) : "#")">Anterior</a>
+            </li>
+            @for (var i = 1; i <= Model.TotalPages; i++)
+            {
+                <li class="page-item @(i == Model.PageNumber ? "active" : "")">
+                    <a class="page-link" href="@Url.Action("Index", "Category", new { page = i })">@i</a>
+                </li>
+            }
+            <li class="page-item @(Model.HasNext ? "" : "disabled")">
+                <a class="page-link" href="@(Model.HasNext ? Url.Action("Index", "Category", new { page = Model.PageNumber + 1 }) : "#")">Siguiente</a>
+            </li>
+        </ul>
+    </nav>
+}
 @section Scripts {
     <script>
         function toggleItem(id, isActive)
         {
             const confirmText = isActive ? "Si, Dar de baja!" : "Si, Reactivar!";
-            const titleText = isActive ? "Est√°s seguro?" : "Reactivar categor√≠a?";
+            const titleText = isActive ? "Est·s seguro?" : "Reactivar categorÌa?";
             const iconType = isActive ? "warning" : "question";
             Swal.fire({
             title: titleText,
@@ -78,3 +97,5 @@
         }
     </script>
 }
+
+

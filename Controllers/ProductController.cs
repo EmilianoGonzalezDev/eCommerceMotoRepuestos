@@ -8,10 +8,13 @@ namespace eCommerceMotoRepuestos.Controllers;
 [Authorize(Roles = "Admin")]
 public class ProductController(ProductService _productService) : Controller
 {
-    public async Task<IActionResult> Index()
+    private const int AdminPageSize = 10;
+
+    public async Task<IActionResult> Index(int page = 1)
     {
         var products = await _productService.GetAllAsync();
-        return View(products);
+        var pagedProducts = PagedResult<ProductViewModel>.Create(products, page, AdminPageSize);
+        return View(pagedProducts);
     }
 
     [HttpGet]

@@ -10,10 +10,13 @@ namespace eCommerceMotoRepuestos.Controllers;
 [Authorize(Roles = "Admin")]
 public class CategoryController(CategoryService _categoryService) : Controller
 {
-    public async Task<IActionResult> Index()
+    private const int AdminPageSize = 10;
+
+    public async Task<IActionResult> Index(int page = 1)
     {
         var categories = await _categoryService.GetAllAsync();
-        return View(categories);
+        var pagedCategories = PagedResult<CategoryViewModel>.Create(categories, page, AdminPageSize);
+        return View(pagedCategories);
     }
 
     [HttpGet]
@@ -71,4 +74,5 @@ public class CategoryController(CategoryService _categoryService) : Controller
     }
 
 }
+
 

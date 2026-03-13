@@ -13,9 +13,9 @@
     </div>
 
     <div class="col-sm-12 col-md-9 col-lg-9">
-        <form action="/Home/FilterBySearch" method="post">
+        <form action="/Home/FilterBySearch" method="get">
             <div class="input-group">
-                <input type="text" class="form-control" name="value" autocomplete="off" placeholder="¿Qué estás buscando?" />
+                <input type="text" class="form-control" name="value" autocomplete="off" placeholder="¿Qué estás buscando?" value="@Model.SearchValue" />
                 <button class="btn btn-outline-secondary" type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
             </div>
         </form>
@@ -33,7 +33,7 @@
 }
 
 <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-4 py-4">
-    @foreach (var p in Model.Products)
+    @foreach (var p in Model.Products.Items)
     {
         <div class="col">
             <div class="card shadow-sm h-100">
@@ -53,6 +53,39 @@
         </div>
     }
 </div>
+
+@if (Model.Products.TotalPages > 1)
+{
+    Func<int, string> pageUrl = (p) =>
+    {
+        if (!string.IsNullOrWhiteSpace(Model.SearchValue))
+        {
+            return Url.Action("FilterBySearch", "Home", new { value = Model.SearchValue, page = p }) ?? "#";
+        }
+        if (Model.CategoryFilterId != 0)
+        {
+            return Url.Action("FilterByCategory", "Home", new { id = Model.CategoryFilterId, name = Model.FilterBy, page = p }) ?? "#";
+        }
+        return Url.Action("Index", "Home", new { page = p }) ?? "#";
+    };
+
+    <nav aria-label="Paginación">
+        <ul class="pagination justify-content-center">
+            <li class="page-item @(Model.Products.HasPrevious ? "" : "disabled")">
+                <a class="page-link" href="@(Model.Products.HasPrevious ? pageUrl(Model.Products.PageNumber - 1) : "#")">Anterior</a>
+            </li>
+            @for (var i = 1; i <= Model.Products.TotalPages; i++)
+            {
+                <li class="page-item @(i == Model.Products.PageNumber ? "active" : "")">
+                    <a class="page-link" href="@pageUrl(i)">@i</a>
+                </li>
+            }
+            <li class="page-item @(Model.Products.HasNext ? "" : "disabled")">
+                <a class="page-link" href="@(Model.Products.HasNext ? pageUrl(Model.Products.PageNumber + 1) : "#")">Siguiente</a>
+            </li>
+        </ul>
+    </nav>
+}
 
 
 <!-- Modal "Filter by Categories" -->

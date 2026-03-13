@@ -1,7 +1,7 @@
-@model List<CartItemViewModel>;
+@model PagedResult<CartItemViewModel>;
 
 
-@if (Model.Count() != 0)
+@if (Model.TotalItems != 0)
 {
 
     <div class="row justify-content-between mt-4">
@@ -45,7 +45,7 @@
 
         </thead>
         <tbody>
-            @foreach (var item in Model)
+            @foreach (var item in Model.Items)
             {
                 <tr class="align-middle">
                     <td style="width:120px">
@@ -59,7 +59,7 @@
 
 
                     <td style="width:120px">
-                        <a href="/Home/RemoveItemToCart?productId=@item.ProductId" class="btn btn-sm btn-danger">
+                        <a href="/Home/RemoveItemToCart?productId=@item.ProductId&page=@Model.PageNumber" class="btn btn-sm btn-danger">
                             <i class="fa-solid fa-trash-can"></i>
                         </a>
                     </td>
@@ -80,6 +80,25 @@ else
 }
 
 
+@if (Model.TotalPages > 1)
+{
+    <nav aria-label="Paginación">
+        <ul class="pagination justify-content-center">
+            <li class="page-item @(Model.HasPrevious ? "" : "disabled")">
+                <a class="page-link" href="@(Model.HasPrevious ? Url.Action("ViewCart", "Home", new { page = Model.PageNumber - 1 }) : "#")">Anterior</a>
+            </li>
+            @for (var i = 1; i <= Model.TotalPages; i++)
+            {
+                <li class="page-item @(i == Model.PageNumber ? "active" : "")">
+                    <a class="page-link" href="@Url.Action("ViewCart", "Home", new { page = i })">@i</a>
+                </li>
+            }
+            <li class="page-item @(Model.HasNext ? "" : "disabled")">
+                <a class="page-link" href="@(Model.HasNext ? Url.Action("ViewCart", "Home", new { page = Model.PageNumber + 1 }) : "#")">Siguiente</a>
+            </li>
+        </ul>
+    </nav>
+}
 <!-- Modal -->
 <div class="modal fade" id="paymentDetailsModal" tabindex="-1" aria-labelledby="paymentDetailsModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -97,10 +116,10 @@ else
                             <input type="email" class="form-control" name="email" placeholder="Email" required maxlength="100" />
                         </div>
                         <div class="col-12">
-                            <input type="text" class="form-control" name="address" placeholder="DirecciÃ³n" required minlength="5" maxlength="120" />
+                            <input type="text" class="form-control" name="address" placeholder="Dirección" required minlength="5" maxlength="120" />
                         </div>
                         <div class="col-6">
-                            <input type="text" class="form-control" name="country" placeholder="PaÃ­s" required minlength="2" maxlength="60" />
+                            <input type="text" class="form-control" name="country" placeholder="País" required minlength="2" maxlength="60" />
                         </div>
                         <div class="col-6">
                             <input type="text" class="form-control" name="city" placeholder="Ciudad" required minlength="2" maxlength="60" />
@@ -110,7 +129,7 @@ else
                             <input type="text" class="form-control" name="cardHolderName" placeholder="Nombre del titular" required minlength="3" maxlength="100" />
                         </div>
                         <div class="col-12">
-                            <input type="text" class="form-control" name="cardNumber" placeholder="NÃºmero de tarjeta" required inputmode="numeric" pattern="[0-9]{16}" maxlength="16" title="Ingresa 16 dÃ­gitos" />
+                            <input type="text" class="form-control" name="cardNumber" placeholder="Número de tarjeta" required inputmode="numeric" pattern="[0-9]{16}" maxlength="16" title="Ingresa 16 dígitos" />
                         </div>
                         <div class="col-3">
                             <input type="number" class="form-control" name="expirationMonth" placeholder="MM" required min="1" max="12" />
@@ -119,7 +138,7 @@ else
                             <input type="number" class="form-control" name="expirationYear" placeholder="AAAA" required min="2022" max="2100" />
                         </div>
                         <div class="col-6">
-                            <input type="text" class="form-control" name="cvv" placeholder="CVV" required inputmode="numeric" pattern="[0-9]{3,4}" minlength="3" maxlength="4" title="Ingresa 3 o 4 dÃ­gitos" />
+                            <input type="text" class="form-control" name="cvv" placeholder="CVV" required inputmode="numeric" pattern="[0-9]{3,4}" minlength="3" maxlength="4" title="Ingresa 3 o 4 dígitos" />
                         </div>
                     </div>
                 </div>
@@ -133,3 +152,5 @@ else
         </div>
     </div>
 </div>
+
+

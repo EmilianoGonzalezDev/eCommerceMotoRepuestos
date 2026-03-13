@@ -1,4 +1,4 @@
-Ôªø@model List<ProductViewModel>
+@model PagedResult<ProductViewModel>
 
 <div class="row justify-content-between mt-4">
     <div class="col-4">
@@ -31,14 +31,14 @@
     <thead>
         <tr>
             <th>Nombre</th>
-            <th>Categor√≠a</th>
+            <th>CategorÌa</th>
             <th>Precio</th>
             <th>Stock</th>
             <th style="width: 120px;">Acciones</th>
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model)
+        @foreach (var item in Model.Items)
         {
             <tr>
                 <td>@item.Name</td>
@@ -61,12 +61,31 @@
     </tbody>
 </table>
 
+@if (Model.TotalPages > 1)
+{
+    <nav aria-label="PaginaciÛn">
+        <ul class="pagination justify-content-center">
+            <li class="page-item @(Model.HasPrevious ? "" : "disabled")">
+                <a class="page-link" href="@(Model.HasPrevious ? Url.Action("Index", "Product", new { page = Model.PageNumber - 1 }) : "#")">Anterior</a>
+            </li>
+            @for (var i = 1; i <= Model.TotalPages; i++)
+            {
+                <li class="page-item @(i == Model.PageNumber ? "active" : "")">
+                    <a class="page-link" href="@Url.Action("Index", "Product", new { page = i })">@i</a>
+                </li>
+            }
+            <li class="page-item @(Model.HasNext ? "" : "disabled")">
+                <a class="page-link" href="@(Model.HasNext ? Url.Action("Index", "Product", new { page = Model.PageNumber + 1 }) : "#")">Siguiente</a>
+            </li>
+        </ul>
+    </nav>
+}
 @section Scripts {
     <script>
         function toggleItem(id, isActive)
         {
             const confirmText = isActive ? "Si, Dar de baja!" : "Si, Reactivar!";
-            const titleText = isActive ? "Est√°s seguro?" : "Reactivar producto?";
+            const titleText = isActive ? "Est·s seguro?" : "Reactivar producto?";
             const iconType = isActive ? "warning" : "question";
             Swal.fire({
             title: titleText,
@@ -84,3 +103,5 @@
         }
     </script>
 }
+
+

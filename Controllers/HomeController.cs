@@ -13,30 +13,55 @@ namespace eCommerceMotoRepuestos.Controllers
         OrderService _orderService
         ) : Controller
     {
+        private const int CatalogPageSize = 12;
+        private const int CartPageSize = 10;
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int page = 1)
         {
             var categories = await _categoryService.GetAllActiveAsync();
             var products = await _productService.GetCatalogAsync();
-            var catalog = new CatalogViewModel { Categories = categories, Products = products };
+            var pagedProducts = PagedResult<ProductViewModel>.Create(products, page, CatalogPageSize);
+            var catalog = new CatalogViewModel
+            {
+                Categories = categories,
+                Products = pagedProducts,
+                CategoryFilterId = 0,
+                SearchValue = null
+            };
             return View(catalog);
         }
 
 
-        public async Task<IActionResult> FilterByCategory(int id, string name)
+        public async Task<IActionResult> FilterByCategory(int id, string name, int page = 1)
         {
             var categories = await _categoryService.GetAllActiveAsync();
             var products = await _productService.GetCatalogAsync(categoryId: id);
-            var catalog = new CatalogViewModel { Categories = categories, Products = products, FilterBy = name };
+            var pagedProducts = PagedResult<ProductViewModel>.Create(products, page, CatalogPageSize);
+            var catalog = new CatalogViewModel
+            {
+                Categories = categories,
+                Products = pagedProducts,
+                FilterBy = name,
+                CategoryFilterId = id,
+                SearchValue = null
+            };
             return View("Index", catalog);
         }
 
-        [HttpPost]
-        public async Task<IActionResult> FilterBySearch(string value)
+        [HttpGet]
+        public async Task<IActionResult> FilterBySearch(string value, int page = 1)
         {
             var categories = await _categoryService.GetAllActiveAsync();
             var products = await _productService.GetCatalogAsync(search: value);
-            var catalog = new CatalogViewModel { Categories = categories, Products = products, FilterBy = $"Resultados para: {value}" };
+            var pagedProducts = PagedResult<ProductViewModel>.Create(products, page, CatalogPageSize);
+            var catalog = new CatalogViewModel
+            {
+                Categories = categories,
+                Products = pagedProducts,
+                FilterBy = $"Resultados para: {value}",
+                CategoryFilterId = 0,
+                SearchValue = value
+            };
             return View("Index", catalog);
         }
 
@@ -83,20 +108,21 @@ namespace eCommerceMotoRepuestos.Controllers
         }
 
 
-        public IActionResult ViewCart()
+        public IActionResult ViewCart(int page = 1)
         {
             var cart = GetCart();
-            return View(cart);
+            var pagedCart = PagedResult<CartItemViewModel>.Create(cart, page, CartPageSize);
+            return View(pagedCart);
         }
 
 
-        public IActionResult RemoveItemToCart(int productId)
+        public IActionResult RemoveItemToCart(int productId, int page = 1)
         {
             var cart = GetCart();
             var cartItem = cart.Find(x => x.ProductId == productId);
             cart.Remove(cartItem!);
             HttpContext.Session.Set("Cart", cart);
-            return View("ViewCart", cart);
+            return RedirectToAction("ViewCart", new { page });
         }
 
 

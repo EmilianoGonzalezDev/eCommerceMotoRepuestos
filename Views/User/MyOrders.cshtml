@@ -1,4 +1,4 @@
-ï»¿@model List<OrderViewModel>
+@model PagedResult<OrderViewModel>
 
 <div class="row justify-content-between mt-4">
     <div class="col-4">
@@ -17,7 +17,7 @@
 
     </thead>
     <tbody>
-        @foreach (var order in Model)
+        @foreach (var order in Model.Items)
         {
             <tr>
                 <td>@order.OrderDateFormatted</td>
@@ -36,3 +36,23 @@
         }
     </tbody>
 </table>
+@if (Model.TotalPages > 1)
+{
+    <nav aria-label="Paginación">
+        <ul class="pagination justify-content-center">
+            <li class="page-item @(Model.HasPrevious ? "" : "disabled")">
+                <a class="page-link" href="@(Model.HasPrevious ? Url.Action("MyOrders", "User", new { page = Model.PageNumber - 1 }) : "#")">Anterior</a>
+            </li>
+            @for (var i = 1; i <= Model.TotalPages; i++)
+            {
+                <li class="page-item @(i == Model.PageNumber ? "active" : "")">
+                    <a class="page-link" href="@Url.Action("MyOrders", "User", new { page = i })">@i</a>
+                </li>
+            }
+            <li class="page-item @(Model.HasNext ? "" : "disabled")">
+                <a class="page-link" href="@(Model.HasNext ? Url.Action("MyOrders", "User", new { page = Model.PageNumber + 1 }) : "#")">Siguiente</a>
+            </li>
+        </ul>
+    </nav>
+}
+

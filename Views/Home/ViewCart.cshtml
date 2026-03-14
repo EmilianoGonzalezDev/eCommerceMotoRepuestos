@@ -9,7 +9,7 @@
             <h4>Carrito</h4>
         </div>
         <div class="col-4 text-end">
-            @if (User.Identity.IsAuthenticated)
+@if (User.Identity.IsAuthenticated)
             {
                 <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#paymentDetailsModal">
                     Finalizar Compra
@@ -80,8 +80,6 @@ else
 }
 
 
-@if (Model.TotalPages > 1)
-{
     <nav aria-label="Paginación">
         <ul class="pagination justify-content-center">
             <li class="page-item @(Model.HasPrevious ? "" : "disabled")">
@@ -98,7 +96,7 @@ else
             </li>
         </ul>
     </nav>
-}
+
 <!-- Modal -->
 <div class="modal fade" id="paymentDetailsModal" tabindex="-1" aria-labelledby="paymentDetailsModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -148,9 +146,6 @@ else
                 </div>
             </form>
 
-
         </div>
     </div>
 </div>
-
-

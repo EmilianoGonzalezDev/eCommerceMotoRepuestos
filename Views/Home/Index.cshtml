@@ -1,4 +1,4 @@
-ï»¿@model CatalogViewModel;
+@model CatalogViewModel;
 @{
     ViewData["Title"] = "Moto Repuestos!";
 }
@@ -7,7 +7,7 @@
     <div class="col-sm-12 col-md-3 col-lg-3">
         <div class="d-grid">
             <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#filterByCategoriesModal">
-                CategorÃ­as
+                Categorías
             </button>
         </div>
     </div>
@@ -15,14 +15,13 @@
     <div class="col-sm-12 col-md-9 col-lg-9">
         <form action="/Home/FilterBySearch" method="get">
             <div class="input-group">
-                <input type="text" class="form-control" name="value" autocomplete="off" placeholder="Â¿QuÃ© estÃ¡s buscando?" value="@Model.SearchValue" />
+                <input type="text" class="form-control" name="value" autocomplete="off" placeholder="¿Qué estás buscando?" value="@Model.SearchValue" />
                 <button class="btn btn-outline-secondary" type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
             </div>
         </form>
 
     </div>
 </div>
-
 @if (Model.FilterBy != "" && Model.FilterBy != null)
 {
     <div class="row bg-light p-2 mt-2">
@@ -54,8 +53,8 @@
     }
 </div>
 
-@if (Model.Products.TotalPages > 1)
-{
+    @{
+    var totalPages = Model.Products.TotalPages == 0 ? 1 : Model.Products.TotalPages;
     Func<int, string> pageUrl = (p) =>
     {
         if (!string.IsNullOrWhiteSpace(Model.SearchValue))
@@ -68,32 +67,30 @@
         }
         return Url.Action("Index", "Home", new { page = p }) ?? "#";
     };
-
-    <nav aria-label="PaginaciÃ³n">
-        <ul class="pagination justify-content-center">
-            <li class="page-item @(Model.Products.HasPrevious ? "" : "disabled")">
-                <a class="page-link" href="@(Model.Products.HasPrevious ? pageUrl(Model.Products.PageNumber - 1) : "#")">Anterior</a>
-            </li>
-            @for (var i = 1; i <= Model.Products.TotalPages; i++)
-            {
-                <li class="page-item @(i == Model.Products.PageNumber ? "active" : "")">
-                    <a class="page-link" href="@pageUrl(i)">@i</a>
-                </li>
-            }
-            <li class="page-item @(Model.Products.HasNext ? "" : "disabled")">
-                <a class="page-link" href="@(Model.Products.HasNext ? pageUrl(Model.Products.PageNumber + 1) : "#")">Siguiente</a>
-            </li>
-        </ul>
-    </nav>
 }
 
-
+<nav aria-label="Paginación">
+    <ul class="pagination justify-content-center">
+        <li class="page-item @(Model.Products.HasPrevious ? "" : "disabled")">
+            <a class="page-link" href="@(Model.Products.HasPrevious ? pageUrl(Model.Products.PageNumber - 1) : "#")">Anterior</a>
+        </li>
+        @for (var i = 1; i <= totalPages; i++)
+        {
+            <li class="page-item @(i == Model.Products.PageNumber ? "active" : "")">
+                <a class="page-link" href="@pageUrl(i)">@i</a>
+            </li>
+        }
+        <li class="page-item @(Model.Products.HasNext ? "" : "disabled")">
+            <a class="page-link" href="@(Model.Products.HasNext ? pageUrl(Model.Products.PageNumber + 1) : "#")">Siguiente</a>
+        </li>
+    </ul>
+</nav>
 <!-- Modal "Filter by Categories" -->
 <div class="modal fade" id="filterByCategoriesModal" tabindex="-1" aria-labelledby="filterByCategories" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title fs-5" id="filterByCategories">CategorÃ­as</h1>
+                <h1 class="modal-title fs-5" id="filterByCategories">Categorías</h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <div class="modal-body">
@@ -102,8 +99,7 @@
                         <a class="btn btn-outline-dark"
                            asp-controller="Home" asp-action="FilterByCategory"
                            asp-route-id="0"
-                           asp-route-name="All Categories">
-                            Todas las categorÃ­as
+                           asp-route-name="All Categories">Todas las categorías
                         </a>
                     </div>
                     @foreach (var category in Model.Categories)
@@ -112,8 +108,7 @@
                             <a class="btn btn-outline-dark"
                                asp-controller="Home" asp-action="FilterByCategory"
                                asp-route-id="@category.CategoryId"
-                               asp-route-name="@category.Name">
-                                @category.Name
+                               asp-route-name="@category.Name">@category.Name
                             </a>
                         </div>
                     }
@@ -126,4 +121,3 @@
         </div>
     </div>
 </div>
-

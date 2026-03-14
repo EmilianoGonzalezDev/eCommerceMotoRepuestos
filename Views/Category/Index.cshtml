@@ -55,25 +55,32 @@
     </tbody>
 </table>
 
-@if (Model.TotalPages > 1)
-{
+<div class="d-flex justify-content-end align-items-center mb-2">
+    <span class="small text-muted me-2">Items por página</span>
+    <form method="get" action="/Category/Index" class="d-inline">
+        <input type="hidden" name="page" value="1" />
+        <select name="pageSize" class="form-select form-select-sm" onchange="this.form.submit()">
+            @await Html.PartialAsync("_PageSizeOptions", Model.PageSize)
+        </select>
+    </form>
+</div>
+
     <nav aria-label="Paginación">
         <ul class="pagination justify-content-center">
             <li class="page-item @(Model.HasPrevious ? "" : "disabled")">
-                <a class="page-link" href="@(Model.HasPrevious ? Url.Action("Index", "Category", new { page = Model.PageNumber - 1 }) : "#")">Anterior</a>
+                <a class="page-link" href="@(Model.HasPrevious ? Url.Action("Index", "Category", new { page = Model.PageNumber - 1, pageSize = Model.PageSize }) : "#")">Anterior</a>
             </li>
             @for (var i = 1; i <= Model.TotalPages; i++)
             {
                 <li class="page-item @(i == Model.PageNumber ? "active" : "")">
-                    <a class="page-link" href="@Url.Action("Index", "Category", new { page = i })">@i</a>
+                    <a class="page-link" href="@Url.Action("Index", "Category", new { page = i, pageSize = Model.PageSize })">@i</a>
                 </li>
             }
             <li class="page-item @(Model.HasNext ? "" : "disabled")">
-                <a class="page-link" href="@(Model.HasNext ? Url.Action("Index", "Category", new { page = Model.PageNumber + 1 }) : "#")">Siguiente</a>
+                <a class="page-link" href="@(Model.HasNext ? Url.Action("Index", "Category", new { page = Model.PageNumber + 1, pageSize = Model.PageSize }) : "#")">Siguiente</a>
             </li>
         </ul>
     </nav>
-}
 @section Scripts {
     <script>
         function toggleItem(id, isActive)
@@ -97,5 +104,3 @@
         }
     </script>
 }
-
-

@@ -1,4 +1,4 @@
-﻿using eCommerceMotoRepuestos.Models;
+using eCommerceMotoRepuestos.Models;
 using eCommerceMotoRepuestos.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -8,12 +8,20 @@ namespace eCommerceMotoRepuestos.Controllers;
 [Authorize(Roles = "Admin")]
 public class ProductController(ProductService _productService) : Controller
 {
-    private const int AdminPageSize = 10;
+    private static readonly int[] PageSizes = [5, 10, 15, 20, 50, 100];
+    private const int DefaultAdminPageSize = 10;
 
-    public async Task<IActionResult> Index(int page = 1)
+    private static int NormalizePageSize(int? pageSize, int defaultSize)
     {
+        if (pageSize is null) return defaultSize;
+        return Array.IndexOf(PageSizes, pageSize.Value) >= 0 ? pageSize.Value : defaultSize;
+    }
+
+    public async Task<IActionResult> Index(int page = 1, int pageSize = DefaultAdminPageSize)
+    {
+        var size = NormalizePageSize(pageSize, DefaultAdminPageSize);
         var products = await _productService.GetAllAsync();
-        var pagedProducts = PagedResult<ProductViewModel>.Create(products, page, AdminPageSize);
+        var pagedProducts = PagedResult<ProductViewModel>.Create(products, page, size);
         return View(pagedProducts);
     }
 
@@ -78,7 +86,7 @@ public class ProductController(ProductService _productService) : Controller
         {
             var isActive = await _productService.ToggleActiveAsync(id);
             TempData["SuccessMessage"] = isActive
-                ? "Se volvió a dar de alta el Producto."
+                ? "Se volvi� a dar de alta el Producto."
                 : "Producto dado de baja correctamente.";
         }
         catch (InvalidOperationException ex)
@@ -93,3 +101,4 @@ public class ProductController(ProductService _productService) : Controller
         return RedirectToAction("Index");
     }
 }
+

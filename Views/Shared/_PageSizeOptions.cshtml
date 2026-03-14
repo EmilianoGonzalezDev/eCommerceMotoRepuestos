@@ -1,0 +1,15 @@
+@model int
+@{
+    var sizes = new[] { 5, 10, 15, 20, 50, 100 };
+}
+@foreach (var size in sizes)
+{
+    if (Model == size)
+    {
+        <option value="@size" selected>@size</option>
+    }
+    else
+    {
+        <option value="@size">@size</option>
+    }
+}

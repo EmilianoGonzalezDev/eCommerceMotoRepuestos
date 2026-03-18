@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es-AR">
 <head>
     <meta charset="utf-8" />
@@ -17,56 +17,61 @@
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
                 <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">MotoRepuestos!</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Inicio</a>
-                        </li>
+    <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between flex-grow-1">
+        <ul class="navbar-nav flex-grow-1">
+            <li class="nav-item">
+                <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Inicio</a>
+            </li>
 
-                        @if (User.Identity!.IsAuthenticated)
-                        {
-                            @if (User.IsInRole("Admin"))
-                            {
-                                <li class="nav-item">
-                                    <a class="nav-link text-dark" asp-area="" asp-controller="Category" asp-action="Index">Categorías</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link text-dark" asp-area="" asp-controller="Product" asp-action="Index">Productos</a>
-                                </li>
+            @if (User.Identity!.IsAuthenticated)
+            {
+                @if (User.IsInRole("Admin"))
+                {
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" asp-area="" asp-controller="Category" asp-action="Index">Categor�as</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" asp-area="" asp-controller="Product" asp-action="Index">Productos</a>
+                    </li>
 
-                            }
-                        }
+                }
+            }
 
-                        @await Html.PartialAsync("_CartButton")
+        </ul>
+    </div>
+    <div class="d-flex align-items-center gap-2 ms-auto navbar-actions">
+        @await Html.PartialAsync("_CartButton")
 
-                        @if (User.Identity!.IsAuthenticated)
-                        {
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    @User.Claims.Where(c => c.Type == ClaimTypes.Email).Select(c => c.Value).SingleOrDefault()
-                                </a>
-                                <ul class="dropdown-menu">
-                                    <li><a class="dropdown-item text-dark" href="/User/MyOrders">Mis órdenes</a></li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item text-dark" href="/Account/Logout">Salir</a></li>
-                                </ul>
-                            </li>
-                        }
-                        else
-                        {
-                            <li class="nav-item ms-2">
-                                <a class="btn btn-outline-dark" href="/Account/Login">Ingresar</a>
-                            </li>
-                        }
-
-
-                    </ul>
-                </div>
+        @if (User.Identity!.IsAuthenticated)
+        {
+            var displayName = User.Claims.Where(c => c.Type == ClaimTypes.Name).Select(c => c.Value).SingleOrDefault();
+            displayName = string.IsNullOrWhiteSpace(displayName) ? "Usuario" : displayName;
+            if (displayName.Length > 20)
+            {
+                displayName = displayName.Substring(0, 20) + "...";
+            }
+            <div class="dropdown">
+                <a class="btn btn-outline-dark btn-sm nav-action-btn dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    @displayName
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item text-dark" href="/User/MyOrders">Mis compras</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item text-dark" href="/Account/Logout">Salir</a></li>
+                </ul>
             </div>
+        }
+        else
+        {
+            <a class="btn btn-outline-dark btn-sm nav-action-btn" href="/Account/Login">Ingresar</a>
+        }
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </div>
+</div>
         </nav>
     </header>
     <div class="container">

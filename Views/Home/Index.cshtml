@@ -31,16 +31,16 @@
     </div>
 }
 
-<div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-4 py-4">
+<div class="row row-cols-3 row-cols-sm-3 row-cols-md-4 g-4 py-4">
     @foreach (var p in Model.Products.Items)
     {
         <div class="col">
             <div class="card shadow-sm h-100">
-                <img class="card-img-top" src="~/images/@(string.IsNullOrWhiteSpace(p.ImageName) ? "default.png" : p.ImageName)" alt="@p.Name" />
-                <div class="card-body p-4">
-                    <div class="text-center">
-                        <h5 class="fw-bolder">@p.Name</h5>
-                        @p.Price.ToString("C")
+                <img class="card-img-top catalog-card-img" src="~/images/@(string.IsNullOrWhiteSpace(p.ImageName) ? "default.png" : p.ImageName)" alt="@p.Name" />
+                <div class="card-body p-4 catalog-card-body">
+                    <div class="text-center catalog-card-info">
+                        <h5 class="fw-bolder catalog-card-title">@p.Name</h5>
+                        <div class="catalog-card-price">@p.Price.ToString("C")</div>
                     </div>
                 </div>
                 <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">

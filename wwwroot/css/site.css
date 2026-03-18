@@ -29,3 +29,66 @@ body {
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
   text-align: start;
 }
+
+.catalog-card-img {
+    width: 100%;
+    height: clamp(160px, 24vw, 220px);
+    object-fit: contain;
+    background-color: #fff;
+}
+
+.catalog-card-body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.catalog-card-info {
+    min-height: 72px;
+}
+
+.catalog-card-title {
+    min-height: 2.6em;
+    line-height: 1.3;
+    margin-bottom: 0.25rem;
+}
+
+.catalog-card-price {
+    font-weight: 600;
+}
+
+@media (max-width: 576px) {
+    .catalog-card-img {
+        height: 140px;
+    }
+
+    .catalog-card-body {
+        padding: 1rem;
+    }
+
+    .catalog-card-title {
+        font-size: 0.9rem;
+    }
+
+    .catalog-card-price {
+        font-size: 0.85rem;
+    }
+}
+
+@media (max-width: 400px) {
+    .catalog-card-img {
+        height: 120px;
+    }
+}.catalog-card-body {
+        padding: 1rem;
+    }
+}
+
+.navbar-actions .nav-action-btn {
+    padding: 0.35rem 0.6rem;
+    line-height: 1.2;
+}
+
+.navbar-actions {
+    margin-left: auto;
+}

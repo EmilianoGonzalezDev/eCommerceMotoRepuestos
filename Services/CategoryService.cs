@@ -20,7 +20,7 @@ public class CategoryService(
             Name = item.Name,
             IsActive = item.IsActive
         }
-        ).ToList();
+        ).OrderBy(c => c.Name).ToList();
 
         return categoriesVieModel;
     }

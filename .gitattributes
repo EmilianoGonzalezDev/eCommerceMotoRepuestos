@@ -1,0 +1,8 @@
+# Main language
+*.cs linguist-language=C#
+
+# Ignore JS
+*.js linguist-vendored
+
+# Ignore third-party libraries
+wwwroot/lib/* linguist-vendored

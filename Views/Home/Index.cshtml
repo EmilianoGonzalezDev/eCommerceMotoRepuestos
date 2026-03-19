@@ -1,4 +1,4 @@
-@model CatalogViewModel;
+Ôªø@model CatalogViewModel;
 @{
     ViewData["Title"] = "Moto Repuestos!";
 }
@@ -7,16 +7,20 @@
     <div class="col-sm-12 col-md-3 col-lg-3">
         <div class="d-grid">
             <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#filterByCategoriesModal">
-                CategorÌas
+                Categor√≠as
             </button>
         </div>
     </div>
 
     <div class="col-sm-12 col-md-9 col-lg-9">
-        <form action="/Home/FilterBySearch" method="get">
-            <div class="input-group">
-                <input type="text" class="form-control" name="value" autocomplete="off" placeholder="øQuÈ est·s buscando?" value="@Model.SearchValue" />
+        <form id="catalog-search-form" action="/Home/FilterBySearch" method="get">
+            <div class="input-group position-relative">
+                <div class="search-input-wrap">
+                    <input id="catalog-search-input" type="text" class="form-control pe-5" name="value" autocomplete="off" placeholder="¬øQu√© est√°s buscando?" value="@Model.SearchValue" />
+                    <button id="catalog-search-clear" type="button" class="search-clear-btn d-none" aria-label="Limpiar b√∫squeda"><i class="fa-solid fa-circle-xmark"></i></button>
+                </div>
                 <button class="btn btn-outline-secondary" type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
+                <ul id="search-suggestions-list" class="list-group search-suggestions d-none"></ul>
             </div>
         </form>
 
@@ -53,7 +57,7 @@
     }
 </div>
 
-    @{
+@{
     var totalPages = Model.Products.TotalPages == 0 ? 1 : Model.Products.TotalPages;
     Func<int, string> pageUrl = (p) =>
     {
@@ -69,7 +73,7 @@
     };
 }
 
-<nav aria-label="PaginaciÛn">
+<nav aria-label="Paginaci√≥n">
     <ul class="pagination justify-content-center">
         <li class="page-item @(Model.Products.HasPrevious ? "" : "disabled")">
             <a class="page-link" href="@(Model.Products.HasPrevious ? pageUrl(Model.Products.PageNumber - 1) : "#")">Anterior</a>
@@ -90,7 +94,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title fs-5" id="filterByCategories">CategorÌas</h1>
+                <h1 class="modal-title fs-5" id="filterByCategories">Categor√≠as</h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <div class="modal-body">
@@ -99,7 +103,7 @@
                         <a class="btn btn-outline-dark"
                            asp-controller="Home" asp-action="FilterByCategory"
                            asp-route-id="0"
-                           asp-route-name="All Categories">Todas las categorÌas
+                           asp-route-name="All Categories">Todas las categor√≠as
                         </a>
                     </div>
                     @foreach (var category in Model.Categories)
@@ -121,3 +125,7 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script src="~/js/home-index-search.js" asp-append-version="true"></script>
+}

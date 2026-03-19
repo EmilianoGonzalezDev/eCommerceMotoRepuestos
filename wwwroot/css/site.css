@@ -92,3 +92,38 @@ body {
 .navbar-actions {
     margin-left: auto;
 }
+
+.search-input-wrap {
+    position: relative;
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.search-clear-btn {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    border: 0;
+    background: transparent;
+    color: #6c757d;
+    padding: 0;
+    line-height: 1;
+    font-size: 18px;
+    cursor: pointer;
+    z-index: 3;
+}
+
+.search-clear-btn:hover {
+    color: #212529;
+}
+
+.search-suggestions {
+    position: absolute;
+    top: calc(100% + 2px);
+    left: 0;
+    right: 0;
+    z-index: 1050;
+    max-height: 340px;
+    overflow-y: auto;
+}

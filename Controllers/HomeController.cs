@@ -65,6 +65,32 @@ namespace eCommerceMotoRepuestos.Controllers
             return View("Index", catalog);
         }
 
+        [HttpGet]
+        public async Task<IActionResult> SearchSuggestions(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return Json(Array.Empty<object>());
+            }
+
+            var products = await _productService.GetCatalogAsync(search: value.Trim());
+            var suggestions = products
+                .OrderByDescending(p => p.Name.Equals(value, StringComparison.OrdinalIgnoreCase))
+                .ThenByDescending(p => p.Name.StartsWith(value, StringComparison.OrdinalIgnoreCase))
+                .ThenBy(p => p.Name.Length)
+                .ThenBy(p => p.Name)
+                .Take(10)
+                .Select(p => new
+                {
+                    p.ProductId,
+                    p.Name,
+                    p.Price,
+                    PriceFormatted = p.Price.ToString("C")
+                });
+
+            return Json(suggestions);
+        }
+
 
         public async Task<IActionResult> ProductDetail(int id)
         {

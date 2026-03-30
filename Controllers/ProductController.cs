@@ -1,4 +1,4 @@
-using eCommerceMotoRepuestos.Models;
+﻿using eCommerceMotoRepuestos.Models;
 using eCommerceMotoRepuestos.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -17,12 +17,62 @@ public class ProductController(ProductService _productService) : Controller
         return Array.IndexOf(PageSizes, pageSize.Value) >= 0 ? pageSize.Value : defaultSize;
     }
 
-    public async Task<IActionResult> Index(int page = 1, int pageSize = DefaultAdminPageSize)
+    public async Task<IActionResult> Index(
+        int page = 1,
+        int pageSize = DefaultAdminPageSize,
+        ProductSortBy sortBy = ProductSortBy.Name,
+        SortDirection sortDir = SortDirection.Asc)
     {
         var size = NormalizePageSize(pageSize, DefaultAdminPageSize);
+        var normalizedSortBy = NormalizeSortBy(sortBy);
+        var normalizedSortDir = NormalizeSortDirection(sortDir);
+
         var products = await _productService.GetAllAsync();
-        var pagedProducts = PagedResult<ProductViewModel>.Create(products, page, size);
-        return View(pagedProducts);
+        var sortedProducts = SortProducts(products, normalizedSortBy, normalizedSortDir);
+        var pagedProducts = PagedResult<ProductViewModel>.Create(sortedProducts, page, size);
+
+        var viewModel = new ProductIndexViewModel
+        {
+            Products = pagedProducts,
+            CurrentSortBy = normalizedSortBy,
+            CurrentSortDir = normalizedSortDir
+        };
+
+        return View(viewModel);
+    }
+
+    private static ProductSortBy NormalizeSortBy(ProductSortBy sortBy)
+    {
+        return Enum.IsDefined(sortBy) ? sortBy : ProductSortBy.Name;
+    }
+
+    private static SortDirection NormalizeSortDirection(SortDirection sortDir)
+    {
+        return Enum.IsDefined(sortDir) ? sortDir : SortDirection.Asc;
+    }
+
+    private static IEnumerable<ProductViewModel> SortProducts(
+        IEnumerable<ProductViewModel> products,
+        ProductSortBy sortBy,
+        SortDirection sortDir)
+    {
+        var isDesc = sortDir == SortDirection.Desc;
+
+        return sortBy switch
+        {
+            ProductSortBy.Category => isDesc
+                ? products.OrderByDescending(x => x.Category.Name).ThenBy(x => x.Name)
+                : products.OrderBy(x => x.Category.Name).ThenBy(x => x.Name),
+            ProductSortBy.Price => isDesc
+                ? products.OrderByDescending(x => x.Price).ThenBy(x => x.Name)
+                : products.OrderBy(x => x.Price).ThenBy(x => x.Name),
+            ProductSortBy.Stock => isDesc
+                ? products.OrderByDescending(x => x.Stock).ThenBy(x => x.Name)
+                : products.OrderBy(x => x.Stock).ThenBy(x => x.Name),
+            _ => isDesc
+                ? products.OrderByDescending(x => x.Name)
+                : products.OrderBy(x => x.Name)
+        };
     }
 
     [HttpGet]
@@ -86,7 +136,7 @@ public class ProductController(ProductService _productService) : Controller
         {
             var isActive = await _productService.ToggleActiveAsync(id);
             TempData["SuccessMessage"] = isActive
-                ? "Se volvi� a dar de alta el Producto."
+                ? "Se volvió a dar de alta el Producto."
                 : "Producto dado de baja correctamente.";
         }
         catch (InvalidOperationException ex)

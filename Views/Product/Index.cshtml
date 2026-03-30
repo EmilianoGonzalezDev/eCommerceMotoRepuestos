@@ -1,4 +1,4 @@
-@model PagedResult<ProductViewModel>
+@model ProductIndexViewModel
 
 <div class="row justify-content-between mt-4">
     <div class="col-4">
@@ -7,7 +7,7 @@
     <div class="col-4 text-end">
         <a href="/Product/Add" class="btn btn-success"><i class="fa-solid fa-plus"></i>Agregar</a>
     </div>
- </div>
+</div>
 
 <hr />
 
@@ -30,10 +30,26 @@
 <table class="table table-striped">
     <thead>
         <tr>
-            <th>Nombre</th>
-            <th>Categoría</th>
-            <th>Precio</th>
-            <th>Stock</th>
+            @foreach (var column in Model.SortColumns)
+            {
+                <th>
+                    <div class="d-flex align-items-center gap-2">
+                        <span>@column.Label</span>
+                        <span class="btn-group btn-group-sm" role="group" aria-label="Ordenar por @column.Label.ToLowerInvariant()">
+                            <a class="@Model.GetSortButtonCssClass(column.SortBy, SortDirection.Asc)"
+                               href="@Url.Action("Index", "Product", Model.GetSortRouteValues(column.SortBy, SortDirection.Asc))"
+                               title="@column.AscTitle">
+                                <i class="fa-solid fa-arrow-down"></i>
+                            </a>
+                            <a class="@Model.GetSortButtonCssClass(column.SortBy, SortDirection.Desc)"
+                               href="@Url.Action("Index", "Product", Model.GetSortRouteValues(column.SortBy, SortDirection.Desc))"
+                               title="@column.DescTitle">
+                                <i class="fa-solid fa-arrow-up"></i>
+                            </a>
+                        </span>
+                    </div>
+                </th>
+            }
             <th style="width: 120px;">Acciones</th>
         </tr>
     </thead>
@@ -62,50 +78,53 @@
 </table>
 
 <div class="d-flex justify-content-end align-items-center mb-2">
-    <span class="small text-muted me-2">Items por página</span>
+    <span class="small text-muted me-2">Items por pagina</span>
     <form method="get" action="/Product/Index" class="d-inline">
         <input type="hidden" name="page" value="1" />
+        <input type="hidden" name="sortBy" value="@Model.CurrentSortBy" />
+        <input type="hidden" name="sortDir" value="@Model.CurrentSortDir" />
         <select name="pageSize" class="form-select form-select-sm" onchange="this.form.submit()">
             @await Html.PartialAsync("_PageSizeOptions", Model.PageSize)
         </select>
     </form>
 </div>
 
-    <nav aria-label="Paginación">
-        <ul class="pagination justify-content-center">
-            <li class="page-item @(Model.HasPrevious ? "" : "disabled")">
-                <a class="page-link" href="@(Model.HasPrevious ? Url.Action("Index", "Product", new { page = Model.PageNumber - 1, pageSize = Model.PageSize }) : "#")">Anterior</a>
+<nav aria-label="PaginaciÃ³n">
+    <ul class="pagination justify-content-center">
+        <li class="page-item @(Model.HasPrevious ? "" : "disabled")">
+            <a class="page-link" href="@(Model.HasPrevious ? Url.Action("Index", "Product", Model.GetPageRouteValues(Model.PageNumber - 1)) : "#")">Anterior</a>
+        </li>
+        @for (var i = 1; i <= Model.TotalPages; i++)
+        {
+            <li class="page-item @(i == Model.PageNumber ? "active" : "")">
+                <a class="page-link" href="@Url.Action("Index", "Product", Model.GetPageRouteValues(i))">@i</a>
             </li>
-            @for (var i = 1; i <= Model.TotalPages; i++)
-            {
-                <li class="page-item @(i == Model.PageNumber ? "active" : "")">
-                    <a class="page-link" href="@Url.Action("Index", "Product", new { page = i, pageSize = Model.PageSize })">@i</a>
-                </li>
-            }
-            <li class="page-item @(Model.HasNext ? "" : "disabled")">
-                <a class="page-link" href="@(Model.HasNext ? Url.Action("Index", "Product", new { page = Model.PageNumber + 1, pageSize = Model.PageSize }) : "#")">Siguiente</a>
-            </li>
-        </ul>
-    </nav>
+        }
+        <li class="page-item @(Model.HasNext ? "" : "disabled")">
+            <a class="page-link" href="@(Model.HasNext ? Url.Action("Index", "Product", Model.GetPageRouteValues(Model.PageNumber + 1)) : "#")">Siguiente</a>
+        </li>
+    </ul>
+</nav>
+
 @section Scripts {
     <script>
         function toggleItem(id, isActive)
         {
             const confirmText = isActive ? "Si, Dar de baja!" : "Si, Reactivar!";
-            const titleText = isActive ? "Estás seguro?" : "Reactivar producto?";
+            const titleText = isActive ? "EstÃ¡s seguro?" : "Reactivar producto?";
             const iconType = isActive ? "warning" : "question";
             Swal.fire({
-            title: titleText,
-            icon: iconType,
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: confirmText,
-            cancelButtonText: "No, Regresar"
+                title: titleText,
+                icon: iconType,
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: confirmText,
+                cancelButtonText: "No, Regresar"
             }).then((result) => {
-            if (result.isConfirmed) {
-                window.location.href = `/Product/ToggleStatus/${id}`;
-            }
+                if (result.isConfirmed) {
+                    window.location.href = `/Product/ToggleStatus/${id}`;
+                }
             });
         }
     </script>

@@ -5,6 +5,7 @@ public class ProductIndexViewModel
     public required PagedResult<ProductViewModel> Products { get; init; }
     public ProductSortBy CurrentSortBy { get; init; } = ProductSortBy.Name;
     public SortDirection CurrentSortDir { get; init; } = SortDirection.Asc;
+    public string Search { get; init; } = string.Empty;
 
     public IReadOnlyList<ProductViewModel> Items => Products.Items;
     public int PageNumber => Products.PageNumber;
@@ -40,7 +41,8 @@ public class ProductIndexViewModel
             page = 1,
             pageSize = PageSize,
             sortBy,
-            sortDir = sortDirection
+            sortDir = sortDirection,
+            search = Search
         };
     }
 
@@ -51,7 +53,8 @@ public class ProductIndexViewModel
             page,
             pageSize = PageSize,
             sortBy = CurrentSortBy,
-            sortDir = CurrentSortDir
+            sortDir = CurrentSortDir,
+            search = Search
         };
     }
 }

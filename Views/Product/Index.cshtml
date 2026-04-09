@@ -27,6 +27,32 @@
     </div>
 }
 
+<form method="get" action="/Product/Index" class="row g-2 align-items-end mb-3">
+    <input type="hidden" name="page" value="1" />
+    <input type="hidden" name="pageSize" value="@Model.PageSize" />
+    <input type="hidden" name="sortBy" value="@Model.CurrentSortBy" />
+    <input type="hidden" name="sortDir" value="@Model.CurrentSortDir" />
+    <div class="col-md-5">
+        <input id="search"
+               name="search"
+               type="text"
+               class="form-control"
+               value="@Model.Search" />
+    </div>
+    <div class="col-auto">
+        <button type="submit" class="btn btn-outline-secondary">Buscar</button>
+    </div>
+    @if (!string.IsNullOrWhiteSpace(Model.Search))
+    {
+        <div class="col-auto">
+            <a class="btn btn-outline-secondary"
+               href="@Url.Action("Index", "Product", new { page = 1, pageSize = Model.PageSize, sortBy = Model.CurrentSortBy, sortDir = Model.CurrentSortDir })">
+                Limpiar
+            </a>
+        </div>
+    }
+</form>
+
 <table class="table table-striped">
     <thead>
         <tr>
@@ -83,6 +109,7 @@
         <input type="hidden" name="page" value="1" />
         <input type="hidden" name="sortBy" value="@Model.CurrentSortBy" />
         <input type="hidden" name="sortDir" value="@Model.CurrentSortDir" />
+        <input type="hidden" name="search" value="@Model.Search" />
         <select name="pageSize" class="form-select form-select-sm" onchange="this.form.submit()">
             @await Html.PartialAsync("_PageSizeOptions", Model.PageSize)
         </select>

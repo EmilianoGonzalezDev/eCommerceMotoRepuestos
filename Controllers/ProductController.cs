@@ -21,21 +21,25 @@ public class ProductController(ProductService _productService) : Controller
         int page = 1,
         int pageSize = DefaultAdminPageSize,
         ProductSortBy sortBy = ProductSortBy.Name,
-        SortDirection sortDir = SortDirection.Asc)
+        SortDirection sortDir = SortDirection.Asc,
+        string search = "")
     {
         var size = NormalizePageSize(pageSize, DefaultAdminPageSize);
         var normalizedSortBy = NormalizeSortBy(sortBy);
         var normalizedSortDir = NormalizeSortDirection(sortDir);
+        var normalizedSearch = NormalizeSearch(search);
 
         var products = await _productService.GetAllAsync();
-        var sortedProducts = SortProducts(products, normalizedSortBy, normalizedSortDir);
+        var filteredProducts = FilterProducts(products, normalizedSearch);
+        var sortedProducts = SortProducts(filteredProducts, normalizedSortBy, normalizedSortDir);
         var pagedProducts = PagedResult<ProductViewModel>.Create(sortedProducts, page, size);
 
         var viewModel = new ProductIndexViewModel
         {
             Products = pagedProducts,
             CurrentSortBy = normalizedSortBy,
-            CurrentSortDir = normalizedSortDir
+            CurrentSortDir = normalizedSortDir,
+            Search = normalizedSearch
         };
 
         return View(viewModel);
@@ -49,6 +53,22 @@ public class ProductController(ProductService _productService) : Controller
     private static SortDirection NormalizeSortDirection(SortDirection sortDir)
     {
         return Enum.IsDefined(sortDir) ? sortDir : SortDirection.Asc;
+    }
+
+    private static string NormalizeSearch(string? search)
+    {
+        return string.IsNullOrWhiteSpace(search) ? string.Empty : search.Trim();
+    }
+
+    private static IEnumerable<ProductViewModel> FilterProducts(
+        IEnumerable<ProductViewModel> products,
+        string search)
+    {
+        if (string.IsNullOrWhiteSpace(search)) return products;
+
+        return products.Where(x =>
+            !string.IsNullOrWhiteSpace(x.Name) &&
+            x.Name.Contains(search, StringComparison.OrdinalIgnoreCase));
     }
 
     private static IEnumerable<ProductViewModel> SortProducts(

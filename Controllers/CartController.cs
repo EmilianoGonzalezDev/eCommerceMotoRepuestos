@@ -53,7 +53,7 @@ namespace eCommerceMotoRepuestos.Controllers
         {
             var cart = GetCart();
             var pagedCart = PagedResult<CartItemViewModel>.Create(cart, page, CartPageSize);
-            return View("~/Views/Home/ViewCart.cshtml", pagedCart);
+            return View(pagedCart);
         }
 
         public IActionResult RemoveItemToCart(int productId, int page = 1)
@@ -76,12 +76,12 @@ namespace eCommerceMotoRepuestos.Controllers
             var userId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
             await _orderService.AddAsync(cart, int.Parse(userId));
             HttpContext.Session.Remove("Cart");
-            return View("~/Views/Home/SaleCompleted.cshtml");
+            return View();
         }
 
         public IActionResult SaleCompleted()
         {
-            return View("~/Views/Home/SaleCompleted.cshtml");
+            return View();
         }
 
         private List<CartItemViewModel> GetCart()

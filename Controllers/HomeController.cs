@@ -106,16 +106,6 @@ namespace eCommerceMotoRepuestos.Controllers
             };
             return View(errorViewModel);
         }
-
-        public IActionResult TestError(int code = 404)
-        {
-            HttpContext.Response.StatusCode = code;
-            return View("Error", new ErrorViewModel
-            {
-                RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier,
-                StatusCode = code
-            });
-        }
     }
 }
 

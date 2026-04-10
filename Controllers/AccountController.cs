@@ -27,7 +27,7 @@ public class AccountController(UserService _userService) : Controller
 
         if (found.UserId is 0)
         {
-            ViewBag.message = "Email o Contraseña incorrectos.";
+            TempData["message"] = "Email o Contraseña incorrectos.";
             return View();
         }
         else

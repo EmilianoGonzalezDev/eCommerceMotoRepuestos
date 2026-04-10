@@ -1,5 +1,13 @@
 @model PagedResult<CartItemViewModel>;
 
+@if (TempData["CartMessage"] is not null)
+{
+    <div class="alert alert-@(TempData["CartAlertType"] ?? "info") alert-dismissible fade show mt-4" role="alert">
+        @TempData["CartMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
 @if (Model.TotalItems != 0)
 {
     <div class="row justify-content-between mt-4">
@@ -52,7 +60,20 @@
                     </td>
                     <td>@item.Name</td>
                     <td>@item.Price.ToString("C")</td>
-                    <td>@item.Quantity</td>
+                    <td>
+                        <form action="/Cart/UpdateItemQuantity" method="post" class="d-inline-block">
+                            <input type="hidden" name="productId" value="@item.ProductId" />
+                            <input type="hidden" name="page" value="@Model.PageNumber" />
+                            <input
+                                class="form-control text-center"
+                                style="max-width:6rem"
+                                type="number"
+                                name="quantity"
+                                min="1"
+                                value="@item.Quantity"
+                                onchange="this.form.submit()" />
+                        </form>
+                    </td>
                     <td>@((item.Price * item.Quantity).ToString("C"))</td>
 
 

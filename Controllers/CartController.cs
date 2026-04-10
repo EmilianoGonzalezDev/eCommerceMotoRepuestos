@@ -52,6 +52,7 @@ namespace eCommerceMotoRepuestos.Controllers
         public IActionResult ViewCart(int page = 1)
         {
             var cart = GetCart();
+            ViewBag.OrderTotal = cart.Sum(x => x.Price * x.Quantity);
             var pagedCart = PagedResult<CartItemViewModel>.Create(cart, page, CartPageSize);
             return View(pagedCart);
         }

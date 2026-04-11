@@ -17,7 +17,7 @@
         <div class="col-4 text-end">
             @if (User.Identity.IsAuthenticated)
             {
-                <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#paymentDetailsModal">
+                <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#purchaseOptionsModal">
                     Finalizar Compra
                 </button>
             }
@@ -118,14 +118,41 @@
     </div>
 }
 
-<!-- Modal -->
+<!-- Purchase Options Modal -->
+<div class="modal fade" id="purchaseOptionsModal" tabindex="-1" aria-labelledby="purchaseOptionsModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="purchaseOptionsModalLabel">Método de pago</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <button type="button" class="btn btn-primary btn-lg w-100" data-bs-toggle="modal" data-bs-target="#paymentDetailsModal" data-bs-dismiss="modal">
+                    <i class="fa-solid fa-credit-card"></i>
+                    Tarjeta de Crédito/Débito
+                </button>
+                <small class="text-muted d-block mb-3 mt-1 text-center">Dispones de 10 días para retirar tu compra.</small>
+
+                <form action="/Cart/CompletePurchase" method="post">
+                    <button type="submit" class="btn btn-outline-primary btn-lg w-100 mt-2">
+                        <i class="fa-solid fa-store"></i>
+                        Pagar en Tienda
+                    </button>
+                </form>
+                <small class="text-muted d-block mt-1 text-center">Dispones de 24 horas para retirar tu compra.</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Payment Details Modal -->
 <div class="modal fade" id="paymentDetailsModal" tabindex="-1" aria-labelledby="paymentDetailsModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
 
-            <form action="/Cart/PayNow" method="post">
+            <form action="/Cart/CompletePurchase" method="post">
                 <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="paymentDetailsModalLabel">Forma de pago</h1>
+                    <h1 class="modal-title fs-5" id="paymentDetailsModalLabel">Datos de Pago</h1>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">

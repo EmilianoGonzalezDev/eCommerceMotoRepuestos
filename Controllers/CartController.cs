@@ -161,7 +161,7 @@ namespace eCommerceMotoRepuestos.Controllers
 
         [HttpPost]
         [Authorize]
-        public async Task<IActionResult> PayNow()
+        public async Task<IActionResult> CompletePurchase()
         {
             var userId = GetAuthenticatedUserId();
             if (userId is null)
@@ -180,7 +180,7 @@ namespace eCommerceMotoRepuestos.Controllers
             await _orderService.AddAsync(cart, userId.Value);
             await _cartService.ClearByUserAsync(userId.Value);
             HttpContext.Session.Remove("Cart");
-            return View();
+            return View("SaleCompleted");
         }
 
         public IActionResult SaleCompleted()

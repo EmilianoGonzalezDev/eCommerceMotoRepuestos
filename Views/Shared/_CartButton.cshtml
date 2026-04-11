@@ -1,13 +1,24 @@
 @using eCommerceMotoRepuestos.Utilities;
+@inject eCommerceMotoRepuestos.Services.CartService CartService
 
 @{
     int cartCount = 0;
-    if (Context.Session.Get<List<CartItemViewModel>>("Cart") != null)
+
+    if (Context.User.Identity?.IsAuthenticated == true)
+    {
+        var userIdValue = Context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (int.TryParse(userIdValue, out var userId))
+        {
+            cartCount = await CartService.GetDistinctItemsCountAsync(userId);
+        }
+    }
+    else if (Context.Session.Get<List<CartItemViewModel>>("Cart") is not null)
     {
         var cart = Context.Session.Get<List<CartItemViewModel>>("Cart");
-        cartCount = cart.Count();
+        cartCount = cart?.Count ?? 0;
     }
 }
+
 <div class="nav-item">
     <a class="btn btn-outline-dark btn-sm nav-action-btn" href="/Cart/ViewCart">
         <i class="fa-solid fa-cart-shopping"></i>

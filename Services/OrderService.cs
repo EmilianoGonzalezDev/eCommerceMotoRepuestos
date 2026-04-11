@@ -1,4 +1,5 @@
-﻿using eCommerceMotoRepuestos.Entities;
+using eCommerceMotoRepuestos.Entities;
+using eCommerceMotoRepuestos.Enums;
 using eCommerceMotoRepuestos.Models;
 using eCommerceMotoRepuestos.Repositories;
 
@@ -7,7 +8,7 @@ namespace eCommerceMotoRepuestos.Services;
 public class OrderService(OrderRepository _orderRepository)
 {
 
-    public async Task AddAsync(List<CartItemViewModel> cartItemVM, int userId)
+    public async Task AddAsync(List<CartItemViewModel> cartItemVM, int userId, PaymentType paymentType)
     {
 
         Order order = new Order()
@@ -15,6 +16,8 @@ public class OrderService(OrderRepository _orderRepository)
             OrderDate = DateTime.Now,
             UserId = userId,
             TotalAmount = cartItemVM.Sum(x => x.Price * x.Quantity),
+            PaymentType = paymentType,
+            Status = OrderStatus.Pending,
             OrderItems = cartItemVM.Select(x => new OrderItem
             {
                 ProductId = x.ProductId,

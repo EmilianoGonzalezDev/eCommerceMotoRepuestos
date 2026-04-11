@@ -1,4 +1,6 @@
-﻿namespace eCommerceMotoRepuestos.Entities;
+using eCommerceMotoRepuestos.Enums;
+
+namespace eCommerceMotoRepuestos.Entities;
 
 public class Order
 {
@@ -6,6 +8,8 @@ public class Order
     public DateTime OrderDate { get; set; }
     public int UserId { get; set; }
     public decimal TotalAmount { get; set; }
+    public PaymentType PaymentType { get; set; }
+    public OrderStatus Status { get; set; }
 
     public User? User { get; set; }
 

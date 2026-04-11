@@ -1,4 +1,5 @@
-﻿using eCommerceMotoRepuestos.Entities;
+using eCommerceMotoRepuestos.Entities;
+using eCommerceMotoRepuestos.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace eCommerceMotoRepuestos.Context;
@@ -43,6 +44,7 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<Order>(o =>
         {
             o.Property("TotalAmount").HasColumnType("decimal(10,2)");
+            o.Property(x => x.Status).HasDefaultValue(OrderStatus.Pending);
             o.HasOne(o => o.User).WithMany(u => u.Orders)
              .HasForeignKey(o => o.UserId)
              .OnDelete(DeleteBehavior.Restrict);

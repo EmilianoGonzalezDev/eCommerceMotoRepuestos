@@ -1,3 +1,4 @@
+﻿@using eCommerceMotoRepuestos.Enums
 @model PagedResult<CartItemViewModel>;
 
 @if (TempData["CartMessage"] is not null)
@@ -134,6 +135,7 @@
                 <small class="text-muted d-block mb-3 mt-1 text-center">Dispones de 10 días para retirar tu compra.</small>
 
                 <form action="/Cart/CompletePurchase" method="post">
+                    <input type="hidden" name="paymentType" value="@((int)PaymentType.Store)" />
                     <button type="submit" class="btn btn-outline-primary btn-lg w-100 mt-2">
                         <i class="fa-solid fa-store"></i>
                         Pagar en Tienda
@@ -151,6 +153,7 @@
         <div class="modal-content">
 
             <form action="/Cart/CompletePurchase" method="post">
+                <input type="hidden" name="paymentType" value="@((int)PaymentType.Card)" />
                 <div class="modal-header">
                     <h1 class="modal-title fs-5" id="paymentDetailsModalLabel">Datos de Pago</h1>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -200,4 +203,3 @@
         </div>
     </div>
 </div>
-

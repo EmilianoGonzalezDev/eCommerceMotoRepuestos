@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es-AR">
 <head>
     <meta charset="utf-8" />
@@ -28,12 +28,14 @@
                 @if (User.IsInRole("Admin"))
                 {
                     <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="Category" asp-action="Index">Categor�as</a>
+                        <a class="nav-link text-dark" asp-area="" asp-controller="Category" asp-action="Index">Categorías</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link text-dark" asp-area="" asp-controller="Product" asp-action="Index">Productos</a>
                     </li>
-
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" asp-area="" asp-controller="User" asp-action="Orders">Pedidos</a>
+                    </li>
                 }
             }
 

@@ -1,0 +1,93 @@
+@model PagedResult<OrderViewModel>
+@using eCommerceMotoRepuestos.Enums
+@{
+    string GetStatusBadgeClass(OrderStatus status) => status switch
+    {
+        OrderStatus.Pending => "bg-warning text-dark",
+        OrderStatus.Prepared => "bg-info text-dark",
+        OrderStatus.Delivered => "bg-success",
+        OrderStatus.Cancelled => "bg-danger",
+        _ => "bg-secondary"
+    };
+}
+
+<div class="row justify-content-between mt-4">
+    <div class="col-4">
+        <h4>Pedidos</h4>
+    </div>
+</div>
+<hr />
+
+@if (Model.TotalItems == 0)
+{
+    <div class="alert alert-warning alert-dismissible fade show mt-4" role="alert">
+        Actualmente no registra compras realizadas.
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Fecha de compra</th>
+                <th>Cliente</th>
+                <th>Total</th>
+                <th>Tipo de pago</th>
+                <th>Estado</th>
+                <th>Productos</th>
+            </tr>
+
+        </thead>
+        <tbody>
+            @foreach (var order in Model.Items)
+            {
+                <tr>
+                    <td>@order.OrderDateFormatted</td>
+                    <td>@order.CustomerName</td>
+                    <td>@order.TotalAmountFormatted</td>
+                    <td>@order.PaymentTypeFormatted</td>
+                    <td>
+                        <span class="badge @GetStatusBadgeClass(order.Status)">@order.StatusFormatted</span>
+                    </td>
+                    <td>
+                        <ul>
+                            @foreach (var orderItem in order.OrderItems)
+                            {
+                                <li class="list-group-item">
+                                    @orderItem.OrderItemSummary
+                                </li>
+                            }
+                        </ul>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <div class="d-flex justify-content-end align-items-center mb-2">
+        <span class="small text-muted me-2">Items por página</span>
+        <form method="get" action="/User/Orders" class="d-inline">
+            <input type="hidden" name="page" value="1" />
+            <select name="pageSize" class="form-select form-select-sm w-auto" onchange="this.form.submit()">
+                @await Html.PartialAsync("_PageSizeOptions", Model.PageSize)
+            </select>
+        </form>
+    </div>
+    <nav aria-label="Paginación">
+        <ul class="pagination justify-content-center">
+            <li class="page-item @(Model.HasPrevious ? "" : "disabled")">
+                <a class="page-link" href="@(Model.HasPrevious ? Url.Action("Orders", "User", new { page = Model.PageNumber - 1, pageSize = Model.PageSize }) : "#")">Anterior</a>
+            </li>
+            @for (var i = 1; i <= Model.TotalPages; i++)
+            {
+                <li class="page-item @(i == Model.PageNumber ? "active" : "")">
+                    <a class="page-link" href="@Url.Action("Orders", "User", new { page = i, pageSize = Model.PageSize })">@i</a>
+                </li>
+            }
+            <li class="page-item @(Model.HasNext ? "" : "disabled")">
+                <a class="page-link" href="@(Model.HasNext ? Url.Action("Orders", "User", new { page = Model.PageNumber + 1, pageSize = Model.PageSize }) : "#")">Siguiente</a>
+            </li>
+        </ul>
+    </nav>
+}

@@ -38,6 +38,30 @@ public class OrderService(OrderRepository _orderRepository)
         {
             OrderDate = x.OrderDate,
             TotalAmount = x.TotalAmount,
+            PaymentType = x.PaymentType,
+            Status = x.Status,
+            OrderItems = x.OrderItems.Select(x => new OrderItemViewModel
+            {
+                ProductName = x.Product.Name,
+                Quantity = x.Quantity,
+                Price = x.Price
+            }).ToList()
+        }).ToList();
+
+        return ordersVM;
+    }
+
+    public async Task<List<OrderViewModel>> GetAllAsync()
+    {
+        var orders = await _orderRepository.GetAllWithDetailAsync();
+
+        var ordersVM = orders.Select(x => new OrderViewModel
+        {
+            OrderDate = x.OrderDate,
+            CustomerName = x.User?.FullName,
+            TotalAmount = x.TotalAmount,
+            PaymentType = x.PaymentType,
+            Status = x.Status,
             OrderItems = x.OrderItems.Select(x => new OrderItemViewModel
             {
                 ProductName = x.Product.Name,

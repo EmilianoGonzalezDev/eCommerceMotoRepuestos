@@ -46,4 +46,15 @@ public class OrderRepository : GenericRepository<Order>
                             .ToListAsync();
         return orders;
     }
+
+    public async Task<IEnumerable<Order>> GetAllWithDetailAsync()
+    {
+        var orders = await _dbContext.Order
+                            .Include(x => x.User)
+                            .Include(x => x.OrderItems)
+                            .ThenInclude(x => x.Product)
+                            .OrderByDescending(x => x.OrderDate)
+                            .ToListAsync();
+        return orders;
+    }
 }

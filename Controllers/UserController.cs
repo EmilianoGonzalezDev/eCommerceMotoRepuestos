@@ -26,6 +26,15 @@ public class UserController(OrderService _orderService) : Controller
         var pagedOrders = PagedResult<OrderViewModel>.Create(ordersvm, page, size);
         return View(pagedOrders);
     }
+
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> Orders(int page = 1, int pageSize = DefaultOrdersPageSize)
+    {
+        var size = NormalizePageSize(pageSize, DefaultOrdersPageSize);
+        var ordersvm = await _orderService.GetAllAsync();
+        var pagedOrders = PagedResult<OrderViewModel>.Create(ordersvm, page, size);
+        return View(pagedOrders);
+    }
 }
 
 

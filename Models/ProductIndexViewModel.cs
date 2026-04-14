@@ -6,6 +6,7 @@ public class ProductIndexViewModel
     public ProductSortBy CurrentSortBy { get; init; } = ProductSortBy.Name;
     public SortDirection CurrentSortDir { get; init; } = SortDirection.Asc;
     public string Search { get; init; } = string.Empty;
+    public bool LowStockOnly { get; init; }
 
     public IReadOnlyList<ProductViewModel> Items => Products.Items;
     public int PageNumber => Products.PageNumber;
@@ -42,7 +43,8 @@ public class ProductIndexViewModel
             pageSize = PageSize,
             sortBy,
             sortDir = sortDirection,
-            search = Search
+            search = Search,
+            lowStockOnly = LowStockOnly
         };
     }
 
@@ -54,7 +56,8 @@ public class ProductIndexViewModel
             pageSize = PageSize,
             sortBy = CurrentSortBy,
             sortDir = CurrentSortDir,
-            search = Search
+            search = Search,
+            lowStockOnly = LowStockOnly
         };
     }
 }

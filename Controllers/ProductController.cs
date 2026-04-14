@@ -10,6 +10,7 @@ public class ProductController(ProductService _productService) : Controller
 {
     private static readonly int[] PageSizes = [5, 10, 15, 20, 50, 100];
     private const int DefaultAdminPageSize = 10;
+    private const int LowStockThreshold = 5;
 
     private static int NormalizePageSize(int? pageSize, int defaultSize)
     {
@@ -22,7 +23,8 @@ public class ProductController(ProductService _productService) : Controller
         int pageSize = DefaultAdminPageSize,
         ProductSortBy sortBy = ProductSortBy.Name,
         SortDirection sortDir = SortDirection.Asc,
-        string search = "")
+        string search = "",
+        bool lowStockOnly = false)
     {
         var size = NormalizePageSize(pageSize, DefaultAdminPageSize);
         var normalizedSortBy = NormalizeSortBy(sortBy);
@@ -30,7 +32,7 @@ public class ProductController(ProductService _productService) : Controller
         var normalizedSearch = NormalizeSearch(search);
 
         var products = await _productService.GetAllAsync();
-        var filteredProducts = FilterProducts(products, normalizedSearch);
+        var filteredProducts = FilterProducts(products, normalizedSearch, lowStockOnly);
         var sortedProducts = SortProducts(filteredProducts, normalizedSortBy, normalizedSortDir);
         var pagedProducts = PagedResult<ProductViewModel>.Create(sortedProducts, page, size);
 
@@ -39,7 +41,8 @@ public class ProductController(ProductService _productService) : Controller
             Products = pagedProducts,
             CurrentSortBy = normalizedSortBy,
             CurrentSortDir = normalizedSortDir,
-            Search = normalizedSearch
+            Search = normalizedSearch,
+            LowStockOnly = lowStockOnly
         };
 
         return View(viewModel);
@@ -62,13 +65,24 @@ public class ProductController(ProductService _productService) : Controller
 
     private static IEnumerable<ProductViewModel> FilterProducts(
         IEnumerable<ProductViewModel> products,
-        string search)
+        string search,
+        bool lowStockOnly)
     {
-        if (string.IsNullOrWhiteSpace(search)) return products;
+        var filtered = products;
 
-        return products.Where(x =>
-            !string.IsNullOrWhiteSpace(x.Name) &&
-            x.Name.Contains(search, StringComparison.OrdinalIgnoreCase));
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            filtered = filtered.Where(x =>
+                !string.IsNullOrWhiteSpace(x.Name) &&
+                x.Name.Contains(search, StringComparison.OrdinalIgnoreCase));
+        }
+
+        if (lowStockOnly)
+        {
+            filtered = filtered.Where(x => x.Stock <= LowStockThreshold);
+        }
+
+        return filtered;
     }
 
     private static IEnumerable<ProductViewModel> SortProducts(

@@ -42,7 +42,7 @@
     <div class="col-auto">
         <button type="submit" class="btn btn-outline-secondary">Buscar</button>
     </div>
-    @if (!string.IsNullOrWhiteSpace(Model.Search))
+    @if (!string.IsNullOrWhiteSpace(Model.Search) || Model.LowStockOnly)
     {
         <div class="col-auto">
             <a class="btn btn-outline-secondary"
@@ -51,6 +51,20 @@
             </a>
         </div>
     }
+    <div class="col-auto">
+        <div class="form-check mb-1 ms-3">
+            <input class="form-check-input"
+                   type="checkbox"
+                   id="lowStockOnly"
+                   name="lowStockOnly"
+                   value="true"
+                   onchange="this.form.submit()"
+                   @(Model.LowStockOnly ? "checked" : null) />
+            <label class="form-check-label" for="lowStockOnly">
+                Bajo stock
+            </label>
+        </div>
+    </div>
 </form>
 
 <table class="table table-striped">
@@ -110,6 +124,7 @@
         <input type="hidden" name="sortBy" value="@Model.CurrentSortBy" />
         <input type="hidden" name="sortDir" value="@Model.CurrentSortDir" />
         <input type="hidden" name="search" value="@Model.Search" />
+        <input type="hidden" name="lowStockOnly" value="@Model.LowStockOnly" />
         <select name="pageSize" class="form-select form-select-sm" onchange="this.form.submit()">
             @await Html.PartialAsync("_PageSizeOptions", Model.PageSize)
         </select>

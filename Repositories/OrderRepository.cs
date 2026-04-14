@@ -1,5 +1,6 @@
 ﻿using eCommerceMotoRepuestos.Context;
 using eCommerceMotoRepuestos.Entities;
+using eCommerceMotoRepuestos.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace eCommerceMotoRepuestos.Repositories;
@@ -56,5 +57,15 @@ public class OrderRepository : GenericRepository<Order>
                             .OrderByDescending(x => x.OrderDate)
                             .ToListAsync();
         return orders;
+    }
+
+    public async Task<bool> UpdateStatusAsync(int orderId, OrderStatus status)
+    {
+        var order = await _dbContext.Order.FindAsync(orderId);
+        if (order is null) return false;
+
+        order.Status = status;
+        await _dbContext.SaveChangesAsync();
+        return true;
     }
 }

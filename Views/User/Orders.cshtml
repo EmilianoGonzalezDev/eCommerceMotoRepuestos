@@ -88,7 +88,59 @@ else
                     <td>@order.TotalAmountFormatted</td>
                     <td>@order.PaymentTypeFormatted</td>
                     <td>
-                        <span class="badge @GetStatusBadgeClass(order.Status)">@order.StatusFormatted</span>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="badge @GetStatusBadgeClass(order.Status)">@order.StatusFormatted</span>
+                            <button type="button"
+                                    class="btn btn-link p-0 text-primary"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#editStatusModal_@order.OrderId"
+                                    title="Editar estado"
+                                    aria-label="Editar estado del pedido @order.OrderId">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </button>
+                        </div>
+
+                        <div class="modal fade" id="editStatusModal_@order.OrderId" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Editar estado del pedido #@order.OrderId</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <form asp-controller="User" asp-action="UpdateOrderStatus" method="post">
+                                        @Html.AntiForgeryToken()
+                                        <div class="modal-body">
+                                            <input type="hidden" name="orderId" value="@order.OrderId" />
+                                            <input type="hidden" name="page" value="@Model.PageNumber" />
+                                            <input type="hidden" name="pageSize" value="@Model.PageSize" />
+                                            <input type="hidden" name="filtersSubmitted" value="true" />
+                                            @foreach (var selectedStatus in selectedStatusValues)
+                                            {
+                                                <input type="hidden" name="selectedStatuses" value="@selectedStatus" />
+                                            }
+                                            <label class="form-label" for="statusSelect_@order.OrderId">Estado</label>
+                                            <select class="form-select" id="statusSelect_@order.OrderId" name="status">
+                                                @foreach (var status in Enum.GetValues<OrderStatus>())
+                                                {
+                                                    if (status == order.Status)
+                                                    {
+                                                        <option value="@status" selected>@GetStatusText(status)</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="@status">@GetStatusText(status)</option>
+                                                    }
+                                                }
+                                            </select>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                            <button type="submit" class="btn btn-primary">Guardar</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
                     </td>
                     <td>
                         <ul>

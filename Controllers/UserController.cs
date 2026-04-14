@@ -46,6 +46,28 @@ public class UserController(OrderService _orderService) : Controller
         ViewBag.SelectedStatuses = effectiveStatuses.Select(status => (int)status).ToHashSet();
         return View(pagedOrders);
     }
+
+    [HttpPost]
+    [Authorize(Roles = "Admin")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> UpdateOrderStatus(
+        int orderId,
+        OrderStatus status,
+        int page = 1,
+        int pageSize = DefaultOrdersPageSize,
+        List<OrderStatus>? selectedStatuses = null,
+        bool filtersSubmitted = true)
+    {
+        await _orderService.UpdateStatusAsync(orderId, status);
+
+        return RedirectToAction(nameof(Orders), new
+        {
+            page,
+            pageSize,
+            selectedStatuses,
+            filtersSubmitted
+        });
+    }
 }
 
 

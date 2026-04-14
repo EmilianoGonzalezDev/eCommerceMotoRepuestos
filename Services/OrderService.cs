@@ -75,4 +75,9 @@ public class OrderService(OrderRepository _orderRepository)
         return ordersVM;
     }
 
+    public async Task<bool> UpdateStatusAsync(int orderId, OrderStatus status)
+    {
+        return await _orderRepository.UpdateStatusAsync(orderId, status);
+    }
+
 }

@@ -1,4 +1,4 @@
-@model PagedResult<OrderViewModel>
+﻿@model PagedResult<OrderViewModel>
 @using eCommerceMotoRepuestos.Enums
 @{
     var selectedStatuses = (ViewBag.SelectedStatuses as HashSet<int>) ?? new HashSet<int>();
@@ -69,6 +69,7 @@ else
         <thead>
             <tr>
                 <th>Fecha de compra</th>
+                <th>Pedido N°</th>
                 <th>Cliente</th>
                 <th>Total</th>
                 <th>Tipo de pago</th>
@@ -82,6 +83,7 @@ else
             {
                 <tr>
                     <td>@order.OrderDateFormatted</td>
+                    <td>#@order.OrderId</td>
                     <td>@order.CustomerName</td>
                     <td>@order.TotalAmountFormatted</td>
                     <td>@order.PaymentTypeFormatted</td>

@@ -37,6 +37,7 @@ public class OrderService(OrderRepository _orderRepository)
         var ordersVM = orders.Select(x => new OrderViewModel
         {
             OrderDate = x.OrderDate,
+            OrderId = x.OrderId,
             TotalAmount = x.TotalAmount,
             PaymentType = x.PaymentType,
             Status = x.Status,
@@ -58,6 +59,7 @@ public class OrderService(OrderRepository _orderRepository)
         var ordersVM = orders.Select(x => new OrderViewModel
         {
             OrderDate = x.OrderDate,
+            OrderId = x.OrderId,
             CustomerName = x.User?.FullName,
             TotalAmount = x.TotalAmount,
             PaymentType = x.PaymentType,

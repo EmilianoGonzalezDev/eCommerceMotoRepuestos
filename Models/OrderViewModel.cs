@@ -5,6 +5,7 @@ namespace eCommerceMotoRepuestos.Models;
 public class OrderViewModel
 {
     public DateTime OrderDate { get; set; }
+    public int OrderId { get; set; }
     public string? CustomerName { get; set; }
     public decimal TotalAmount { get; set; }
     public PaymentType PaymentType { get; set; }

@@ -1,6 +1,18 @@
 @model PagedResult<OrderViewModel>
 @using eCommerceMotoRepuestos.Enums
 @{
+    var selectedStatuses = (ViewBag.SelectedStatuses as HashSet<int>) ?? new HashSet<int>();
+    var selectedStatusValues = selectedStatuses.ToArray();
+
+    string GetStatusText(OrderStatus status) => status switch
+    {
+        OrderStatus.Pending => "Pendiente",
+        OrderStatus.Prepared => "Preparado",
+        OrderStatus.Delivered => "Entregado",
+        OrderStatus.Cancelled => "Cancelado",
+        _ => status.ToString()
+    };
+
     string GetStatusBadgeClass(OrderStatus status) => status switch
     {
         OrderStatus.Pending => "bg-warning text-dark",
@@ -18,11 +30,37 @@
 </div>
 <hr />
 
+<form method="get" action="/User/Orders" class="row g-2 align-items-end mt-2 mb-4">
+    <input type="hidden" name="page" value="1" />
+    <input type="hidden" name="pageSize" value="@Model.PageSize" />
+    <input type="hidden" name="filtersSubmitted" value="true" />
+
+    @foreach (var status in Enum.GetValues<OrderStatus>())
+    {
+        var statusValue = (int)status;
+        <div class="col-auto">
+            <div class="form-check">
+                <input class="form-check-input"
+                       type="checkbox"
+                       name="selectedStatuses"
+                       value="@statusValue"
+                       id="status_@statusValue"
+                       checked="@selectedStatuses.Contains(statusValue)" />
+                <label class="form-check-label" for="status_@statusValue">
+                    @GetStatusText(status)
+                </label>
+            </div>
+        </div>
+    }
+    <div class="col-auto">
+        <button type="submit" class="btn btn-outline-primary btn-sm">Aplicar filtros</button>
+    </div>
+</form>
+
 @if (Model.TotalItems == 0)
 {
-    <div class="alert alert-warning alert-dismissible fade show mt-4" role="alert">
-        Actualmente no registra compras realizadas.
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    <div class="alert alert-warning mt-4" role="alert">
+        No se registran pedidos.
     </div>
 }
 else
@@ -66,27 +104,32 @@ else
     </table>
 
     <div class="d-flex justify-content-end align-items-center mb-2">
-        <span class="small text-muted me-2">Items por página</span>
+        <span class="small text-muted me-2">Items por pagina</span>
         <form method="get" action="/User/Orders" class="d-inline">
             <input type="hidden" name="page" value="1" />
+            <input type="hidden" name="filtersSubmitted" value="true" />
+            @foreach (var selectedStatus in selectedStatusValues)
+            {
+                <input type="hidden" name="selectedStatuses" value="@selectedStatus" />
+            }
             <select name="pageSize" class="form-select form-select-sm w-auto" onchange="this.form.submit()">
                 @await Html.PartialAsync("_PageSizeOptions", Model.PageSize)
             </select>
         </form>
     </div>
-    <nav aria-label="Paginación">
+    <nav aria-label="Paginacion">
         <ul class="pagination justify-content-center">
             <li class="page-item @(Model.HasPrevious ? "" : "disabled")">
-                <a class="page-link" href="@(Model.HasPrevious ? Url.Action("Orders", "User", new { page = Model.PageNumber - 1, pageSize = Model.PageSize }) : "#")">Anterior</a>
+                <a class="page-link" href="@(Model.HasPrevious ? Url.Action("Orders", "User", new { page = Model.PageNumber - 1, pageSize = Model.PageSize, selectedStatuses = selectedStatusValues, filtersSubmitted = true }) : "#")">Anterior</a>
             </li>
             @for (var i = 1; i <= Model.TotalPages; i++)
             {
                 <li class="page-item @(i == Model.PageNumber ? "active" : "")">
-                    <a class="page-link" href="@Url.Action("Orders", "User", new { page = i, pageSize = Model.PageSize })">@i</a>
+                    <a class="page-link" href="@Url.Action("Orders", "User", new { page = i, pageSize = Model.PageSize, selectedStatuses = selectedStatusValues, filtersSubmitted = true })">@i</a>
                 </li>
             }
             <li class="page-item @(Model.HasNext ? "" : "disabled")">
-                <a class="page-link" href="@(Model.HasNext ? Url.Action("Orders", "User", new { page = Model.PageNumber + 1, pageSize = Model.PageSize }) : "#")">Siguiente</a>
+                <a class="page-link" href="@(Model.HasNext ? Url.Action("Orders", "User", new { page = Model.PageNumber + 1, pageSize = Model.PageSize, selectedStatuses = selectedStatusValues, filtersSubmitted = true }) : "#")">Siguiente</a>
             </li>
         </ul>
     </nav>

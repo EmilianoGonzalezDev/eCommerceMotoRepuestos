@@ -1,4 +1,4 @@
-using eCommerceMotoRepuestos.Enums;
+ï»¿using eCommerceMotoRepuestos.Enums;
 using eCommerceMotoRepuestos.Models;
 using eCommerceMotoRepuestos.Services;
 using eCommerceMotoRepuestos.Utilities;
@@ -11,7 +11,7 @@ namespace eCommerceMotoRepuestos.Controllers
     public class CartController(
         ProductService _productService,
         CartService _cartService,
-        OrderService _orderService
+        UserOrderService _userOrderService
         ) : Controller
     {
         private const int CartPageSize = 10;
@@ -29,7 +29,7 @@ namespace eCommerceMotoRepuestos.Controllers
 
                 if (requestedQuantity + currentQuantity > product.Stock)
                 {
-                    ViewBag.message = "En este momento no está disponible en stock la cantidad de unidades indicada.";
+                    ViewBag.message = "En este momento no estÃ¡ disponible en stock la cantidad de unidades indicada.";
                     ViewBag.alertType = "danger";
                     return View("~/Views/Home/ProductDetail.cshtml", product);
                 }
@@ -44,7 +44,7 @@ namespace eCommerceMotoRepuestos.Controllers
 
                 if (requestedQuantity + currentQuantity > product.Stock)
                 {
-                    ViewBag.message = "En este momento no está disponible en stock la cantidad de unidades indicada.";
+                    ViewBag.message = "En este momento no estÃ¡ disponible en stock la cantidad de unidades indicada.";
                     ViewBag.alertType = "danger";
                     return View("~/Views/Home/ProductDetail.cshtml", product);
                 }
@@ -111,7 +111,7 @@ namespace eCommerceMotoRepuestos.Controllers
 
             if (adjustedQuantity != quantity)
             {
-                TempData["CartMessage"] = "La cantidad mínima permitida es 1.";
+                TempData["CartMessage"] = "La cantidad mÃ­nima permitida es 1.";
                 TempData["CartAlertType"] = "warning";
             }
 
@@ -126,7 +126,7 @@ namespace eCommerceMotoRepuestos.Controllers
             if (adjustedQuantity > product.Stock)
             {
                 adjustedQuantity = product.Stock;
-                TempData["CartMessage"] = $"Se ajustó la cantidad al stock disponible ({product.Stock}).";
+                TempData["CartMessage"] = $"Se ajustÃ³ la cantidad al stock disponible ({product.Stock}).";
                 TempData["CartAlertType"] = "warning";
             }
 
@@ -135,7 +135,7 @@ namespace eCommerceMotoRepuestos.Controllers
                 var cartItem = await _cartService.GetByUserAndProductAsync(userId.Value, productId);
                 if (cartItem is null)
                 {
-                    TempData["CartMessage"] = "No se encontró el producto en el carrito.";
+                    TempData["CartMessage"] = "No se encontrÃ³ el producto en el carrito.";
                     TempData["CartAlertType"] = "warning";
                     return RedirectToAction("ViewCart", new { page });
                 }
@@ -148,7 +148,7 @@ namespace eCommerceMotoRepuestos.Controllers
                 var cartItem = cart.Find(x => x.ProductId == productId);
                 if (cartItem is null)
                 {
-                    TempData["CartMessage"] = "No se encontró el producto en el carrito.";
+                    TempData["CartMessage"] = "No se encontrÃ³ el producto en el carrito.";
                     TempData["CartAlertType"] = "warning";
                     return RedirectToAction("ViewCart", new { page });
                 }
@@ -178,7 +178,7 @@ namespace eCommerceMotoRepuestos.Controllers
                 return RedirectToAction("ViewCart");
             }
 
-            await _orderService.AddAsync(cart, userId.Value, paymentType);
+            await _userOrderService.AddAsync(cart, userId.Value, paymentType);
             await _cartService.ClearByUserAsync(userId.Value);
             HttpContext.Session.Remove("Cart");
             return View("SaleCompleted");

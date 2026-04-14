@@ -30,7 +30,7 @@
 </div>
 <hr />
 
-<form method="get" action="/User/Orders" class="row g-2 align-items-end mt-2 mb-4">
+<form method="get" action="/Orders" class="row g-2 align-items-end mt-2 mb-4">
     <input type="hidden" name="page" value="1" />
     <input type="hidden" name="pageSize" value="@Model.PageSize" />
     <input type="hidden" name="filtersSubmitted" value="true" />
@@ -107,7 +107,7 @@ else
                                         <h5 class="modal-title">Editar estado del pedido #@order.OrderId</h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
-                                    <form asp-controller="User" asp-action="UpdateOrderStatus" method="post">
+                                    <form asp-controller="Order" asp-action="UpdateStatus" method="post">
                                         @Html.AntiForgeryToken()
                                         <div class="modal-body">
                                             <input type="hidden" name="orderId" value="@order.OrderId" />
@@ -159,7 +159,7 @@ else
 
     <div class="d-flex justify-content-end align-items-center mb-2">
         <span class="small text-muted me-2">Items por pagina</span>
-        <form method="get" action="/User/Orders" class="d-inline">
+        <form method="get" action="/Orders" class="d-inline">
             <input type="hidden" name="page" value="1" />
             <input type="hidden" name="filtersSubmitted" value="true" />
             @foreach (var selectedStatus in selectedStatusValues)
@@ -174,16 +174,16 @@ else
     <nav aria-label="Paginacion">
         <ul class="pagination justify-content-center">
             <li class="page-item @(Model.HasPrevious ? "" : "disabled")">
-                <a class="page-link" href="@(Model.HasPrevious ? Url.Action("Orders", "User", new { page = Model.PageNumber - 1, pageSize = Model.PageSize, selectedStatuses = selectedStatusValues, filtersSubmitted = true }) : "#")">Anterior</a>
+                <a class="page-link" href="@(Model.HasPrevious ? Url.Action("Index", "Order", new { page = Model.PageNumber - 1, pageSize = Model.PageSize, selectedStatuses = selectedStatusValues, filtersSubmitted = true }) : "#")">Anterior</a>
             </li>
             @for (var i = 1; i <= Model.TotalPages; i++)
             {
                 <li class="page-item @(i == Model.PageNumber ? "active" : "")">
-                    <a class="page-link" href="@Url.Action("Orders", "User", new { page = i, pageSize = Model.PageSize, selectedStatuses = selectedStatusValues, filtersSubmitted = true })">@i</a>
+                    <a class="page-link" href="@Url.Action("Index", "Order", new { page = i, pageSize = Model.PageSize, selectedStatuses = selectedStatusValues, filtersSubmitted = true })">@i</a>
                 </li>
             }
             <li class="page-item @(Model.HasNext ? "" : "disabled")">
-                <a class="page-link" href="@(Model.HasNext ? Url.Action("Orders", "User", new { page = Model.PageNumber + 1, pageSize = Model.PageSize, selectedStatuses = selectedStatusValues, filtersSubmitted = true }) : "#")">Siguiente</a>
+                <a class="page-link" href="@(Model.HasNext ? Url.Action("Index", "Order", new { page = Model.PageNumber + 1, pageSize = Model.PageSize, selectedStatuses = selectedStatusValues, filtersSubmitted = true }) : "#")">Siguiente</a>
             </li>
         </ul>
     </nav>

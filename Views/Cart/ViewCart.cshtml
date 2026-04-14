@@ -16,7 +16,7 @@
             <h4>Carrito</h4>
         </div>
         <div class="col-4 text-end">
-            @if (User.Identity.IsAuthenticated)
+            @if (User.Identity.IsAuthenticated && User.IsInRole("Client"))
             {
                 <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#purchaseOptionsModal">
                     Finalizar Compra
@@ -24,10 +24,13 @@
             }
             else
             {
-                <button disabled type="button" class="btn btn-secondary">
-                    Finalizar Compra
-                </button>
+                    <button disabled type="button" class="btn btn-secondary">
+                        Finalizar Compra
+                    </button>
+            }
 
+            @if (!User.Identity.IsAuthenticated)
+            {
                 <a href="/Account/Login" class="text-decoration-none">
                     <div class="alert alert-warning mt-1 text-center" role="alert">
                         Ingrese a su cuenta para finalizar compra

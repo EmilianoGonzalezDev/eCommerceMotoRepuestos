@@ -25,6 +25,13 @@
 
             @if (User.Identity!.IsAuthenticated)
             {
+                @if (User.IsInRole("Client"))
+                {
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" asp-area="" asp-controller="User" asp-action="MyOrders">Mis Compras</a>
+                    </li>
+                }
+
                 @if (User.IsInRole("Admin"))
                 {
                     <li class="nav-item">
@@ -57,8 +64,6 @@
                     @displayName
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end">
-                    <li><a class="dropdown-item text-dark" href="/User/MyOrders">Mis compras</a></li>
-                    <li><hr class="dropdown-divider"></li>
                     <li><a class="dropdown-item text-dark" href="/Account/Logout">Salir</a></li>
                 </ul>
             </div>

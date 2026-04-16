@@ -116,52 +116,6 @@
         background: #e0e0e0;
         transform: translateY(-2px);
     }
-
-    .error-details {
-        background: #f9f9f9;
-        border-left: 4px solid #667eea;
-        padding: 15px;
-        margin-top: 30px;
-        border-radius: 5px;
-        text-align: left;
-        font-size: 0.9rem;
-        color: #666;
-    }
-
-    .error-details strong {
-        color: #333;
-    }
-
-    .support-section {
-        margin-top: 40px;
-        padding-top: 30px;
-        border-top: 2px solid #eee;
-    }
-
-    .support-text {
-        color: #999;
-        font-size: 0.95rem;
-        margin-bottom: 10px;
-    }
-
-    .contact-links {
-        display: flex;
-        gap: 20px;
-        justify-content: center;
-        margin-top: 15px;
-    }
-
-    .contact-link {
-        color: #667eea;
-        text-decoration: none;
-        font-size: 0.9rem;
-        transition: color 0.3s ease;
-    }
-
-    .contact-link:hover {
-        color: #764ba2;
-        text-decoration: underline;
-    }
 </style>
 
 <div class="error-container">
@@ -192,21 +146,6 @@
             <a href="javascript:history.back()" class="btn-secondary-error">
                 ← Volver Atrás
             </a>
-        </div>
-
-        @if (Model.ShowRequestId)
-        {
-            <div class="error-details">
-                <strong>ID de Solicitud:</strong> <code>@Model.RequestId</code>
-            </div>
-        }
-
-        <div class="support-section">
-            <div class="contact-links">
-                <a href="@Url.Action("Index", "Home")" class="contact-link">Catálogo de Productos</a>
-                <span style="color: #ddd;">|</span>
-                <a href="@Url.Action("MyOrders", "User")" class="contact-link">Mis Órdenes</a>
-            </div>
         </div>
     </div>
 </div>

@@ -17,6 +17,12 @@ public class AccountController(
 {
     public IActionResult Login()
     {
+        if (User.Identity?.IsAuthenticated == true)
+        {
+            TempData["SuccessMessage"] = "El usuario ya se encuentra logueado.";
+            return RedirectToAction("Index", "Home");
+        }
+
         var viewModel = new LoginViewModel();
         return View(viewModel);
     }
@@ -59,6 +65,12 @@ public class AccountController(
 
     public IActionResult Register()
     {
+        if (User.Identity?.IsAuthenticated == true)
+        {
+            TempData["SuccessMessage"] = "El usuario ya se encuentra logueado.";
+            return RedirectToAction("Index", "Home");
+        }
+
         var viewModel = new UserViewModel();
         return View(viewModel);
     }

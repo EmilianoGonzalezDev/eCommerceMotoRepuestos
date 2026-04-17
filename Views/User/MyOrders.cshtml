@@ -16,7 +16,7 @@
 }
 else
 {
-    <table class="table table-striped">
+    <table class="table table-striped table-hover">
         <thead>
             <tr>
                 <th>Fecha de compra</th>
@@ -38,7 +38,14 @@ else
                             @foreach (var orderItem in order.OrderItems)
                             {
                                 <li class="list-group-item">
-                                    @orderItem.OrderItemSummary
+                                    @orderItem.Quantity x 
+                                    <a 
+                                       asp-controller="Home" asp-action="ProductDetail" asp-route-id="@orderItem.ProductId"
+                                       class="text-decoration-none fw-bold"
+                                    >
+                                        @orderItem.ProductName
+                                    </a>
+                                    @orderItem.FormattedPrice
                                 </li>
                             }
                         </ul>

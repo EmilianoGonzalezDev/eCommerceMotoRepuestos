@@ -40,6 +40,7 @@ public class UserOrderService(OrderRepository _orderRepository)
             Status = x.Status,
             OrderItems = x.OrderItems.Select(x => new OrderItemViewModel
             {
+                ProductId = x.ProductId,
                 ProductName = x.Product.Name,
                 Quantity = x.Quantity,
                 Price = x.Price

@@ -65,16 +65,16 @@
 }
 else
 {
-    <table class="table table-striped">
+    <table class="table table-striped table-hover">
         <thead>
             <tr>
                 <th>Fecha de compra</th>
                 <th>Pedido N°</th>
                 <th>Cliente</th>
+                <th>Pago</th>
                 <th>Total</th>
-                <th>Tipo de pago</th>
-                <th>Estado</th>
                 <th>Productos</th>
+                <th>Estado</th>
             </tr>
 
         </thead>
@@ -85,8 +85,24 @@ else
                     <td>@order.OrderDateFormatted</td>
                     <td>#@order.OrderId</td>
                     <td>@order.CustomerName</td>
-                    <td>@order.TotalAmountFormatted</td>
                     <td>@order.PaymentTypeFormatted</td>
+                    <td>@order.TotalAmountFormatted</td>
+                    <td>
+                        <ul>
+                            @foreach (var orderItem in order.OrderItems)
+                            {
+                                <li class="list-group-item">
+                                    @orderItem.Quantity x
+                                    <a asp-controller="Home" asp-action="ProductDetail" asp-route-id="@orderItem.ProductId"
+                                       class="text-decoration-none fw-bold"
+                                    >
+                                        @orderItem.ProductName
+                                    </a>
+                                    @orderItem.FormattedPrice
+                                </li>
+                            }
+                        </ul>
+                    </td>
                     <td>
                         <div class="d-flex align-items-center gap-2">
                             <span class="badge @GetStatusBadgeClass(order.Status)">@order.StatusFormatted</span>
@@ -141,16 +157,6 @@ else
                                 </div>
                             </div>
                         </div>
-                    </td>
-                    <td>
-                        <ul>
-                            @foreach (var orderItem in order.OrderItems)
-                            {
-                                <li class="list-group-item">
-                                    @orderItem.OrderItemSummary
-                                </li>
-                            }
-                        </ul>
                     </td>
                 </tr>
             }

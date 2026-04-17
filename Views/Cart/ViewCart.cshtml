@@ -155,54 +155,129 @@
     <div class="modal-dialog">
         <div class="modal-content">
 
-            <form action="/Cart/CompletePurchase" method="post">
+            <form id="cardPaymentForm" action="/Cart/CompletePurchase" method="post">
                 <input type="hidden" name="paymentType" value="@((int)PaymentType.Card)" />
                 <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="paymentDetailsModalLabel">Datos de Pago</h1>
+                    <h1 class="modal-title fs-5" id="paymentDetailsModalLabel">Datos de Tarjeta</h1>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <div class="row g-3">
-
                         <div class="col-12">
-                            <input type="email" class="form-control" name="email" placeholder="Email" required maxlength="100" />
-                        </div>
-                        <div class="col-12">
-                            <input type="text" class="form-control" name="address" placeholder="Dirección" required minlength="5" maxlength="120" />
-                        </div>
-                        <div class="col-6">
-                            <input type="text" class="form-control" name="country" placeholder="País" required minlength="2" maxlength="60" />
-                        </div>
-                        <div class="col-6">
-                            <input type="text" class="form-control" name="city" placeholder="Ciudad" required minlength="2" maxlength="60" />
-                        </div>
-                        <hr />
-                        <div class="col-12">
-                            <input type="text" class="form-control" name="cardHolderName" placeholder="Nombre del titular" required minlength="3" maxlength="100" />
+                            <input type="text" class="form-control" id="cardHolderName" name="cardHolderName" placeholder="Nombre del titular" required minlength="3" maxlength="100" />
                         </div>
                         <div class="col-12">
-                            <input type="text" class="form-control" name="cardNumber" placeholder="Número de tarjeta" required inputmode="numeric" pattern="[0-9]{16}" maxlength="16" title="Ingresa 16 dígitos" />
+                            <input type="text" class="form-control" id="cardNumber" name="cardNumber" placeholder="Número de tarjeta" required inputmode="numeric" pattern="[0-9]{4} [0-9]{4} [0-9]{4} [0-9]{4}" maxlength="19" title="Número no válido" />
                         </div>
                         <div class="col-3">
-                            <input type="number" class="form-control" name="expirationMonth" placeholder="MM" required min="1" max="12" />
+                            <input type="number" class="form-control" id="expirationMonth" name="expirationMonth" placeholder="MM" required min="1" max="12" />
                         </div>
                         <div class="col-3">
-                            <input type="number" class="form-control" name="expirationYear" placeholder="AAAA" required min="2022" max="2100" />
+                            <input type="number" class="form-control" id="expirationYear" name="expirationYear" placeholder="AAAA" required min="2022" max="2100" />
                         </div>
                         <div class="col-6">
-                            <input type="text" class="form-control" name="cvv" placeholder="CVV" required inputmode="numeric" pattern="[0-9]{3,4}" minlength="3" maxlength="4" title="Ingresa 3 o 4 dígitos" />
+                            <input type="text" class="form-control" id="cvv" name="cvv" placeholder="CVV" required inputmode="numeric" pattern="[0-9]{3,4}" minlength="3" maxlength="4" title="Ingresa 3 o 4 dígitos" />
                         </div>
                     </div>
                 </div>
                 <div class="d-flex justify-content-end mt-2 me-2">
                     <h6>Total: @(((decimal)ViewBag.OrderTotal).ToString("C"))</h6>
                 </div>
+                <div class="px-3">
+                    <div id="paymentProcessingContainer" class="d-none mt-2" aria-live="polite" aria-atomic="true">
+                        <small class="text-muted d-block mb-1">Procesando el pago...</small>
+                        <div class="progress" role="progressbar" aria-label="Procesando el pago" aria-valuemin="0" aria-valuemax="100">
+                            <div id="paymentProcessingBar" class="progress-bar progress-bar-striped progress-bar-animated" style="width: 0%;">0%</div>
+                        </div>
+                    </div>
+                </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                    <button type="submit" class="btn btn-primary">Pagar</button>
+                    <button id="payButton" type="submit" class="btn btn-primary">Pagar</button>
                 </div>
             </form>
 
         </div>
     </div>
 </div>
+
+<script>
+    //Payment Progress Bar
+    (function () {
+        const form = document.getElementById("cardPaymentForm");
+        const processingContainer = document.getElementById("paymentProcessingContainer");
+        const processingBar = document.getElementById("paymentProcessingBar");
+        const payButton = document.getElementById("payButton");
+        const modalElement = document.getElementById("paymentDetailsModal");
+
+        if (!form || !processingContainer || !processingBar || !payButton || !modalElement) {
+            return;
+        }
+
+        let progressIntervalId = null;
+        let submitTimeoutId = null;
+
+        const resetProcessingState = function () {
+            if (progressIntervalId) {
+                clearInterval(progressIntervalId);
+                progressIntervalId = null;
+            }
+
+            if (submitTimeoutId) {
+                clearTimeout(submitTimeoutId);
+                submitTimeoutId = null;
+            }
+
+            form.dataset.allowSubmit = "false";
+            payButton.disabled = false;
+            processingContainer.classList.add("d-none");
+            processingBar.style.width = "0%";
+            processingBar.textContent = "0%";
+        };
+
+        form.dataset.allowSubmit = "false";
+
+        form.addEventListener("submit", function (event) {
+            if (form.dataset.allowSubmit === "true") {
+                return;
+            }
+
+            if (!form.checkValidity()) {
+                return;
+            }
+
+            event.preventDefault();
+
+            payButton.disabled = true;
+            processingContainer.classList.remove("d-none");
+
+            let currentProgress = 0;
+
+            progressIntervalId = setInterval(function () {
+                currentProgress = Math.min(100, currentProgress + 40);
+                const percentage = Math.round(currentProgress);
+                processingBar.style.width = percentage + "%";
+                processingBar.textContent = percentage + "%";
+            }, 40);
+
+            submitTimeoutId = setTimeout(function () {
+                clearInterval(progressIntervalId);
+                progressIntervalId = null;
+                processingBar.style.width = "100%";
+                processingBar.textContent = "100%";
+                form.dataset.allowSubmit = "true";
+                form.requestSubmit();
+            }, 2000);
+        });
+
+        modalElement.addEventListener("hidden.bs.modal", resetProcessingState);
+    })();
+</script>
+
+<script>
+    document.getElementById("cardNumber").addEventListener("input", function(e) {
+      let value = e.target.value.replace(/\D/g, ""); // Remove everything that is not a number.
+      let formattedValue = value.match(/.{1,4}/g)?.join(" ") || ""; // Separate into groups of 4 characters
+      e.target.value = formattedValue;
+    });
+</script>

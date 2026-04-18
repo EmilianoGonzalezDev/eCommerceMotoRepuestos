@@ -4,24 +4,22 @@ using eCommerceMotoRepuestos.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using eCommerceMotoRepuestos.Utilities;
 
 namespace eCommerceMotoRepuestos.Controllers;
 
 [Authorize(Roles = "Admin")]
 public class CategoryController(CategoryService _categoryService) : Controller
 {
-    private static readonly int[] PageSizes = [5, 10, 15, 20, 50, 100];
-    private const int DefaultAdminPageSize = 10;
-
     private static int NormalizePageSize(int? pageSize, int defaultSize)
     {
         if (pageSize is null) return defaultSize;
-        return Array.IndexOf(PageSizes, pageSize.Value) >= 0 ? pageSize.Value : defaultSize;
+        return Array.IndexOf(PaginationSettings.PageSizes, pageSize.Value) >= 0 ? pageSize.Value : defaultSize;
     }
 
-    public async Task<IActionResult> Index(int page = 1, int pageSize = DefaultAdminPageSize)
+    public async Task<IActionResult> Index(int page = 1, int pageSize = PaginationSettings.DefaultPageSize)
     {
-        var size = NormalizePageSize(pageSize, DefaultAdminPageSize);
+        var size = NormalizePageSize(pageSize, PaginationSettings.DefaultPageSize);
         var categories = await _categoryService.GetAllAsync();
         var pagedCategories = PagedResult<CategoryViewModel>.Create(categories, page, size);
         return View(pagedCategories);
@@ -40,7 +38,7 @@ public class CategoryController(CategoryService _categoryService) : Controller
         if (!ModelState.IsValid) return View("AddEdit", viewModel);
 
         await _categoryService.AddAsync(viewModel);
-        TempData["SuccessMessage"] = "Categoría creada correctamente.";
+        TempData["SuccessMessage"] = "CategorÃ­a creada correctamente.";
         return RedirectToAction("Index");
     }
 
@@ -58,7 +56,7 @@ public class CategoryController(CategoryService _categoryService) : Controller
     {
         if (!ModelState.IsValid) return View("AddEdit", viewModel);
         await _categoryService.EditAsync(viewModel);
-        TempData["SuccessMessage"] = "Categoría editada correctamente.";
+        TempData["SuccessMessage"] = "CategorÃ­a editada correctamente.";
         return RedirectToAction("Index");
     }
 
@@ -67,7 +65,7 @@ public class CategoryController(CategoryService _categoryService) : Controller
         try
         {
             var isActive = await _categoryService.ToggleActiveAsync(id);
-            TempData["SuccessMessage"] = isActive ? "Se volvió a dar de alta la categoría." : "Categoría dada de baja correctamente.";
+            TempData["SuccessMessage"] = isActive ? "Se volviÃ³ a dar de alta la categorÃ­a." : "CategorÃ­a dada de baja correctamente.";
         }
         catch (InvalidOperationException ex)
         {
@@ -75,7 +73,7 @@ public class CategoryController(CategoryService _categoryService) : Controller
         }
         catch
         {
-            TempData["ErrorMessage"] = "No se pudo actualizar la categoría.";
+            TempData["ErrorMessage"] = "No se pudo actualizar la categorÃ­a.";
         }
 
         return RedirectToAction("Index");

@@ -11,13 +11,12 @@ namespace eCommerceMotoRepuestos.Controllers
         ProductService _productService
         ) : Controller
     {
-        private const int CatalogPageSize = 12;
 
         public async Task<IActionResult> Index(int page = 1)
         {
             var categories = await _categoryService.GetAllActiveAsync();
             var products = await _productService.GetCatalogAsync();
-            var pagedProducts = PagedResult<ProductViewModel>.Create(products, page, CatalogPageSize);
+            var pagedProducts = PagedResult<ProductViewModel>.Create(products, page, PaginationSettings.CatalogPageSize);
             var catalog = new CatalogViewModel
             {
                 Categories = categories,
@@ -33,7 +32,7 @@ namespace eCommerceMotoRepuestos.Controllers
         {
             var categories = await _categoryService.GetAllActiveAsync();
             var products = await _productService.GetCatalogAsync(categoryId: id);
-            var pagedProducts = PagedResult<ProductViewModel>.Create(products, page, CatalogPageSize);
+            var pagedProducts = PagedResult<ProductViewModel>.Create(products, page, PaginationSettings.CatalogPageSize);
             var catalog = new CatalogViewModel
             {
                 Categories = categories,
@@ -50,7 +49,7 @@ namespace eCommerceMotoRepuestos.Controllers
         {
             var categories = await _categoryService.GetAllActiveAsync();
             var products = await _productService.GetCatalogAsync(search: value);
-            var pagedProducts = PagedResult<ProductViewModel>.Create(products, page, CatalogPageSize);
+            var pagedProducts = PagedResult<ProductViewModel>.Create(products, page, PaginationSettings.CatalogPageSize);
             var catalog = new CatalogViewModel
             {
                 Categories = categories,

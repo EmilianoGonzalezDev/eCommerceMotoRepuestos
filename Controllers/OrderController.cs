@@ -3,6 +3,7 @@ using eCommerceMotoRepuestos.Models;
 using eCommerceMotoRepuestos.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using eCommerceMotoRepuestos.Utilities;
 
 namespace eCommerceMotoRepuestos.Controllers;
 
@@ -10,20 +11,18 @@ namespace eCommerceMotoRepuestos.Controllers;
 [Route("Orders")]
 public class OrderController(OrderService _orderService) : Controller
 {
-    private static readonly int[] PageSizes = [5, 10, 15, 20, 50, 100];
-    private const int DefaultOrdersPageSize = 10;
     private static readonly OrderStatus[] DefaultOrderFilters = [OrderStatus.Pending, OrderStatus.Prepared];
 
     private static int NormalizePageSize(int? pageSize, int defaultSize)
     {
         if (pageSize is null) return defaultSize;
-        return Array.IndexOf(PageSizes, pageSize.Value) >= 0 ? pageSize.Value : defaultSize;
+        return Array.IndexOf(PaginationSettings.PageSizes, pageSize.Value) >= 0 ? pageSize.Value : defaultSize;
     }
 
     [HttpGet("")]
-    public async Task<IActionResult> Index(int page = 1, int pageSize = DefaultOrdersPageSize, List<OrderStatus>? selectedStatuses = null, bool filtersSubmitted = false)
+    public async Task<IActionResult> Index(int page = 1, int pageSize = PaginationSettings.DefaultPageSize, List<OrderStatus>? selectedStatuses = null, bool filtersSubmitted = false)
     {
-        var size = NormalizePageSize(pageSize, DefaultOrdersPageSize);
+        var size = NormalizePageSize(pageSize, PaginationSettings.DefaultPageSize);
         var effectiveStatuses = filtersSubmitted
             ? selectedStatuses ?? []
             : DefaultOrderFilters.ToList();
@@ -44,7 +43,7 @@ public class OrderController(OrderService _orderService) : Controller
         int orderId,
         OrderStatus status,
         int page = 1,
-        int pageSize = DefaultOrdersPageSize,
+        int pageSize = PaginationSettings.DefaultPageSize,
         List<OrderStatus>? selectedStatuses = null,
         bool filtersSubmitted = true)
     {

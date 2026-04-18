@@ -32,7 +32,7 @@ else
         <thead>
             <tr>
                 <th>Fecha de compra</th>
-                <th>Pedido N°</th>
+                <th>Pedido NÂ°</th>
                 <th>Pago</th>
                 <th>Total</th>
                 <th>Productos</th>
@@ -46,17 +46,17 @@ else
                 <tr>
                     <td>@order.OrderDateFormatted</td>
                     <td>#@order.OrderId</td>
-                    <td>@order.PaymentTypeFormatted</td>
+                    <td>@order.PaymentType.GetDisplayName()</td>
                     <td>@order.TotalAmountFormatted</td>
                     <td>
                         <ul>
                             @foreach (var orderItem in order.OrderItems)
                             {
                                 <li class="list-group-item">
-                                    @orderItem.Quantity x 
-                                    <a 
-                                       asp-controller="Home" asp-action="ProductDetail" asp-route-id="@orderItem.ProductId"
-                                       class="text-decoration-none fw-bold"
+                                    @orderItem.Quantity x
+                                    <a
+                                        asp-controller="Home" asp-action="ProductDetail" asp-route-id="@orderItem.ProductId"
+                                        class="text-decoration-none fw-bold"
                                     >
                                         @orderItem.ProductName
                                     </a>
@@ -66,7 +66,7 @@ else
                         </ul>
                     </td>
                     <td>
-                        <span class="badge @GetStatusBadgeClass(order.Status)">@order.StatusFormatted</span>
+                        <span class="badge @GetStatusBadgeClass(order.Status)">@order.Status.GetDisplayName()</span>
                     </td>
                 </tr>
             }
@@ -74,7 +74,7 @@ else
     </table>
 
     <div class="d-flex justify-content-end align-items-center mb-2">
-        <span class="small text-muted me-2">Items por página</span>
+        <span class="small text-muted me-2">Items por pÃ¡gina</span>
         <form method="get" action="/User/MyOrders" class="d-inline">
             <input type="hidden" name="page" value="1" />
             <select name="pageSize" class="form-select form-select-sm w-auto" onchange="this.form.submit()">
@@ -82,7 +82,7 @@ else
             </select>
         </form>
     </div>
-    <nav aria-label="Paginación">
+    <nav aria-label="PaginaciÃ³n">
         <ul class="pagination justify-content-center">
             <li class="page-item @(Model.HasPrevious ? "" : "disabled")">
                 <a class="page-link" href="@(Model.HasPrevious ? Url.Action("MyOrders", "User", new { page = Model.PageNumber - 1, pageSize = Model.PageSize }) : "#")">Anterior</a>

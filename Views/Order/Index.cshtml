@@ -4,15 +4,6 @@
     var selectedStatuses = (ViewBag.SelectedStatuses as HashSet<int>) ?? new HashSet<int>();
     var selectedStatusValues = selectedStatuses.ToArray();
 
-    string GetStatusText(OrderStatus status) => status switch
-    {
-        OrderStatus.Pending => "Pendiente",
-        OrderStatus.Prepared => "Preparado",
-        OrderStatus.Delivered => "Entregado",
-        OrderStatus.Cancelled => "Cancelado",
-        _ => status.ToString()
-    };
-
     string GetStatusBadgeClass(OrderStatus status) => status switch
     {
         OrderStatus.Pending => "bg-warning text-dark",
@@ -47,7 +38,7 @@
                        id="status_@statusValue"
                        checked="@selectedStatuses.Contains(statusValue)" />
                 <label class="form-check-label" for="status_@statusValue">
-                    @GetStatusText(status)
+                    @status.GetDisplayName()
                 </label>
             </div>
         </div>
@@ -85,7 +76,7 @@ else
                     <td>@order.OrderDateFormatted</td>
                     <td>#@order.OrderId</td>
                     <td>@order.CustomerName</td>
-                    <td>@order.PaymentTypeFormatted</td>
+                    <td>@order.PaymentType.GetDisplayName()</td>
                     <td>@order.TotalAmountFormatted</td>
                     <td>
                         <ul>
@@ -105,7 +96,7 @@ else
                     </td>
                     <td>
                         <div class="d-flex align-items-center gap-2">
-                            <span class="badge @GetStatusBadgeClass(order.Status)">@order.StatusFormatted</span>
+                            <span class="badge @GetStatusBadgeClass(order.Status)">@order.Status.GetDisplayName()</span>
                             <button type="button"
                                     class="btn btn-link p-0 text-primary"
                                     data-bs-toggle="modal"
@@ -140,11 +131,11 @@ else
                                                 {
                                                     if (status == order.Status)
                                                     {
-                                                        <option value="@status" selected>@GetStatusText(status)</option>
+                                                        <option value="@status" selected>@status.GetDisplayName()</option>
                                                     }
                                                     else
                                                     {
-                                                        <option value="@status">@GetStatusText(status)</option>
+                                                        <option value="@status">@status.GetDisplayName()</option>
                                                     }
                                                 }
                                             </select>

@@ -1,4 +1,16 @@
-ï»¿@model PagedResult<OrderViewModel>
+@model PagedResult<OrderViewModel>
+@using eCommerceMotoRepuestos.Enums
+
+@{
+    string GetStatusBadgeClass(OrderStatus status) => status switch
+    {
+        OrderStatus.Pending => "bg-warning text-dark",
+        OrderStatus.Prepared => "bg-info text-dark",
+        OrderStatus.Delivered => "bg-success",
+        OrderStatus.Cancelled => "bg-danger",
+        _ => "bg-secondary"
+    };
+}
 
 <div class="row justify-content-between mt-4">
     <div class="col-4">
@@ -20,9 +32,11 @@ else
         <thead>
             <tr>
                 <th>Fecha de compra</th>
-                <th>Pedido NÂ°</th>
+                <th>Pedido N°</th>
+                <th>Pago</th>
                 <th>Total</th>
                 <th>Productos</th>
+                <th>Estado</th>
             </tr>
 
         </thead>
@@ -32,6 +46,7 @@ else
                 <tr>
                     <td>@order.OrderDateFormatted</td>
                     <td>#@order.OrderId</td>
+                    <td>@order.PaymentTypeFormatted</td>
                     <td>@order.TotalAmountFormatted</td>
                     <td>
                         <ul>
@@ -50,13 +65,16 @@ else
                             }
                         </ul>
                     </td>
+                    <td>
+                        <span class="badge @GetStatusBadgeClass(order.Status)">@order.StatusFormatted</span>
+                    </td>
                 </tr>
             }
         </tbody>
     </table>
 
     <div class="d-flex justify-content-end align-items-center mb-2">
-        <span class="small text-muted me-2">Items por pÃ¡gina</span>
+        <span class="small text-muted me-2">Items por página</span>
         <form method="get" action="/User/MyOrders" class="d-inline">
             <input type="hidden" name="page" value="1" />
             <select name="pageSize" class="form-select form-select-sm w-auto" onchange="this.form.submit()">
@@ -64,7 +82,7 @@ else
             </select>
         </form>
     </div>
-    <nav aria-label="PaginaciÃ³n">
+    <nav aria-label="Paginación">
         <ul class="pagination justify-content-center">
             <li class="page-item @(Model.HasPrevious ? "" : "disabled")">
                 <a class="page-link" href="@(Model.HasPrevious ? Url.Action("MyOrders", "User", new { page = Model.PageNumber - 1, pageSize = Model.PageSize }) : "#")">Anterior</a>

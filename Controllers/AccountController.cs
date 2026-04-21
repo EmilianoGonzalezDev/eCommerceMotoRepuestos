@@ -95,7 +95,7 @@ public class AccountController(
         try
         {
             await _userService.Register(viewmodel);
-            TempData["SuccessMessage"] = "Tu cuenta ha sido registrada!";
+            TempData["SuccessMessage"] = "Tu cuenta ha sido registrada! Ingresa email y contraseña para acceder";
             return RedirectToAction("Login");
         }
         catch (InvalidOperationException)

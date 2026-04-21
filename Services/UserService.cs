@@ -1,18 +1,20 @@
 ﻿using eCommerceMotoRepuestos.Entities;
 using eCommerceMotoRepuestos.Models;
 using eCommerceMotoRepuestos.Repositories;
+using Microsoft.AspNetCore.Identity;
 using System.Linq.Expressions;
 
 namespace eCommerceMotoRepuestos.Services;
 
-public class UserService(GenericRepository<User> _userRepository)
+public class UserService(
+    GenericRepository<User> _userRepository,
+    IPasswordHasher<User> _passwordHasher)
 {
     public async Task<UserViewModel> Login(LoginViewModel loginVM)
     {
         var conditions = new List<Expression<Func<User, bool>>>()
         {
             x => x.Email == loginVM.Email,
-            x => x.Password == loginVM.Password,
         };
 
         var found = await _userRepository.GetByFilter(conditions: conditions.ToArray());
@@ -21,10 +23,17 @@ public class UserService(GenericRepository<User> _userRepository)
 
         if (found != null)
         {
-            userVM.UserId = found.UserId;
-            userVM.FullName = found.FullName;
-            userVM.Email = found.Email;
-            userVM.Type = found.Type;
+            var verificationResult = _passwordHasher.VerifyHashedPassword(found, found.Password, loginVM.Password);
+            var isSuccess = verificationResult == PasswordVerificationResult.Success ||
+                            verificationResult == PasswordVerificationResult.SuccessRehashNeeded;
+
+            if (isSuccess)
+            {
+                userVM.UserId = found.UserId;
+                userVM.FullName = found.FullName;
+                userVM.Email = found.Email;
+                userVM.Type = found.Type;
+            }
         }
 
         return userVM;
@@ -52,8 +61,10 @@ public class UserService(GenericRepository<User> _userRepository)
             FullName = userVM.FullName,
             Email = userVM.Email,
             Type = userVM.Type,
-            Password = userVM.Password,
+            Password = string.Empty,
         };
+
+        entity.Password = _passwordHasher.HashPassword(entity, userVM.Password);
 
         await _userRepository.AddAsync(entity);
     }
@@ -108,7 +119,7 @@ public class UserService(GenericRepository<User> _userRepository)
             currentUser.FullName = userVM.FullName;
 
         if (hasPasswordInput && !string.IsNullOrWhiteSpace(userVM.Password))
-            currentUser.Password = userVM.Password;
+            currentUser.Password = _passwordHasher.HashPassword(currentUser, userVM.Password);
 
         await _userRepository.EditAsync(currentUser);
 
@@ -123,4 +134,3 @@ public class UserService(GenericRepository<User> _userRepository)
         };
     }
 }
-

@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Localization;
 using eCommerceMotoRepuestos.Context;
+using eCommerceMotoRepuestos.Entities;
 using eCommerceMotoRepuestos.Repositories;
 using eCommerceMotoRepuestos.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -35,6 +37,7 @@ builder.Services.AddScoped<CartService>();
 builder.Services.AddScoped<OrderService>();
 builder.Services.AddScoped<UserOrderService>();
 builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
 builder.Services.AddSession(options => { options.IdleTimeout = TimeSpan.FromMinutes(30); });
 

@@ -7,6 +7,7 @@ public class ProductIndexViewModel
     public SortDirection CurrentSortDir { get; init; } = SortDirection.Asc;
     public string Search { get; init; } = string.Empty;
     public bool LowStockOnly { get; init; }
+    public int LowStockThreshold { get; init; } = 5;
 
     public IReadOnlyList<ProductViewModel> Items => Products.Items;
     public int PageNumber => Products.PageNumber;

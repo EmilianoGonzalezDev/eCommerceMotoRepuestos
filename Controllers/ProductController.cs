@@ -7,10 +7,10 @@ using Microsoft.AspNetCore.Mvc;
 namespace eCommerceMotoRepuestos.Controllers;
 
 [Authorize(Roles = "Admin")]
-public class ProductController(ProductService _productService) : Controller
+public class ProductController(
+    ProductService _productService,
+    AppSettingService _appSettingService) : Controller
 {
-    private const int LowStockThreshold = 5;
-
     private static int NormalizePageSize(int? pageSize, int defaultSize)
     {
         if (pageSize is null) return defaultSize;
@@ -29,9 +29,10 @@ public class ProductController(ProductService _productService) : Controller
         var normalizedSortBy = NormalizeSortBy(sortBy);
         var normalizedSortDir = NormalizeSortDirection(sortDir);
         var normalizedSearch = NormalizeSearch(search);
+        var lowStockThreshold = await _appSettingService.GetLowStockThresholdAsync();
 
         var products = await _productService.GetAllAsync();
-        var filteredProducts = FilterProducts(products, normalizedSearch, lowStockOnly);
+        var filteredProducts = FilterProducts(products, normalizedSearch, lowStockOnly, lowStockThreshold);
         var sortedProducts = SortProducts(filteredProducts, normalizedSortBy, normalizedSortDir);
         var pagedProducts = PagedResult<ProductViewModel>.Create(sortedProducts, page, size);
 
@@ -41,7 +42,8 @@ public class ProductController(ProductService _productService) : Controller
             CurrentSortBy = normalizedSortBy,
             CurrentSortDir = normalizedSortDir,
             Search = normalizedSearch,
-            LowStockOnly = lowStockOnly
+            LowStockOnly = lowStockOnly,
+            LowStockThreshold = lowStockThreshold
         };
 
         return View(viewModel);
@@ -65,7 +67,8 @@ public class ProductController(ProductService _productService) : Controller
     private static IEnumerable<ProductViewModel> FilterProducts(
         IEnumerable<ProductViewModel> products,
         string search,
-        bool lowStockOnly)
+        bool lowStockOnly,
+        int lowStockThreshold)
     {
         var filtered = products;
 
@@ -78,7 +81,7 @@ public class ProductController(ProductService _productService) : Controller
 
         if (lowStockOnly)
         {
-            filtered = filtered.Where(x => x.Stock <= LowStockThreshold);
+            filtered = filtered.Where(x => x.Stock <= lowStockThreshold);
         }
 
         return filtered;

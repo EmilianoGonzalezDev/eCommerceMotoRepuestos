@@ -1,5 +1,6 @@
 using eCommerceMotoRepuestos.Entities;
 using eCommerceMotoRepuestos.Enums;
+using eCommerceMotoRepuestos.Utilities;
 using Microsoft.EntityFrameworkCore;
 
 namespace eCommerceMotoRepuestos.Context;
@@ -17,6 +18,7 @@ public class AppDbContext : DbContext
     public DbSet<Order> Order { get; set; }
     public DbSet<OrderItem> OrderItem { get; set; }
     public DbSet<CartItem> CartItem { get; set; }
+    public DbSet<AppSetting> AppSetting { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -70,6 +72,21 @@ public class AppDbContext : DbContext
             ci.HasOne(ci => ci.Product).WithMany()
               .HasForeignKey(ci => ci.ProductId)
               .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<AppSetting>(s =>
+        {
+            s.Property(x => x.Key).IsRequired();
+            s.Property(x => x.Value).IsRequired();
+            s.HasIndex(x => x.Key).IsUnique();
+            s.HasData(
+                new AppSetting
+                {
+                    AppSettingId = 1,
+                    Key = AppSettingsKeys.LowStockThreshold,
+                    Value = "5"
+                }
+            );
         });
 
     }

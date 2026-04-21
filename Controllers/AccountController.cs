@@ -60,6 +60,11 @@ public class AccountController(
 
             await MergeSessionCartAsync(found.UserId);
 
+            if (string.Equals(found.Type, "SuperAdmin", StringComparison.OrdinalIgnoreCase))
+            {
+                return RedirectToAction("CreateAdmin");
+            }
+
             return RedirectToAction("Index", "Home");
         }
     }
@@ -82,6 +87,8 @@ public class AccountController(
     [HttpPost]
     public async Task<IActionResult> Register(UserViewModel viewmodel)
     {
+        viewmodel.Type = "Client";
+        ModelState.Remove(nameof(UserViewModel.Type));
 
         if (!ModelState.IsValid) return View(viewmodel);
 
@@ -151,6 +158,56 @@ public class AccountController(
             TempData["ErrorMessage"] = "No se pudieron actualizar los datos. Intenta nuevamente";
             return View("EditProfile", viewmodel);
         }
+    }
+
+    [Authorize(Roles = "SuperAdmin")]
+    public IActionResult CreateAdmin()
+    {
+        var viewModel = new UserViewModel
+        {
+            Type = "Admin"
+        };
+
+        SetAdminCreationViewData();
+        return View("Register", viewModel);
+    }
+
+    [HttpPost]
+    [Authorize(Roles = "SuperAdmin")]
+    public async Task<IActionResult> CreateAdmin(UserViewModel viewmodel)
+    {
+        viewmodel.Type = "Admin";
+        ModelState.Remove(nameof(UserViewModel.Type));
+
+        if (!ModelState.IsValid)
+        {
+            SetAdminCreationViewData();
+            return View("Register", viewmodel);
+        }
+
+        try
+        {
+            await _userService.Register(viewmodel);
+            return RedirectToAction("AdminCreated");
+        }
+        catch (InvalidOperationException ex)
+        {
+            TempData["ErrorMessage"] = ex.Message;
+            SetAdminCreationViewData();
+            return View("Register", viewmodel);
+        }
+        catch (Exception)
+        {
+            TempData["ErrorMessage"] = "No se pudo registrar la cuenta. Intenta nuevamente";
+            SetAdminCreationViewData();
+            return View("Register", viewmodel);
+        }
+    }
+
+    [Authorize(Roles = "SuperAdmin")]
+    public IActionResult AdminCreated()
+    {
+        return View();
     }
 
     public async Task<IActionResult> Logout()
@@ -231,6 +288,13 @@ public class AccountController(
             CookieAuthenticationDefaults.AuthenticationScheme,
             new ClaimsPrincipal(claimsIdentity),
             new AuthenticationProperties { AllowRefresh = true });
+    }
+
+    private void SetAdminCreationViewData()
+    {
+        ViewData["FormTitle"] = "Crear Admin";
+        ViewData["FormAction"] = "/Account/CreateAdmin";
+        ViewData["ShowLogoutButton"] = true;
     }
 
 }

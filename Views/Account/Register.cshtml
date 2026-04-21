@@ -1,6 +1,9 @@
 @model UserViewModel;
 @{
     Layout = null;
+    var formTitle = ViewData["FormTitle"]?.ToString() ?? "Crear Usuario";
+    var formAction = ViewData["FormAction"]?.ToString() ?? "/Account/Register";
+    var showLogoutButton = (ViewData["ShowLogoutButton"] as bool?) ?? false;
 }
 
 <!DOCTYPE html>
@@ -19,7 +22,7 @@
             <div class="col-md-6 col-lg-4">
                 <div class="card show">
                     <div class="card-body p-4">
-                        <h2 class="card-title text-center mb-4">Crear Usuario</h2>
+                        <h2 class="card-title text-center mb-4">@formTitle</h2>
 
                         @if (TempData["ErrorMessage"] != null)
                         {
@@ -29,9 +32,9 @@
                             </div>
                         }
 
-                        <form action="/Account/Register" method="post">
+                        <form action="@formAction" method="post">
                             <div class="mb-3">
-                                <label class="form-label">Nombre Completo</label>
+                                <label class="form-label">Nombre y Apellido</label>
                                 <input class="form-control" type="text" asp-for="FullName" />
                                 <span asp-validation-for="FullName" class="text-danger"></span>
                             </div>
@@ -50,11 +53,18 @@
                                 <input class="form-control" type="password" asp-for="RepeatPassword" />
                                 <span asp-validation-for="RepeatPassword" class="text-danger"></span>
                             </div>
-                            <input type="hidden" asp-for="Type" value="Client" />
+                            <input type="hidden" asp-for="Type" />
 
                             <div class="d-grid gap-2">
                                 <button class="btn btn-primary" type="submit">Continuar</button>
-                                <a href="javascript:history.back()" class="btn btn-outline-secondary btn-sm">Volver</a>
+                                @if (showLogoutButton)
+                                {
+                                    <a href="/Account/Logout" class="btn btn-outline-secondary btn-sm">Salir</a>
+                                }
+                                else
+                                {
+                                    <a href="javascript:history.back()" class="btn btn-outline-secondary btn-sm">Volver</a>
+                                }
                             </div>
 
                         </form>

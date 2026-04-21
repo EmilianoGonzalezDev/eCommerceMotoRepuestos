@@ -75,7 +75,7 @@ else
 
     <div class="d-flex justify-content-end align-items-center mb-2">
         <span class="small text-muted me-2">Items por página</span>
-        <form method="get" action="/User/MyOrders" class="d-inline">
+        <form method="get" action="/Orders/MyOrders" class="d-inline">
             <input type="hidden" name="page" value="1" />
             <select name="pageSize" class="form-select form-select-sm w-auto" onchange="this.form.submit()">
                 @await Html.PartialAsync("_PageSizeOptions", Model.PageSize)
@@ -85,16 +85,16 @@ else
     <nav aria-label="Paginación">
         <ul class="pagination justify-content-center">
             <li class="page-item @(Model.HasPrevious ? "" : "disabled")">
-                <a class="page-link" href="@(Model.HasPrevious ? Url.Action("MyOrders", "User", new { page = Model.PageNumber - 1, pageSize = Model.PageSize }) : "#")">Anterior</a>
+                <a class="page-link" href="@(Model.HasPrevious ? Url.Action("MyOrders", "Order", new { page = Model.PageNumber - 1, pageSize = Model.PageSize }) : "#")">Anterior</a>
             </li>
             @for (var i = 1; i <= Model.TotalPages; i++)
             {
                 <li class="page-item @(i == Model.PageNumber ? "active" : "")">
-                    <a class="page-link" href="@Url.Action("MyOrders", "User", new { page = i, pageSize = Model.PageSize })">@i</a>
+                    <a class="page-link" href="@Url.Action("MyOrders", "Order", new { page = i, pageSize = Model.PageSize })">@i</a>
                 </li>
             }
             <li class="page-item @(Model.HasNext ? "" : "disabled")">
-                <a class="page-link" href="@(Model.HasNext ? Url.Action("MyOrders", "User", new { page = Model.PageNumber + 1, pageSize = Model.PageSize }) : "#")">Siguiente</a>
+                <a class="page-link" href="@(Model.HasNext ? Url.Action("MyOrders", "Order", new { page = Model.PageNumber + 1, pageSize = Model.PageSize }) : "#")">Siguiente</a>
             </li>
         </ul>
     </nav>

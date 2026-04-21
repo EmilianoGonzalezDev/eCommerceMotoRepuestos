@@ -11,7 +11,7 @@ namespace eCommerceMotoRepuestos.Controllers
     public class CartController(
         ProductService _productService,
         CartService _cartService,
-        UserOrderService _userOrderService
+        OrderService _orderService
         ) : Controller
     {
         private const int CartPageSize = 10;
@@ -178,7 +178,7 @@ namespace eCommerceMotoRepuestos.Controllers
                 return RedirectToAction("ViewCart");
             }
 
-            await _userOrderService.AddAsync(cart, userId.Value, paymentType);
+            await _orderService.AddAsync(cart, userId.Value, paymentType);
             await _cartService.ClearByUserAsync(userId.Value);
             HttpContext.Session.Remove("Cart");
             return View("SaleCompleted");

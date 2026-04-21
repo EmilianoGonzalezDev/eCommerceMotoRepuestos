@@ -2,7 +2,7 @@
 
 <div class="row justify-content-between mt-4">
     <div class="col-4">
-        <h4>CategorÌas</h4>
+        <h4>Categor√≠as</h4>
     </div>
     <div class="col-4 text-end">
         <a href="/Category/Add" class="btn btn-success"><i class="fa-solid fa-plus"></i>Agregar</a>
@@ -56,7 +56,7 @@
 </table>
 
 <div class="d-flex justify-content-end align-items-center mb-2">
-    <span class="small text-muted me-2">Items por p·gina</span>
+    <span class="small text-muted me-2">Items por p√°gina</span>
     <form method="get" action="/Category/Index" class="d-inline">
         <input type="hidden" name="page" value="1" />
         <select name="pageSize" class="form-select form-select-sm" onchange="this.form.submit()">
@@ -65,7 +65,7 @@
     </form>
 </div>
 
-    <nav aria-label="PaginaciÛn">
+    <nav aria-label="Paginaci√≥n">
         <ul class="pagination justify-content-center">
             <li class="page-item @(Model.HasPrevious ? "" : "disabled")">
                 <a class="page-link" href="@(Model.HasPrevious ? Url.Action("Index", "Category", new { page = Model.PageNumber - 1, pageSize = Model.PageSize }) : "#")">Anterior</a>
@@ -86,7 +86,7 @@
         function toggleItem(id, isActive)
         {
             const confirmText = isActive ? "Si, Dar de baja!" : "Si, Reactivar!";
-            const titleText = isActive ? "Est·s seguro?" : "Reactivar categorÌa?";
+            const titleText = isActive ? "Est√°s seguro?" : "Reactivar categor√≠a?";
             const iconType = isActive ? "warning" : "question";
             Swal.fire({
             title: titleText,

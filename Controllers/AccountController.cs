@@ -1,9 +1,10 @@
-﻿using eCommerceMotoRepuestos.Entities;
+using eCommerceMotoRepuestos.Entities;
 using eCommerceMotoRepuestos.Models;
 using eCommerceMotoRepuestos.Services;
 using eCommerceMotoRepuestos.Utilities;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages;
 using System.Security.Claims;
@@ -71,7 +72,10 @@ public class AccountController(
             return RedirectToAction("Index", "Home");
         }
 
-        var viewModel = new UserViewModel();
+        var viewModel = new UserViewModel
+        {
+            Type = "Client"
+        };
         return View(viewModel);
     }
 
@@ -96,6 +100,56 @@ public class AccountController(
         {
             TempData["ErrorMessage"] = "No se pudo registrar la cuenta. Intenta nuevamente";
             return RedirectToAction("Register");
+        }
+    }
+
+    [Authorize]
+    public async Task<IActionResult> EditProfile()
+    {
+        var userId = GetAuthenticatedUserId();
+        if (userId == null)
+        {
+            return RedirectToAction("Login");
+        }
+
+        var userModel = await _userService.GetProfileForEditAsync(userId.Value);
+        return View("EditProfile", userModel);
+    }
+
+    [HttpPost]
+    [Authorize]
+    public async Task<IActionResult> EditProfile(EditProfileViewModel viewmodel)
+    {
+        var userId = GetAuthenticatedUserId();
+        
+        if (userId == null)
+        {
+            return RedirectToAction("Login");
+        }
+
+        if (viewmodel.UserId != userId.Value)
+        {
+            return RedirectToAction("EditProfile");
+        }
+
+        if (!ModelState.IsValid) return View("EditProfile", viewmodel);
+
+        try
+        {
+            var updatedUser = await _userService.UpdateProfileAsync(viewmodel);
+            await RefreshSignInAsync(updatedUser);
+            TempData["SuccessMessage"] = "Tus datos fueron actualizados.";
+            return RedirectToAction("Index", "Home");
+        }
+        catch (InvalidOperationException ex)
+        {
+            TempData["ErrorMessage"] = ex.Message;
+            return View("EditProfile", viewmodel);
+        }
+        catch (Exception)
+        {
+            TempData["ErrorMessage"] = "No se pudieron actualizar los datos. Intenta nuevamente";
+            return View("EditProfile", viewmodel);
         }
     }
 
@@ -148,6 +202,35 @@ public class AccountController(
         }
 
         HttpContext.Session.Remove("Cart");
+    }
+
+    private int? GetAuthenticatedUserId()
+    {
+        if (HttpContext.User.Identity?.IsAuthenticated != true)
+        {
+            return null;
+        }
+
+        var claim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        return int.TryParse(claim, out var userId) ? userId : null;
+    }
+
+    private async Task RefreshSignInAsync(UserViewModel user)
+    {
+        var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
+            new Claim(ClaimTypes.Name, user.FullName),
+            new Claim(ClaimTypes.Email, user.Email),
+            new Claim(ClaimTypes.Role, user.Type)
+        };
+
+        var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+        await HttpContext.SignInAsync(
+            CookieAuthenticationDefaults.AuthenticationScheme,
+            new ClaimsPrincipal(claimsIdentity),
+            new AuthenticationProperties { AllowRefresh = true });
     }
 
 }

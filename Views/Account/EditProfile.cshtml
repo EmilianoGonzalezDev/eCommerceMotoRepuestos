@@ -1,0 +1,56 @@
+@model EditProfileViewModel;
+@{
+    ViewData["Title"] = "Editar Perfil";
+}
+
+<div class="row justify-content-center mt-4">
+    <div class="col-12 col-md-8 col-lg-6">
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <h2 class="card-title text-center mb-4">Editar Datos</h2>
+
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        @TempData["ErrorMessage"]
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
+
+                <form asp-action="EditProfile" asp-controller="Account" method="post">
+                    <input type="hidden" asp-for="UserId" />
+
+                    <div class="mb-3">
+                        <label class="form-label">Nombre Completo</label>
+                        <input class="form-control" type="text" asp-for="FullName" />
+                        <span asp-validation-for="FullName" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input class="form-control" type="email" asp-for="Email" />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Nueva Contraseña</label>
+                        <input class="form-control" type="password" asp-for="Password" />
+                        <small class="text-muted">Si no querés cambiarla, dejá este campo vacío.</small>
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Repetir Nueva Contraseña</label>
+                        <input class="form-control" type="password" asp-for="RepeatPassword" />
+                        <span asp-validation-for="RepeatPassword" class="text-danger"></span>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-primary" type="submit">Guardar Cambios</button>
+                        <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary btn-sm">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

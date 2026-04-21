@@ -1,4 +1,4 @@
-﻿@model UserViewModel;
+@model UserViewModel;
 @{
     Layout = null;
 }
@@ -19,7 +19,7 @@
             <div class="col-md-6 col-lg-4">
                 <div class="card show">
                     <div class="card-body p-4">
-                        <h2 class="card-title text-center mb-4">Registrarse</h2>
+                        <h2 class="card-title text-center mb-4">Crear Usuario</h2>
 
                         @if (TempData["ErrorMessage"] != null)
                         {
@@ -54,7 +54,7 @@
 
                             <div class="d-grid gap-2">
                                 <button class="btn btn-primary" type="submit">Continuar</button>
-                                <a href="/Account/Login" class="btn btn-outline-secondary btn-sm">Volver</a>
+                                <a href="javascript:history.back()" class="btn btn-outline-secondary btn-sm">Volver</a>
                             </div>
 
                         </form>

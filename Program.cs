@@ -1,11 +1,11 @@
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Localization;
 using eCommerceMotoRepuestos.Context;
 using eCommerceMotoRepuestos.Entities;
 using eCommerceMotoRepuestos.Repositories;
 using eCommerceMotoRepuestos.Services;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Localization;
+using Microsoft.EntityFrameworkCore;
 using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -25,7 +25,7 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
 
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
-    options.UseSqlServer(builder.Configuration.GetConnectionString("SqlString"));    
+    options.UseSqlServer(builder.Configuration.GetConnectionString("SqlString"));
 });
 
 builder.Services.AddScoped(typeof(GenericRepository<>));

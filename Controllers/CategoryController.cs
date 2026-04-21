@@ -1,10 +1,8 @@
-using eCommerceMotoRepuestos.Entities;
 using eCommerceMotoRepuestos.Models;
 using eCommerceMotoRepuestos.Services;
+using eCommerceMotoRepuestos.Utilities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using eCommerceMotoRepuestos.Utilities;
 
 namespace eCommerceMotoRepuestos.Controllers;
 

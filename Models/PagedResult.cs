@@ -1,6 +1,3 @@
-using System.Collections.Generic;
-using System.Linq;
-
 namespace eCommerceMotoRepuestos.Models;
 
 public class PagedResult<T>

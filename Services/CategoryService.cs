@@ -1,7 +1,6 @@
-﻿using eCommerceMotoRepuestos.Entities;
+using eCommerceMotoRepuestos.Entities;
 using eCommerceMotoRepuestos.Models;
 using eCommerceMotoRepuestos.Repositories;
-using Microsoft.EntityFrameworkCore;
 
 namespace eCommerceMotoRepuestos.Services;
 

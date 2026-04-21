@@ -1,4 +1,3 @@
-using eCommerceMotoRepuestos.Entities;
 using eCommerceMotoRepuestos.Models;
 using eCommerceMotoRepuestos.Services;
 using eCommerceMotoRepuestos.Utilities;
@@ -6,7 +5,6 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages;
 using System.Security.Claims;
 
 namespace eCommerceMotoRepuestos.Controllers;
@@ -128,7 +126,7 @@ public class AccountController(
     public async Task<IActionResult> EditProfile(EditProfileViewModel viewmodel)
     {
         var userId = GetAuthenticatedUserId();
-        
+
         if (userId == null)
         {
             return RedirectToAction("Login");
@@ -219,7 +217,7 @@ public class AccountController(
     private async Task MergeSessionCartAsync(int userId)
     {
         var sessionCart = HttpContext.Session.Get<List<CartItemViewModel>>("Cart") ?? new List<CartItemViewModel>();
-        
+
         if (!sessionCart.Any())
         {
             return;
@@ -228,7 +226,7 @@ public class AccountController(
         foreach (var sessionItem in sessionCart)
         {
             var product = await _productService.GetByIdAsync(sessionItem.ProductId);
-            
+
             if (product == null)
             {
                 continue;

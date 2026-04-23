@@ -70,6 +70,7 @@ else
 
 app.UseStatusCodePagesWithReExecute("/Home/Error", "?statusCode={0}");
 
+app.UseStaticFiles();
 app.UseHttpsRedirection();
 app.UseRouting();
 

@@ -16,7 +16,9 @@ public class CartService(CartRepository _cartRepository)
             Name = x.Product?.Name ?? string.Empty,
             ImageName = x.Product?.ImageName ?? "default.png",
             Price = x.Product?.Price ?? 0,
-            Quantity = x.Quantity
+            Quantity = x.Quantity,
+            Stock = x.Product?.Stock ?? 0,
+            IsActive = x.Product?.IsActive ?? false
         }).ToList();
     }
 

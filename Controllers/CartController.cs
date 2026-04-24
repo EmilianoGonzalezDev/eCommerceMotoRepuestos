@@ -24,6 +24,13 @@ namespace eCommerceMotoRepuestos.Controllers
             var userId = GetAuthenticatedUserId();
             var safeReturnUrl = Url.IsLocalUrl(returnUrl) ? returnUrl : null;
 
+            if (product.ProductId == 0 || !product.IsActive)
+            {
+                TempData["ProductDetailMessage"] = "El producto no esta disponible para la venta en este momento.";
+                TempData["ProductDetailAlertType"] = "danger";
+                return RedirectToAction("ProductDetail", "Home", new { id = productId, returnUrl = safeReturnUrl });
+            }
+
             if (userId is not null)
             {
                 var currentQuantity = await _cartService.GetQuantityByUserAndProductAsync(userId.Value, productId);
@@ -58,7 +65,9 @@ namespace eCommerceMotoRepuestos.Controllers
                         ImageName = product.ImageName ?? "default.png",
                         Name = product.Name,
                         Price = product.Price,
-                        Quantity = requestedQuantity
+                        Quantity = requestedQuantity,
+                        Stock = product.Stock,
+                        IsActive = product.IsActive
                     });
                 }
                 else
@@ -77,7 +86,13 @@ namespace eCommerceMotoRepuestos.Controllers
         public async Task<IActionResult> ViewCart(int page = 1)
         {
             var cart = await GetCartAsync();
-            ViewBag.OrderTotal = cart.Sum(x => x.Price * x.Quantity);
+            var purchasableItems = cart
+                .Where(x => x.IsActive && x.Stock > 0)
+                .ToList();
+
+            ViewBag.OrderTotal = purchasableItems.Sum(x => x.Price * x.Quantity);
+            ViewBag.HasPurchasableItems = purchasableItems.Count > 0;
+            ViewBag.UnavailableItemsCount = cart.Count - purchasableItems.Count;
             var pagedCart = PagedResult<CartItemViewModel>.Create(cart, page, CartPageSize);
             return View(pagedCart);
         }
@@ -117,6 +132,13 @@ namespace eCommerceMotoRepuestos.Controllers
             }
 
             var product = await _productService.GetByIdAsync(productId);
+            if (!product.IsActive)
+            {
+                TempData["CartMessage"] = "Este producto fue dado de baja y no puede modificarse.";
+                TempData["CartAlertType"] = "danger";
+                return RedirectToAction("ViewCart", new { page });
+            }
+
             if (product.Stock < 1)
             {
                 TempData["CartMessage"] = "No hay stock disponible para este producto en este momento.";
@@ -179,7 +201,25 @@ namespace eCommerceMotoRepuestos.Controllers
                 return RedirectToAction("ViewCart");
             }
 
-            var result = await _orderService.AddAsync(cart, userId.Value, paymentType);
+            var purchasableItems = cart
+                .Where(x => x.IsActive && x.Stock > 0)
+                .ToList();
+
+            if (purchasableItems.Count == 0)
+            {
+                TempData["CartMessage"] = "No hay productos disponibles para finalizar la compra.";
+                TempData["CartAlertType"] = "warning";
+                return RedirectToAction("ViewCart");
+            }
+
+            var unavailableCount = cart.Count - purchasableItems.Count;
+            if (unavailableCount > 0)
+            {
+                TempData["CartMessage"] = $"{unavailableCount} producto(s) sin stock o no disponibles no se incluiran en la compra.";
+                TempData["CartAlertType"] = "warning";
+            }
+
+            var result = await _orderService.AddAsync(purchasableItems, userId.Value, paymentType);
             if (result == OrderResult.ProductNotFound)
             {
                 return RedirectToAction("Error", "Home", new
@@ -232,7 +272,31 @@ namespace eCommerceMotoRepuestos.Controllers
                 return await _cartService.GetAllByUserAsync(userId.Value);
             }
 
-            return GetSessionCart();
+            var cart = GetSessionCart();
+            if (cart.Count == 0)
+            {
+                return cart;
+            }
+
+            foreach (var item in cart)
+            {
+                var product = await _productService.GetByIdAsync(item.ProductId);
+                if (product.ProductId == 0)
+                {
+                    item.Stock = 0;
+                    item.IsActive = false;
+                    continue;
+                }
+
+                item.Name = product.Name;
+                item.Price = product.Price;
+                item.ImageName = product.ImageName ?? "default.png";
+                item.Stock = product.Stock;
+                item.IsActive = product.IsActive;
+            }
+
+            HttpContext.Session.Set("Cart", cart);
+            return cart;
         }
 
         private List<CartItemViewModel> GetSessionCart()

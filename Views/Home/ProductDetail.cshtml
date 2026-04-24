@@ -1,6 +1,7 @@
 @model ProductViewModel;
 @{
     var isOutOfStock = Model.Stock == 0;
+    var isUnavailable = isOutOfStock || !Model.IsActive;
     var returnUrl = ViewBag.ReturnUrl as string;
     var message = TempData["ProductDetailMessage"] as string;
     var alertType = TempData["ProductDetailAlertType"] as string ?? "success";
@@ -24,13 +25,19 @@
                         Sin stock.
                     </div>
                 }
+                @if (!Model.IsActive)
+                {
+                    <div class="alert alert-warning mt-3" role="alert">
+                        Producto no disponible.
+                    </div>
+                }
 
                 <form asp-controller="Cart" asp-action="AddItemToCart" method="post">
                     <div class="d-flex align-items-center gap-3">
                         <input hidden name="productId" asp-for="@Model.ProductId" />
                         <input type="hidden" name="returnUrl" value="@returnUrl" />
-                        <input class="form-control text-center py-2" name="quantity" type="number" value="1" min="1" style="max-width:5rem" />
-                        <button class="btn btn-dark flex-xl-shrink-0 px-4" type="submit" disabled="@isOutOfStock">
+                        <input class="form-control text-center py-2" name="quantity" type="number" value="1" min="1" max="@Model.Stock" style="max-width:5rem" disabled="@isUnavailable" />
+                        <button class="btn btn-dark flex-xl-shrink-0 px-4" type="submit" disabled="@isUnavailable">
                             <i class="fa-solid fa-cart-shopping"></i>
                             Agregar al carrito
                         </button>

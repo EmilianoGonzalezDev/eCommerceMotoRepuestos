@@ -1,6 +1,8 @@
 @{
     var userIsAuthenticated = User.Identity?.IsAuthenticated == true;
     var userIsClient = userIsAuthenticated && User.IsInRole("Client");
+    var hasPurchasableItems = (bool?)ViewBag.HasPurchasableItems ?? false;
+    var unavailableItemsCount = (int?)ViewBag.UnavailableItemsCount ?? 0;
 }
 
 @using eCommerceMotoRepuestos.Enums
@@ -14,6 +16,22 @@
     </div>
 }
 
+@if (unavailableItemsCount == 1)
+{
+    <div class="alert alert-warning alert-dismissible fade show mt-4" role="alert">
+        Hay 1 producto sin stock o no disponible. No se incluirá en la compra final.
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (unavailableItemsCount > 1)
+{
+    <div class="alert alert-warning alert-dismissible fade show mt-4" role="alert">
+        Hay @unavailableItemsCount productos sin stock o no disponibles. No se incluiran en la compra final.
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
 @if (Model.TotalItems != 0)
 {
     <div class="row justify-content-between mt-4">
@@ -23,7 +41,7 @@
         <div class="col-4 text-end">
             @if (userIsClient)
             {
-                <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#purchaseOptionsModal">
+                <button disabled="@(!hasPurchasableItems)" type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#purchaseOptionsModal">
                     Finalizar Compra
                 </button>
             }
@@ -62,6 +80,8 @@
         <tbody>
             @foreach (var item in Model.Items)
             {
+                var isUnavailable = !item.IsActive || item.Stock < 1;
+                var statusText = !item.IsActive ? "Producto no disponible." : "Sin stock.";
                 <tr class="align-middle">
                     <td style="width:120px">
                         <img class="card-img-top rounded" src="~/images/@(item.ImageName ?? "default.png")" alt="Product image"
@@ -79,9 +99,15 @@
                                 type="number"
                                 name="quantity"
                                 min="1"
+                                max="@item.Stock"
                                 value="@item.Quantity"
+                                disabled="@isUnavailable"
                                 onchange="this.form.submit()" />
                         </form>
+                        @if (isUnavailable)
+                        {
+                            <small class="text-danger d-block mt-1">@statusText</small>
+                        }
                     </td>
                     <td>@((item.Price * item.Quantity).ToString("C"))</td>
 

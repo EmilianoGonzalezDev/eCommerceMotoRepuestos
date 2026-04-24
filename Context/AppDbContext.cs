@@ -27,10 +27,6 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<Category>(c =>
         {
             c.Property(x => x.IsActive).HasDefaultValue(true);
-            c.HasData(
-                new Category { CategoryId = 1, Name = "Technology", IsActive = true },
-                new Category { CategoryId = 2, Name = "Bedroom", IsActive = true }
-            );
         });
 
         modelBuilder.Entity<Product>(p =>

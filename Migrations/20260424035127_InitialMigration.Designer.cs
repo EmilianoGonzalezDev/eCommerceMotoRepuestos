@@ -12,18 +12,77 @@ using eCommerceMotoRepuestos.Context;
 namespace eCommerceMotoRepuestos.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260312165238_AddIsActive")]
-    partial class AddIsActive
+    [Migration("20260424035127_InitialMigration")]
+    partial class InitialMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.2")
+                .HasAnnotation("ProductVersion", "10.0.7")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("eCommerceMotoRepuestos.Entities.AppSetting", b =>
+                {
+                    b.Property<int>("AppSettingId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AppSettingId"));
+
+                    b.Property<string>("Key")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("AppSettingId");
+
+                    b.HasIndex("Key")
+                        .IsUnique();
+
+                    b.ToTable("AppSetting");
+
+                    b.HasData(
+                        new
+                        {
+                            AppSettingId = 1,
+                            Key = "LowStockThreshold",
+                            Value = "5"
+                        });
+                });
+
+            modelBuilder.Entity("eCommerceMotoRepuestos.Entities.CartItem", b =>
+                {
+                    b.Property<int>("CartItemId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CartItemId"));
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("CartItemId");
+
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("UserId", "ProductId")
+                        .IsUnique();
+
+                    b.ToTable("CartItem");
+                });
 
             modelBuilder.Entity("eCommerceMotoRepuestos.Entities.Category", b =>
                 {
@@ -45,20 +104,6 @@ namespace eCommerceMotoRepuestos.Migrations
                     b.HasKey("CategoryId");
 
                     b.ToTable("Category");
-
-                    b.HasData(
-                        new
-                        {
-                            CategoryId = 1,
-                            IsActive = true,
-                            Name = "Technology"
-                        },
-                        new
-                        {
-                            CategoryId = 2,
-                            IsActive = true,
-                            Name = "Bedroom"
-                        });
                 });
 
             modelBuilder.Entity("eCommerceMotoRepuestos.Entities.Order", b =>
@@ -71,6 +116,14 @@ namespace eCommerceMotoRepuestos.Migrations
 
                     b.Property<DateTime>("OrderDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<int>("PaymentType")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Status")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
 
                     b.Property<decimal>("TotalAmount")
                         .HasColumnType("decimal(10,2)");
@@ -181,6 +234,25 @@ namespace eCommerceMotoRepuestos.Migrations
                     b.HasKey("UserId");
 
                     b.ToTable("User");
+                });
+
+            modelBuilder.Entity("eCommerceMotoRepuestos.Entities.CartItem", b =>
+                {
+                    b.HasOne("eCommerceMotoRepuestos.Entities.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("eCommerceMotoRepuestos.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("eCommerceMotoRepuestos.Entities.Order", b =>

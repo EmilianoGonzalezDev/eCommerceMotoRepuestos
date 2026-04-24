@@ -101,20 +101,6 @@ namespace eCommerceMotoRepuestos.Migrations
                     b.HasKey("CategoryId");
 
                     b.ToTable("Category");
-
-                    b.HasData(
-                        new
-                        {
-                            CategoryId = 1,
-                            IsActive = true,
-                            Name = "Technology"
-                        },
-                        new
-                        {
-                            CategoryId = 2,
-                            IsActive = true,
-                            Name = "Bedroom"
-                        });
                 });
 
             modelBuilder.Entity("eCommerceMotoRepuestos.Entities.Order", b =>

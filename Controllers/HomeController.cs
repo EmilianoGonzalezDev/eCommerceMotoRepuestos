@@ -88,9 +88,10 @@ namespace eCommerceMotoRepuestos.Controllers
         }
 
 
-        public async Task<IActionResult> ProductDetail(int id)
+        public async Task<IActionResult> ProductDetail(int id, string? returnUrl = null)
         {
             var product = await _productService.GetByIdAsync(id);
+            ViewBag.ReturnUrl = Url.IsLocalUrl(returnUrl) ? returnUrl : null;
             return View(product);
         }
 

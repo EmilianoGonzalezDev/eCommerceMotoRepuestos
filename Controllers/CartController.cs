@@ -17,11 +17,12 @@ namespace eCommerceMotoRepuestos.Controllers
         private const int CartPageSize = 10;
 
         [HttpPost]
-        public async Task<IActionResult> AddItemToCart(int productId, int quantity)
+        public async Task<IActionResult> AddItemToCart(int productId, int quantity, string? returnUrl = null)
         {
             var product = await _productService.GetByIdAsync(productId);
             var requestedQuantity = quantity < 1 ? 1 : quantity;
             var userId = GetAuthenticatedUserId();
+            var safeReturnUrl = Url.IsLocalUrl(returnUrl) ? returnUrl : null;
 
             if (userId is not null)
             {
@@ -29,9 +30,9 @@ namespace eCommerceMotoRepuestos.Controllers
 
                 if (requestedQuantity + currentQuantity > product.Stock)
                 {
-                    ViewBag.message = "En este momento no está disponible en stock la cantidad de unidades indicada.";
-                    ViewBag.alertType = "danger";
-                    return View("~/Views/Home/ProductDetail.cshtml", product);
+                    TempData["ProductDetailMessage"] = "En este momento no está disponible en stock la cantidad de unidades indicada.";
+                    TempData["ProductDetailAlertType"] = "danger";
+                    return RedirectToAction("ProductDetail", "Home", new { id = productId, returnUrl = safeReturnUrl });
                 }
 
                 await _cartService.AddOrIncrementAsync(userId.Value, product, requestedQuantity);
@@ -44,9 +45,9 @@ namespace eCommerceMotoRepuestos.Controllers
 
                 if (requestedQuantity + currentQuantity > product.Stock)
                 {
-                    ViewBag.message = "En este momento no está disponible en stock la cantidad de unidades indicada.";
-                    ViewBag.alertType = "danger";
-                    return View("~/Views/Home/ProductDetail.cshtml", product);
+                    TempData["ProductDetailMessage"] = "En este momento no está disponible en stock la cantidad de unidades indicada.";
+                    TempData["ProductDetailAlertType"] = "danger";
+                    return RedirectToAction("ProductDetail", "Home", new { id = productId, returnUrl = safeReturnUrl });
                 }
 
                 if (cartItem is null)
@@ -68,9 +69,9 @@ namespace eCommerceMotoRepuestos.Controllers
                 HttpContext.Session.Set("Cart", cart);
             }
 
-            ViewBag.message = "Producto agregado al carrito";
-            ViewBag.alertType = "success";
-            return View("~/Views/Home/ProductDetail.cshtml", product);
+            TempData["ProductDetailMessage"] = "Producto agregado al carrito";
+            TempData["ProductDetailAlertType"] = "success";
+            return RedirectToAction("ProductDetail", "Home", new { id = productId, returnUrl = safeReturnUrl });
         }
 
         public async Task<IActionResult> ViewCart(int page = 1)

@@ -55,7 +55,7 @@ else
                                 <li class="list-group-item">
                                     @orderItem.Quantity x
                                     <a
-                                        asp-controller="Home" asp-action="ProductDetail" asp-route-id="@orderItem.ProductId"
+                                        asp-controller="Home" asp-action="ProductDetail" asp-route-id="@orderItem.ProductId" asp-route-returnUrl="@ViewContext.CurrentPathAndQuery()"
                                         class="text-decoration-none fw-bold"
                                     >
                                         @orderItem.ProductName

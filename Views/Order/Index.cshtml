@@ -1,4 +1,4 @@
-﻿@model PagedResult<OrderViewModel>
+@model PagedResult<OrderViewModel>
 @using eCommerceMotoRepuestos.Enums
 @{
     var selectedStatuses = (ViewBag.SelectedStatuses as HashSet<int>) ?? new HashSet<int>();
@@ -84,7 +84,7 @@ else
                             {
                                 <li class="list-group-item">
                                     @orderItem.Quantity x
-                                    <a asp-controller="Home" asp-action="ProductDetail" asp-route-id="@orderItem.ProductId"
+                                    <a asp-controller="Home" asp-action="ProductDetail" asp-route-id="@orderItem.ProductId" asp-route-returnUrl="@ViewContext.CurrentPathAndQuery()"
                                        class="text-decoration-none fw-bold"
                                     >
                                         @orderItem.ProductName

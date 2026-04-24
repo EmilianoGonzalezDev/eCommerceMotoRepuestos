@@ -32,7 +32,7 @@
                     </div>
                 }
 
-                <form asp-controller="Cart" asp-action="AddItemToCart" method="post">
+                <form asp-controller="Cart" asp-action="AddItemToCart" method="post" id="addToCartForm">
                     <div class="d-flex align-items-center gap-3">
                         <input hidden name="productId" asp-for="@Model.ProductId" />
                         <input type="hidden" name="returnUrl" value="@returnUrl" />
@@ -51,6 +51,9 @@
                         }
                     </div>
                 </form>
+                <div id="quantityUnavailableAlert" class="alert alert-warning mt-3 d-none" role="alert">
+                    Stock disponible: <span id="quantityUnavailableAlertMax"></span>
+                </div>
 
                 @if (!string.IsNullOrWhiteSpace(message))
                 {
@@ -63,3 +66,33 @@
         </div>
     </div>
 </section>
+
+<script>
+    (() => {
+        const form = document.getElementById("addToCartForm");
+        if (!form) {
+            return;
+        }
+
+        const quantityInput = form.querySelector('input[name="quantity"]');
+        const unavailableAlert = document.getElementById("quantityUnavailableAlert");
+        const unavailableAlertMax = document.getElementById("quantityUnavailableAlertMax");
+        if (!quantityInput || !unavailableAlert || !unavailableAlertMax) {
+            return;
+        }
+
+        form.addEventListener("submit", (event) => {
+            const quantity = Number(quantityInput.value);
+            const max = Number(quantityInput.max);
+
+            if (!Number.isNaN(quantity) && !Number.isNaN(max) && quantity > max) {
+                event.preventDefault();
+                unavailableAlertMax.textContent = max.toString();
+                unavailableAlert.classList.remove("d-none");
+                return;
+            }
+
+            unavailableAlert.classList.add("d-none");
+        });
+    })();
+</script>

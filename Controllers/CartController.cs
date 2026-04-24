@@ -37,7 +37,7 @@ namespace eCommerceMotoRepuestos.Controllers
 
                 if (requestedQuantity + currentQuantity > product.Stock)
                 {
-                    TempData["ProductDetailMessage"] = "En este momento no está disponible en stock la cantidad de unidades indicada.";
+                    TempData["ProductDetailMessage"] = "No se dispone de más unidades para agregar al carrito.";
                     TempData["ProductDetailAlertType"] = "danger";
                     return RedirectToAction("ProductDetail", "Home", new { id = productId, returnUrl = safeReturnUrl });
                 }
@@ -52,7 +52,7 @@ namespace eCommerceMotoRepuestos.Controllers
 
                 if (requestedQuantity + currentQuantity > product.Stock)
                 {
-                    TempData["ProductDetailMessage"] = "En este momento no está disponible en stock la cantidad de unidades indicada.";
+                    TempData["ProductDetailMessage"] = "No se dispone de más unidades para agregar al carrito.";
                     TempData["ProductDetailAlertType"] = "danger";
                     return RedirectToAction("ProductDetail", "Home", new { id = productId, returnUrl = safeReturnUrl });
                 }

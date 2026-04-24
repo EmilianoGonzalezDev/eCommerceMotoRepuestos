@@ -152,6 +152,7 @@ public class ProductController(
     {
         ModelState.Remove("Categories");
         ModelState.Remove("Category.Name");
+        
         if (!ModelState.IsValid)
         {
             entityVM.Category ??= new CategoryViewModel();
@@ -159,7 +160,12 @@ public class ProductController(
             return View("AddEdit", entityVM);
         }
 
-        await _productService.EditAsync(entityVM);
+        var success = await _productService.EditAsync(entityVM);
+        if (!success)
+        {
+            return NotFound();
+        }
+
         await _productService.PopulateCategoriesAsync(entityVM);
         TempData["SuccessMessage"] = "Producto editado correctamente.";
         return RedirectToAction("Index");

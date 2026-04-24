@@ -1,4 +1,4 @@
-﻿namespace eCommerceMotoRepuestos.Entities;
+namespace eCommerceMotoRepuestos.Entities;
 
 public class OrderItem
 {
@@ -10,5 +10,5 @@ public class OrderItem
 
     public Order? Order { get; set; }
 
-    public Product? Product { get; set; }
+    public Product Product { get; set; } = null!;    
 }

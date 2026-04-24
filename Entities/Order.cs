@@ -13,5 +13,5 @@ public class Order
 
     public User? User { get; set; }
 
-    public ICollection<OrderItem> OrderItems { get; set; }
+    public ICollection<OrderItem> OrderItems { get; set; } = [];
 }

@@ -8,7 +8,7 @@ using System.Security.Claims;
 
 namespace eCommerceMotoRepuestos.Controllers;
 
-[Authorize(Roles = "Admin")]
+[Authorize]
 [Route("Orders")]
 public class OrderController(OrderService _orderService) : Controller
 {
@@ -21,8 +21,6 @@ public class OrderController(OrderService _orderService) : Controller
     }
 
     [HttpGet("MyOrders")]
-    [AllowAnonymous]
-    [Authorize]
     public async Task<IActionResult> MyOrders(int page = 1, int pageSize = PaginationSettings.DefaultPageSize)
     {
         var size = NormalizePageSize(pageSize, PaginationSettings.DefaultPageSize);
@@ -33,6 +31,7 @@ public class OrderController(OrderService _orderService) : Controller
     }
 
     [HttpGet("")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Index(int page = 1, int pageSize = PaginationSettings.DefaultPageSize, List<OrderStatus>? selectedStatuses = null, bool filtersSubmitted = false)
     {
         var size = NormalizePageSize(pageSize, PaginationSettings.DefaultPageSize);
@@ -51,6 +50,7 @@ public class OrderController(OrderService _orderService) : Controller
     }
 
     [HttpPost("UpdateStatus")]
+    [Authorize(Roles = "Admin")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> UpdateStatus(
         int orderId,

@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 
 namespace eCommerceMotoRepuestos.Utilities;
 
@@ -9,7 +9,7 @@ public static class SessionExtensions
         session.SetString(key, JsonSerializer.Serialize(Value));
     }
 
-    public static T Get<T>(this ISession session, string key)
+    public static T? Get<T>(this ISession session, string key)
     {
         var value = session.GetString(key);
         return value == null ? default : JsonSerializer.Deserialize<T>(value);

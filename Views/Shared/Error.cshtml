@@ -1,4 +1,4 @@
-﻿@model ErrorViewModel
+@model ErrorViewModel
 @{
     ViewData["Title"] = Model.GetErrorTitle();
 }
@@ -52,23 +52,23 @@
     }
 
     .error-title {
-        font-size: 2.5rem;
-        color: #333;
-        font-weight: 700;
-        margin-bottom: 15px;
-    }
-
-    .error-code {
-        font-size: 1rem;
+        font-size: 1.5rem;
         color: #667eea;
-        font-weight: 600;
-        letter-spacing: 2px;
+        font-weight: 700;
         margin-bottom: 20px;
     }
 
+    .error-code {
+        font-size: 2.5rem;
+        color: #667eea;
+        font-weight: 600;
+        letter-spacing: 2px;
+        margin-bottom: 10px;
+    }
+
     .error-description {
-        font-size: 1.1rem;
-        color: #666;
+        font-size: 1.5rem;
+        color:#555;
         line-height: 1.6;
         margin-bottom: 30px;
     }
@@ -133,7 +133,7 @@
             }
         </div>
 
-        <h1 class="error-title">@Model.GetErrorTitle()</h1>
+        <h5 class="error-title">@Model.GetErrorTitle()</h5>
 
         <p class="error-description">
             @Model.GetErrorDescription()

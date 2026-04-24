@@ -10,7 +10,7 @@ public class OrderViewModel
     public decimal TotalAmount { get; set; }
     public PaymentType PaymentType { get; set; }
     public OrderStatus Status { get; set; }
-    public ICollection<OrderItemViewModel>? OrderItems { get; set; }
+    public ICollection<OrderItemViewModel> OrderItems { get; set; } = [];
 
     public string OrderDateFormatted => OrderDate.ToString("dd/MM/yyyy HH:mm");
     public string TotalAmountFormatted => TotalAmount.ToString("C");

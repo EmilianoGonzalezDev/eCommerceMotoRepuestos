@@ -2,6 +2,7 @@ using eCommerceMotoRepuestos.Entities;
 using eCommerceMotoRepuestos.Enums;
 using eCommerceMotoRepuestos.Models;
 using eCommerceMotoRepuestos.Repositories;
+using Microsoft.EntityFrameworkCore;
 
 namespace eCommerceMotoRepuestos.Services;
 
@@ -11,20 +12,20 @@ public class OrderService(OrderRepository _orderRepository)
     {
         var orders = await _orderRepository.GetAllWithDetailAsync();
 
-        var ordersVM = orders.Select(x => new OrderViewModel
+        var ordersVM = orders.Select(o => new OrderViewModel
         {
-            OrderDate = x.OrderDate,
-            OrderId = x.OrderId,
-            CustomerName = x.User?.FullName,
-            TotalAmount = x.TotalAmount,
-            PaymentType = x.PaymentType,
-            Status = x.Status,
-            OrderItems = x.OrderItems.Select(x => new OrderItemViewModel
+            OrderDate = o.OrderDate,
+            OrderId = o.OrderId,
+            CustomerName = o.User?.FullName,
+            TotalAmount = o.TotalAmount,
+            PaymentType = o.PaymentType,
+            Status = o.Status,
+            OrderItems = o.OrderItems.Select(oi => new OrderItemViewModel
             {
-                ProductId = x.ProductId,
-                ProductName = x.Product.Name,
-                Quantity = x.Quantity,
-                Price = x.Price
+                ProductId = oi.ProductId,
+                ProductName = oi.Product.Name,
+                Quantity = oi.Quantity,
+                Price = oi.Price
             }).ToList()
         }).ToList();
 
@@ -59,7 +60,7 @@ public class OrderService(OrderRepository _orderRepository)
         return await _orderRepository.UpdateStatusAsync(orderId, status);
     }
 
-    public async Task AddAsync(List<CartItemViewModel> cartItemVM, int userId, PaymentType paymentType)
+    public async Task<OrderResult> AddAsync(List<CartItemViewModel> cartItemVM, int userId, PaymentType paymentType)
     {
         Order order = new Order()
         {
@@ -76,7 +77,20 @@ public class OrderService(OrderRepository _orderRepository)
             }).ToList()
         };
 
-        await _orderRepository.AddAsync(order);
+        try
+        {
+            await _orderRepository.AddAsync(order);
+            return OrderResult.Success;
+        }
+        catch (KeyNotFoundException)
+        {
+            return OrderResult.ProductNotFound;
+        }
+        catch (InvalidOperationException)
+        {
+            return OrderResult.InsufficientStock;
+        }
+
     }
 
 }

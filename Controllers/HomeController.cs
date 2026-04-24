@@ -95,15 +95,24 @@ namespace eCommerceMotoRepuestos.Controllers
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error(int? statusCode = null)
+        public IActionResult Error(int? statusCode = null, string? errorMessage = null)
         {
             var status = statusCode ?? HttpContext.Response.StatusCode;
+            HttpContext.Response.StatusCode = status;
             var errorViewModel = new ErrorViewModel
             {
                 RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier,
-                StatusCode = status
+                StatusCode = status,
+                ErrorMessage = errorMessage
             };
             return View(errorViewModel);
+        }
+
+        [HttpGet]
+        public IActionResult AccessDenied()
+        {
+            Response.StatusCode = StatusCodes.Status403Forbidden;
+            return View();
         }
     }
 }

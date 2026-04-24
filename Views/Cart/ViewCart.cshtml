@@ -1,4 +1,9 @@
-﻿@using eCommerceMotoRepuestos.Enums
+@{
+    var userIsAuthenticated = User.Identity?.IsAuthenticated == true;
+    var userIsClient = userIsAuthenticated && User.IsInRole("Client");
+}
+
+@using eCommerceMotoRepuestos.Enums
 @model PagedResult<CartItemViewModel>;
 
 @if (TempData["CartMessage"] is not null)
@@ -16,7 +21,7 @@
             <h4>Carrito</h4>
         </div>
         <div class="col-4 text-end">
-            @if (User.Identity.IsAuthenticated && User.IsInRole("Client"))
+            @if (userIsClient)
             {
                 <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#purchaseOptionsModal">
                     Finalizar Compra
@@ -29,7 +34,7 @@
                     </button>
             }
 
-            @if (!User.Identity.IsAuthenticated)
+            @if (!userIsAuthenticated)
             {
                 <a href="/Account/Login" class="text-decoration-none">
                     <div class="alert alert-warning mt-1 text-center" role="alert">

@@ -1,4 +1,4 @@
-﻿using eCommerceMotoRepuestos.Enums;
+using eCommerceMotoRepuestos.Enums;
 using eCommerceMotoRepuestos.Models;
 using eCommerceMotoRepuestos.Services;
 using eCommerceMotoRepuestos.Utilities;
@@ -178,9 +178,27 @@ namespace eCommerceMotoRepuestos.Controllers
                 return RedirectToAction("ViewCart");
             }
 
-            await _orderService.AddAsync(cart, userId.Value, paymentType);
+            var result = await _orderService.AddAsync(cart, userId.Value, paymentType);
+            if (result == OrderResult.ProductNotFound)
+            {
+                return RedirectToAction("Error", "Home", new
+                {
+                    statusCode = StatusCodes.Status404NotFound,
+                    errorMessage = "Algunos productos solicitados ya no se encuentran disponibles. Verifique existencias e intente nuevamente, o contáctenos."
+                });
+            }
+            if (result == OrderResult.InsufficientStock)
+            {
+                return RedirectToAction("Error", "Home", new
+                {
+                    statusCode = StatusCodes.Status400BadRequest,
+                    errorMessage = "Algunos productos solicitados ya no cuentan con el stock requerido. Verifique existencias y reintente, o contáctenos."
+                });
+            }
+
             await _cartService.ClearByUserAsync(userId.Value);
             HttpContext.Session.Remove("Cart");
+
             return View("SaleCompleted");
         }
 

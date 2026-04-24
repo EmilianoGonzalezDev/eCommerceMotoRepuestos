@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace eCommerceMotoRepuestos.Entities;
 
@@ -6,8 +6,8 @@ public class Category
 {
     public int CategoryId { get; set; }
     [Required]
-    public string Name { get; set; }
+    public required string Name { get; set; }
     public bool IsActive { get; set; } = true;
 
-    public ICollection<Product> Products { get; set; }
+    public ICollection<Product> Products { get; set; } = [];
 }

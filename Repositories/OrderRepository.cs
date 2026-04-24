@@ -1,4 +1,4 @@
-﻿using eCommerceMotoRepuestos.Context;
+using eCommerceMotoRepuestos.Context;
 using eCommerceMotoRepuestos.Entities;
 using eCommerceMotoRepuestos.Enums;
 using Microsoft.EntityFrameworkCore;
@@ -21,6 +21,17 @@ public class OrderRepository : GenericRepository<Order>
             foreach (var detail in order.OrderItems)
             {
                 var product = await _dbContext.Product.FindAsync(detail.ProductId);
+
+                if (product is null)
+                {
+                    throw new KeyNotFoundException();
+                }
+
+                if (product.Stock < detail.Quantity)
+                { 
+                    throw new InvalidOperationException();
+                }
+
                 product.Stock -= detail.Quantity;
             }
 

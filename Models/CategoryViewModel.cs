@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace eCommerceMotoRepuestos.Models;
 
@@ -7,6 +7,6 @@ public class CategoryViewModel
     [Required(ErrorMessage = "Seleccionar una categoría.")]
     public int CategoryId { get; set; }
     [Required (ErrorMessage = "Indicar un nombre.")]
-    public string Name { get; set; }
+    public string Name { get; set; } = string.Empty;
     public bool IsActive { get; set; }
 }

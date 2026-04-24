@@ -1,4 +1,4 @@
-﻿using eCommerceMotoRepuestos.Entities;
+using eCommerceMotoRepuestos.Entities;
 using eCommerceMotoRepuestos.Models;
 using eCommerceMotoRepuestos.Repositories;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -143,11 +143,16 @@ public class ProductService(
         await _productRepository.AddAsync(entity);
     }
 
-    public async Task EditAsync(ProductViewModel viewModel)
+    public async Task<bool> EditAsync(ProductViewModel viewModel)
     {
 
         var product = await _productRepository.GetByIdAsync(viewModel.ProductId);
 
+        if (product == null)
+        { 
+            return false;
+        }
+        
         if (viewModel.ImageFile != null)
         {
 
@@ -158,9 +163,8 @@ public class ProductService(
             using (var fileStream = new FileStream(filePath, FileMode.Create))
                 await viewModel.ImageFile.CopyToAsync(fileStream);
 
-            if (!product.ImageName.IsNullOrEmpty())
+            if (product.ImageName is string previousImage)
             {
-                var previousImage = product.ImageName;
                 string deleteFilePath = Path.Combine(uploadFolder, previousImage);
 
                 if (File.Exists(deleteFilePath)) File.Delete(deleteFilePath);
@@ -181,6 +185,8 @@ public class ProductService(
         product.ImageName = viewModel.ImageName;
 
         await _productRepository.EditAsync(product);
+
+        return true;
     }
     public async Task<bool> ToggleActiveAsync(int id)
     {

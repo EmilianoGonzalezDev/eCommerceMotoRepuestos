@@ -12,6 +12,7 @@ namespace eCommerceMotoRepuestos.Models
         {
             return StatusCode switch
             {
+                400 => "Solicitud Inválida",
                 404 => "Página No Encontrada",
                 403 => "Acceso Denegado",
                 500 => "Error del Servidor",
@@ -22,8 +23,14 @@ namespace eCommerceMotoRepuestos.Models
 
         public string GetErrorDescription()
         {
+            if (!string.IsNullOrWhiteSpace(ErrorMessage))
+            {
+                return ErrorMessage;
+            }
+
             return StatusCode switch
             {
+                400 => "La solicitud no pudo procesarse. Revisa los datos e intenta nuevamente.",
                 404 => "Lo sentimos, la página que buscas no existe.",
                 403 => "No tienes permiso para acceder a esta página.",
                 500 => "Algo salió mal en nuestro servidor. Estamos trabajando en solucionarlo.",
@@ -36,6 +43,7 @@ namespace eCommerceMotoRepuestos.Models
         {
             return StatusCode switch
             {
+                400 => "❕",
                 404 => "🏍️",
                 403 => "🔒",
                 500 => "⚙️",

@@ -36,13 +36,14 @@
                 }
 
                 <form asp-controller="Cart" asp-action="AddItemToCart" method="post" id="addToCartForm">
-                    <div class="d-flex align-items-center gap-3">
+                    <div class="d-flex align-items-center gap-2">
                         <input hidden name="productId" asp-for="@Model.ProductId" />
                         <input type="hidden" name="returnUrl" value="@returnUrl" />
                         <input class="form-control text-center py-2" name="quantity" type="number" value="1" min="1" max="@Model.Stock" style="max-width:5rem" disabled="@isUnavailable" />
                         <button class="btn btn-dark flex-xl-shrink-0 px-4" type="submit" disabled="@isUnavailable">
                             <i class="fa-solid fa-cart-shopping"></i>
-                            Agregar al carrito
+                            <span class="d-inline d-sm-none">Agregar</span>
+                            <span class="d-none d-sm-inline">Agregar al carrito</span>
                         </button>
                         @if (User.IsInRole("Admin"))
                         {

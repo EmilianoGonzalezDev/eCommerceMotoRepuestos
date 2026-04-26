@@ -1,4 +1,4 @@
-using Microsoft.Data.SqlClient;
+using Microsoft.Data.Sqlite;
 
 namespace eCommerceMotoRepuestos.Services;
 
@@ -6,7 +6,7 @@ public class DatabaseBackupService(IConfiguration configuration, IWebHostEnviron
 {
     private const string ConnectionStringName = "SqlString";
     private const string BackupDirectoryName = "Backups";
-    private const string BackupFileName = "motoRepuestos_backup.bak";
+    private const string BackupFileName = "motoRepuestos_backup.db";
 
     public string GetBackupFilePath()
     {
@@ -16,30 +16,34 @@ public class DatabaseBackupService(IConfiguration configuration, IWebHostEnviron
 
     public async Task<string> CreateBackupAsync(CancellationToken cancellationToken = default)
     {
-        var connectionString = GetConnectionString();
-        var databaseName = GetDatabaseName(connectionString);
         var backupFilePath = GetBackupFilePath();
+        var databaseFilePath = GetDatabaseFilePath();
 
         Directory.CreateDirectory(Path.GetDirectoryName(backupFilePath)!);
+        if (!File.Exists(databaseFilePath))
+        {
+            throw new FileNotFoundException("No se encontro el archivo de base de datos SQLite.", databaseFilePath);
+        }
 
-        var escapedDatabaseName = EscapeSqlIdentifier(databaseName);
-        var escapedBackupPath = EscapeSqlLiteral(backupFilePath);
+        if (File.Exists(backupFilePath))
+        {
+            File.Delete(backupFilePath);
+        }
 
-        var sql = $"""
-            BACKUP DATABASE [{escapedDatabaseName}]
-            TO DISK = N'{escapedBackupPath}'
-            WITH INIT, FORMAT, NAME = N'{escapedDatabaseName}-Full Backup', STATS = 10;
-            """;
+        SqliteConnection.ClearAllPools();
 
-        await using var connection = new SqlConnection(connectionString);
+        await using var connection = new SqliteConnection(GetConnectionString());
         await connection.OpenAsync(cancellationToken);
 
-        await using var command = new SqlCommand(sql, connection)
+        var backupConnectionString = new SqliteConnectionStringBuilder
         {
-            CommandTimeout = 0
-        };
+            DataSource = backupFilePath
+        }.ToString();
 
-        await command.ExecuteNonQueryAsync(cancellationToken);
+        await using var backupConnection = new SqliteConnection(backupConnectionString);
+        await backupConnection.OpenAsync(cancellationToken);
+
+        connection.BackupDatabase(backupConnection);
         return backupFilePath;
     }
 
@@ -51,41 +55,24 @@ public class DatabaseBackupService(IConfiguration configuration, IWebHostEnviron
             throw new FileNotFoundException("No se encontro un backup para restaurar.", backupFilePath);
         }
 
-        var connectionString = GetConnectionString();
-        var databaseName = GetDatabaseName(connectionString);
-        var escapedDatabaseName = EscapeSqlIdentifier(databaseName);
-        var escapedBackupPath = EscapeSqlLiteral(backupFilePath);
+        var databaseFilePath = GetDatabaseFilePath();
+        Directory.CreateDirectory(Path.GetDirectoryName(databaseFilePath)!);
 
-        var masterConnectionStringBuilder = new SqlConnectionStringBuilder(connectionString)
+        SqliteConnection.ClearAllPools();
+
+        var backupConnectionString = new SqliteConnectionStringBuilder
         {
-            InitialCatalog = "master"
-        };
+            DataSource = backupFilePath
+        }.ToString();
 
-        SqlConnection.ClearAllPools();
-
-        await using var connection = new SqlConnection(masterConnectionStringBuilder.ConnectionString);
+        await using var connection = new SqliteConnection(backupConnectionString);
         await connection.OpenAsync(cancellationToken);
 
-        var restoreSql = $"""
-            ALTER DATABASE [{escapedDatabaseName}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
-            RESTORE DATABASE [{escapedDatabaseName}] FROM DISK = N'{escapedBackupPath}' WITH REPLACE, RECOVERY;
-            ALTER DATABASE [{escapedDatabaseName}] SET MULTI_USER;
-            """;
+        await using var destinationConnection = new SqliteConnection(GetConnectionString());
+        await destinationConnection.OpenAsync(cancellationToken);
 
-        try
-        {
-            await ExecuteNonQueryAsync(connection, restoreSql, cancellationToken);
-        }
-        catch
-        {
-            var setMultiUserSql = $"ALTER DATABASE [{escapedDatabaseName}] SET MULTI_USER;";
-            await ExecuteNonQueryAsync(connection, setMultiUserSql, cancellationToken);
-            throw;
-        }
-        finally
-        {
-            SqlConnection.ClearAllPools();
-        }
+        connection.BackupDatabase(destinationConnection);
+        SqliteConnection.ClearAllPools();
     }
 
     public DateTime? GetBackupLastWriteUtc()
@@ -105,27 +92,16 @@ public class DatabaseBackupService(IConfiguration configuration, IWebHostEnviron
             ?? throw new InvalidOperationException($"No se encontro la cadena de conexion '{ConnectionStringName}'.");
     }
 
-    private static string GetDatabaseName(string connectionString)
+    private string GetDatabaseFilePath()
     {
-        var builder = new SqlConnectionStringBuilder(connectionString);
-        if (string.IsNullOrWhiteSpace(builder.InitialCatalog))
+        var builder = new SqliteConnectionStringBuilder(GetConnectionString());
+        if (string.IsNullOrWhiteSpace(builder.DataSource))
         {
-            throw new InvalidOperationException("La cadena de conexion no tiene nombre de base de datos (Initial Catalog).");
+            throw new InvalidOperationException("La cadena de conexion de SQLite no contiene Data Source.");
         }
 
-        return builder.InitialCatalog;
-    }
-
-    private static string EscapeSqlLiteral(string value) => value.Replace("'", "''");
-    private static string EscapeSqlIdentifier(string value) => value.Replace("]", "]]");
-
-    private static async Task ExecuteNonQueryAsync(SqlConnection connection, string sql, CancellationToken cancellationToken)
-    {
-        await using var command = new SqlCommand(sql, connection)
-        {
-            CommandTimeout = 0
-        };
-
-        await command.ExecuteNonQueryAsync(cancellationToken);
+        return Path.IsPathRooted(builder.DataSource)
+            ? builder.DataSource
+            : Path.GetFullPath(Path.Combine(environment.ContentRootPath, builder.DataSource));
     }
 }

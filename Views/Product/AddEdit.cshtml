@@ -18,7 +18,7 @@
 
     <h2>@tilte</h2>
     <hr />
-    <div class="col-6">
+    <div class="col-md-6">
 
         <form asp-action="@(Model.ProductId is 0 ? "Add" : "Edit")" method="post" enctype="multipart/form-data">
             <input type="hidden" asp-for="ProductId" />
@@ -60,6 +60,10 @@
                 <input type="file" class="form-control" asp-for="ImageFile" id="imageFileInput" accept="image/*">
             </div>
 
+            <div class="mb-3 d-md-none">
+                <img src="~/images/@previewImage" id="previewImageMobile" class="rounded card-img-top" loading="lazy" alt="@Model.Name" />
+            </div>
+
             <div class="d-grid gap-2 d-md-block mt-4">
                 <button class="btn btn-primary" type="submit">@btnAction</button>
                 <a href="javascript:history.back();" class="btn btn-warning">Volver</a>
@@ -67,8 +71,8 @@
         </form>
     </div>
 
-    <div class="col-6">
-        <img src="~/images/@previewImage" id="previewImage" class="rounded" width="300" height="320" alt="@Model.Name" />
+    <div class="col-md-6 d-none d-md-block">
+        <img src="~/images/@previewImage" id="previewImageDesktop" class="rounded card-img-top" loading="lazy" alt="@Model.Name" />
     </div>
 </div>
 
@@ -89,14 +93,17 @@
 
             // Manage the product image (default, selected, original) in the form
             const imageFileInput = document.getElementById('imageFileInput');
-            const previewImage = document.getElementById('previewImage');
-            const basePreviewSrc = previewImage?.src;
+            const previewImages = [
+                document.getElementById('previewImageMobile'),
+                document.getElementById('previewImageDesktop')
+            ].filter(Boolean);
+            const basePreviewSrc = previewImages[0]?.src;
             let currentObjectUrl = null;
 
             imageFileInput?.addEventListener('click', function () {
                 imageFileInput.value = '';
-                if (previewImage && basePreviewSrc) {
-                    previewImage.src = basePreviewSrc;
+                if (basePreviewSrc) {
+                    previewImages.forEach(img => img.src = basePreviewSrc);
                 }
                 if (currentObjectUrl) {
                     URL.revokeObjectURL(currentObjectUrl);
@@ -106,8 +113,8 @@
             imageFileInput?.addEventListener('change', function (event) {
                 const file = event.target.files?.[0];
                 if (!file) {
-                    if (previewImage && basePreviewSrc) {
-                        previewImage.src = basePreviewSrc;
+                    if (basePreviewSrc) {
+                        previewImages.forEach(img => img.src = basePreviewSrc);
                     }
                     return;
                 }
@@ -115,7 +122,7 @@
                     URL.revokeObjectURL(currentObjectUrl);
                 }
                 currentObjectUrl = URL.createObjectURL(file);
-                previewImage.src = currentObjectUrl;
+                previewImages.forEach(img => img.src = currentObjectUrl);
             });
 
         });

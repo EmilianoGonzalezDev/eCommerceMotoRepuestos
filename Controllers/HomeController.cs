@@ -47,16 +47,17 @@ namespace eCommerceMotoRepuestos.Controllers
         [HttpGet]
         public async Task<IActionResult> FilterBySearch(string value, int page = 1)
         {
+            var searchValue = (value ?? string.Empty).Trim();
             var categories = await _categoryService.GetAllActiveAsync();
-            var products = await _productService.GetCatalogAsync(search: value);
+            var products = await _productService.GetCatalogAsync(search: searchValue);
             var pagedProducts = PagedResult<ProductViewModel>.Create(products, page, PaginationSettings.CatalogPageSize);
             var catalog = new CatalogViewModel
             {
                 Categories = categories,
                 Products = pagedProducts,
-                FilterBy = $"Resultados para: {value}",
+                FilterBy = $"Resultados para: {searchValue}",
                 CategoryFilterId = 0,
-                SearchValue = value
+                SearchValue = searchValue
             };
             return View("Index", catalog);
         }
@@ -64,15 +65,16 @@ namespace eCommerceMotoRepuestos.Controllers
         [HttpGet]
         public async Task<IActionResult> SearchSuggestions(string value)
         {
-            if (string.IsNullOrWhiteSpace(value))
+            var searchValue = (value ?? string.Empty).Trim();
+            if (string.IsNullOrWhiteSpace(searchValue))
             {
                 return Json(Array.Empty<object>());
             }
 
-            var products = await _productService.GetCatalogAsync(search: value.Trim());
+            var products = await _productService.GetCatalogAsync(search: searchValue);
             var suggestions = products
-                .OrderByDescending(p => p.Name.Equals(value, StringComparison.OrdinalIgnoreCase))
-                .ThenByDescending(p => p.Name.StartsWith(value, StringComparison.OrdinalIgnoreCase))
+                .OrderByDescending(p => p.Name.Equals(searchValue, StringComparison.OrdinalIgnoreCase))
+                .ThenByDescending(p => p.Name.StartsWith(searchValue, StringComparison.OrdinalIgnoreCase))
                 .ThenBy(p => p.Name.Length)
                 .ThenBy(p => p.Name)
                 .Take(10)

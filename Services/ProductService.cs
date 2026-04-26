@@ -2,7 +2,9 @@ using eCommerceMotoRepuestos.Entities;
 using eCommerceMotoRepuestos.Models;
 using eCommerceMotoRepuestos.Repositories;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Globalization;
 using System.Linq.Expressions;
+using System.Text;
 
 namespace eCommerceMotoRepuestos.Services;
 
@@ -208,13 +210,16 @@ public class ProductService(
             };
 
         if (categoryId != 0) conditions.Add(x => x.CategoryId == categoryId);
-        if (!string.IsNullOrEmpty(search)) conditions.Add(x => x.Name.Contains(search));
-
-
         var products = await _productRepository.GetAllAsync(conditions: conditions.ToArray());
+
+        var searchValue = (search ?? string.Empty).Trim();
+        var normalizedSearch = NormalizeSearch(searchValue);
+        var searchTerms = normalizedSearch
+            .Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
         var productsVM = products
             .OrderByDescending(item => item.ProductId)
+            .Where(item => MatchesSearch(item, normalizedSearch, searchTerms))
             .Select(item =>
             new ProductViewModel
             {
@@ -228,5 +233,35 @@ public class ProductService(
             }).ToList();
 
         return productsVM;
+    }
+
+    private static bool MatchesSearch(Product product, string normalizedSearch, string[] searchTerms)
+    {
+        if (string.IsNullOrWhiteSpace(normalizedSearch)) return true;
+
+        var normalizedName = NormalizeSearch(product.Name);
+        var normalizedDescription = NormalizeSearch(product.Description);
+
+        return searchTerms.All(term =>
+            normalizedName.Contains(term, StringComparison.Ordinal) ||
+            normalizedDescription.Contains(term, StringComparison.Ordinal));
+    }
+
+    private static string NormalizeSearch(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value)) return string.Empty;
+
+        var normalized = value.Trim().ToLowerInvariant().Normalize(NormalizationForm.FormD);
+        var sb = new StringBuilder(normalized.Length);
+
+        foreach (var c in normalized)
+        {
+            if (CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
+            {
+                sb.Append(c);
+            }
+        }
+
+        return sb.ToString().Normalize(NormalizationForm.FormC);
     }
 }

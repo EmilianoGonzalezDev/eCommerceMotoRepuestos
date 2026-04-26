@@ -70,6 +70,7 @@
 <table class="table table-striped">
     <thead>
         <tr>
+            <th class="text-muted">Id</th>
             @foreach (var column in Model.SortColumns)
             {
                 <th>
@@ -97,6 +98,7 @@
         @foreach (var item in Model.Items)
         {
             <tr>
+                <td class="text-muted">#@item.ProductId</td>
                 <td>@item.Name</td>
                 <td>@item.Category.Name</td>
                 <td>@item.Price</td>

@@ -11,7 +11,7 @@ public class BackupController(DatabaseBackupService backupService, ILogger<Backu
     [HttpGet]
     public IActionResult Index()
     {
-        return View(BuildViewModel());
+        return View("~/Views/Backups/Index.cshtml", BuildViewModel());
     }
 
     [HttpPost]

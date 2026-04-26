@@ -77,15 +77,15 @@
                     <div class="d-flex align-items-center gap-2">
                         <span>@column.Label</span>
                         <span class="btn-group btn-group-sm" role="group" aria-label="Ordenar por @column.Label.ToLowerInvariant()">
-                            <a class="@Model.GetSortButtonCssClass(column.SortBy, SortDirection.Asc)"
+                            <a class="@Model.GetSortButtonCssClass(column.SortBy, SortDirection.Asc) p-0"
                                href="@Url.Action("Index", "Product", Model.GetSortRouteValues(column.SortBy, SortDirection.Asc))"
                                title="@column.AscTitle">
-                                <i class="fa-solid fa-arrow-down"></i>
+                                <i class="fa-solid fa-arrow-down fa-xs"></i>
                             </a>
-                            <a class="@Model.GetSortButtonCssClass(column.SortBy, SortDirection.Desc)"
+                            <a class="@Model.GetSortButtonCssClass(column.SortBy, SortDirection.Desc) p-0"
                                href="@Url.Action("Index", "Product", Model.GetSortRouteValues(column.SortBy, SortDirection.Desc))"
                                title="@column.DescTitle">
-                                <i class="fa-solid fa-arrow-up"></i>
+                                <i class="fa-solid fa-arrow-up fa-xs"></i>
                             </a>
                         </span>
                     </div>

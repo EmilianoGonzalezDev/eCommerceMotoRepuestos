@@ -115,7 +115,7 @@
                            asp-route-name="All Categories">Todas las categorías
                         </a>
                     </div>
-                    @foreach (var category in Model.Categories)
+                    @foreach (var category in Model.Categories.OrderBy(c => c.Name))
                     {
                         <div class="col d-grid">
                             <a class="btn btn-outline-dark"

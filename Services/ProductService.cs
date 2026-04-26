@@ -213,7 +213,9 @@ public class ProductService(
 
         var products = await _productRepository.GetAllAsync(conditions: conditions.ToArray());
 
-        var productsVM = products.Select(item =>
+        var productsVM = products
+            .OrderByDescending(item => item.ProductId)
+            .Select(item =>
             new ProductViewModel
             {
                 ProductId = item.ProductId,

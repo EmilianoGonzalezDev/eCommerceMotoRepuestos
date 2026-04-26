@@ -25,7 +25,7 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
 
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
-    options.UseSqlServer(builder.Configuration.GetConnectionString("SqlString"));
+    options.UseSqlite(builder.Configuration.GetConnectionString("SqlString"));
 });
 
 builder.Services.AddScoped(typeof(GenericRepository<>));
@@ -52,6 +52,12 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     );
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.Migrate();
+}
 
 app.UseSession();
 app.UseRequestLocalization();

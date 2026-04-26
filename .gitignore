@@ -480,5 +480,9 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+
 /.dotnet
 /wwwroot/images
+/app.db
+/app.db-shm
+/app.db-wal

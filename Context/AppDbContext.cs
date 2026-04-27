@@ -88,6 +88,16 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<User>(u =>
         {
             u.Property(u => u.Email).UseCollation("NOCASE");
+            u.HasData(
+                new User
+                {
+                    UserId = -1,
+                    FullName = "Super Admin",
+                    Email = "superadmin@admin",
+                    Password = "AQAAAAIAAYagAAAAEFyeC2cws9pGHGRNbNLuJIEL0abroIXyMieFsiiI9K2yBi6CPSPI8FRiNwlW/yuu3Q==",
+                    Type = "SuperAdmin"
+                }
+            );
         });
 
     }

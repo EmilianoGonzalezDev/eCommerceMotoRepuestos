@@ -85,5 +85,10 @@ public class AppDbContext : DbContext
             );
         });
 
+        modelBuilder.Entity<User>(u =>
+        {
+            u.Property(u => u.Email).UseCollation("NOCASE");
+        });
+
     }
 }

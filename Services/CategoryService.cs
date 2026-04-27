@@ -8,6 +8,16 @@ public class CategoryService(
     GenericRepository<Category> _categoryRepository,
     GenericRepository<Product> _productRepository)
 {
+    private static string NormalizeName(string name)
+    {
+        return name.Trim().ToUpperInvariant();
+    }
+
+    private static string SanitizeName(string? name)
+    {
+        return (name ?? string.Empty).Trim();
+    }
+
     public async Task<IEnumerable<CategoryViewModel>> GetAllAsync()
     {
         var categories = await _categoryRepository.GetAllAsync();
@@ -45,7 +55,7 @@ public class CategoryService(
     {
         var entity = new Category
         {
-            Name = viewModel.Name,
+            Name = SanitizeName(viewModel.Name),
             IsActive = true
         };
 
@@ -79,8 +89,23 @@ public class CategoryService(
         var category = await _categoryRepository.GetByIdAsync(viewModel.CategoryId);
         if (category is null) return;
 
-        category.Name = viewModel.Name;
+        category.Name = SanitizeName(viewModel.Name);
         await _categoryRepository.EditAsync(category);
+    }
+
+    public async Task<bool> ExistsByNameAsync(string name, int? excludedCategoryId = null)
+    {
+        if (string.IsNullOrWhiteSpace(name)) return false;
+
+        var normalizedName = NormalizeName(name);
+        var categories = await _categoryRepository.GetAllAsync(
+            conditions:
+            [
+                c => c.Name.ToUpper() == normalizedName,
+                c => !excludedCategoryId.HasValue || c.CategoryId != excludedCategoryId.Value
+            ]);
+
+        return categories.Any();
     }
 
     public async Task<bool> ToggleActiveAsync(int id)

@@ -22,26 +22,26 @@
 
                     <div class="mb-3">
                         <label class="form-label">Nombre y Apellido</label>
-                        <input class="form-control" type="text" asp-for="FullName" />
+                        <input class="form-control" type="text" asp-for="FullName" maxlength="150" />
                         <span asp-validation-for="FullName" class="text-danger"></span>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label">Email</label>
-                        <input class="form-control" type="email" asp-for="Email" />
+                        <input class="form-control" type="email" asp-for="Email" maxlength="150" />
                         <span asp-validation-for="Email" class="text-danger"></span>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label">Nueva Contraseña</label>
-                        <input class="form-control" type="password" asp-for="Password" />
+                        <input class="form-control" type="password" asp-for="Password" maxlength="150" />
                         <small class="text-muted">Si no querés cambiarla, dejá este campo vacío.</small>
                         <span asp-validation-for="Password" class="text-danger"></span>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label">Repetir Nueva Contraseña</label>
-                        <input class="form-control" type="password" asp-for="RepeatPassword" />
+                        <input class="form-control" type="password" asp-for="RepeatPassword" maxlength="150" />
                         <span asp-validation-for="RepeatPassword" class="text-danger"></span>
                     </div>
 

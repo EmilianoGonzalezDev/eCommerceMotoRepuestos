@@ -1,2 +1,16 @@
 ﻿<script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
 <script src="~/lib/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.min.js"></script>
+<script>
+    if (window.jQuery && $.validator) {
+        $.extend($.validator.messages, {
+            required: "Este campo es obligatorio.",
+            email: "Ingresa un correo electronico valido.",
+            number: "Ingresa un numero valido.",
+            digits: "Ingresa solo numeros enteros.",
+            min: "Ingresa un valor mayor o igual a {0}.",
+            max: "Ingresa un valor menor o igual a {0}.",
+            range: "Ingresa un valor entre {0} y {1}.",
+            equalTo: "Los valores no coinciden."
+        });
+    }
+</script>

@@ -1,4 +1,4 @@
-﻿@model CategoryViewModel;
+@model CategoryViewModel;
 
 @{
     var title = Model.CategoryId is 0 ? "Nueva Categoría" : "Editar Categoría";
@@ -15,7 +15,7 @@
             <input type="hidden" asp-for="CategoryId" />
             <div class="mb-3">
                 <label class="form-label">Nombre</label>
-                <input type="text" class="form-control" asp-for="Name" autocomplete="off">
+                <input type="text" class="form-control" asp-for="Name" autocomplete="off" maxlength="150">
                 <span asp-validation-for="Name" class="text-danger"></span>
             </div>
 

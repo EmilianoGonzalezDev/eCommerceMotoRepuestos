@@ -112,7 +112,7 @@ public class ProductService(
         {
             Value = category.CategoryId.ToString(),
             Text = category.Name,
-        }).ToList();
+        }).OrderBy(s => s.Text).ToList();
     }
 
     public async Task AddAsync(ProductViewModel viewModel)

@@ -20,7 +20,7 @@
     <hr />
     <div class="col-md-6">
 
-        <form asp-action="@(Model.ProductId is 0 ? "Add" : "Edit")" method="post" enctype="multipart/form-data">
+        <form asp-action="@(Model.ProductId is 0 ? "Add" : "Edit")" method="post" enctype="multipart/form-data" novalidate>
             <input type="hidden" asp-for="ProductId" />
             <input type="hidden" asp-for="ImageName" />
 
@@ -34,24 +34,24 @@
 
             <div class="mb-3">
                 <label class="form-label">Nombre</label>
-                <input type="text" class="form-control" asp-for="Name" autocomplete="off">
+                <input type="text" class="form-control" asp-for="Name" autocomplete="off" maxlength="150">
                 <span asp-validation-for="Name" class="text-danger"></span>
             </div>
             <div class="mb-3">
                 <label class="form-label">Descripción</label>
-                <textarea id="summernote" class="form-control" asp-for="Description" autocomplete="off">
+                <textarea id="summernote" class="form-control" asp-for="Description" autocomplete="off" maxlength="5000">
                 </textarea>
                 <span asp-validation-for="Description" class="text-danger"></span>
             </div>
 
             <div class="mb-3">
                 <label class="form-label">Precio</label>
-                <input type="number" class="form-control" asp-for="Price" autocomplete="off">
+                <input type="number" class="form-control" asp-for="Price" autocomplete="off" min="0" max="9999999999">
                 <span asp-validation-for="Price" class="text-danger"></span>
             </div>
             <div class="mb-3">
                 <label class="form-label">Stock</label>
-                <input type="number" class="form-control" asp-for="Stock" autocomplete="off">
+                <input type="number" class="form-control" asp-for="Stock" autocomplete="off" min="0" max="9999999">
                 <span asp-validation-for="Stock" class="text-danger"></span>
             </div>
 

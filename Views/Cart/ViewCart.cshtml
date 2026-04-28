@@ -1,6 +1,7 @@
 @{
     var userIsAuthenticated = User.Identity?.IsAuthenticated == true;
     var userIsClient = userIsAuthenticated && User.IsInRole("Client");
+    var userIsAdmin = userIsAuthenticated && User.IsInRole("Admin");
     var hasPurchasableItems = (bool?)ViewBag.HasPurchasableItems ?? false;
     var unavailableItemsCount = (int?)ViewBag.UnavailableItemsCount ?? 0;
 }
@@ -47,6 +48,11 @@
             }
             else
             {
+                    @if (userIsAdmin)
+                    {
+                        <small class="text-muted d-block me-1">[modo admin]</small>
+                    }
+
                     <button disabled type="button" class="btn btn-secondary">
                         Finalizar Compra
                     </button>

@@ -23,9 +23,11 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
     options.SupportedUICultures = [supportedCulture];
 });
 
+var dbPath = Path.Combine(AppContext.BaseDirectory, "app.db");
+
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
-    options.UseSqlite(builder.Configuration.GetConnectionString("SqlString"));
+    options.UseSqlite($"Data Source={dbPath}");
 });
 
 builder.Services.AddScoped(typeof(GenericRepository<>));

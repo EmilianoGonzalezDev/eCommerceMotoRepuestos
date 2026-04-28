@@ -2,15 +2,14 @@ using Microsoft.Data.Sqlite;
 
 namespace eCommerceMotoRepuestos.Services;
 
-public class DatabaseBackupService(IConfiguration configuration, IWebHostEnvironment environment)
+public class DatabaseBackupService(SqliteDatabasePathProvider databasePathProvider)
 {
-    private const string ConnectionStringName = "SqlString";
     private const string BackupDirectoryName = "Backups";
     private const string BackupFileName = "motoRepuestos_backup.db";
 
     public string GetBackupFilePath()
     {
-        var backupDirectory = Path.Combine(environment.ContentRootPath, BackupDirectoryName);
+        var backupDirectory = Path.Combine(databasePathProvider.BaseDirectory, BackupDirectoryName);
         return Path.Combine(backupDirectory, BackupFileName);
     }
 
@@ -32,7 +31,7 @@ public class DatabaseBackupService(IConfiguration configuration, IWebHostEnviron
 
         SqliteConnection.ClearAllPools();
 
-        await using var connection = new SqliteConnection(GetConnectionString());
+        await using var connection = new SqliteConnection(databasePathProvider.ConnectionString);
         await connection.OpenAsync(cancellationToken);
 
         var backupConnectionString = new SqliteConnectionStringBuilder
@@ -68,7 +67,7 @@ public class DatabaseBackupService(IConfiguration configuration, IWebHostEnviron
         await using var connection = new SqliteConnection(backupConnectionString);
         await connection.OpenAsync(cancellationToken);
 
-        await using var destinationConnection = new SqliteConnection(GetConnectionString());
+        await using var destinationConnection = new SqliteConnection(databasePathProvider.ConnectionString);
         await destinationConnection.OpenAsync(cancellationToken);
 
         connection.BackupDatabase(destinationConnection);
@@ -86,22 +85,8 @@ public class DatabaseBackupService(IConfiguration configuration, IWebHostEnviron
         return File.GetLastWriteTimeUtc(backupFilePath);
     }
 
-    private string GetConnectionString()
-    {
-        return configuration.GetConnectionString(ConnectionStringName)
-            ?? throw new InvalidOperationException($"No se encontro la cadena de conexion '{ConnectionStringName}'.");
-    }
-
     private string GetDatabaseFilePath()
     {
-        var builder = new SqliteConnectionStringBuilder(GetConnectionString());
-        if (string.IsNullOrWhiteSpace(builder.DataSource))
-        {
-            throw new InvalidOperationException("La cadena de conexion de SQLite no contiene Data Source.");
-        }
-
-        return Path.IsPathRooted(builder.DataSource)
-            ? builder.DataSource
-            : Path.GetFullPath(Path.Combine(environment.ContentRootPath, builder.DataSource));
+        return databasePathProvider.DatabaseFilePath;
     }
 }

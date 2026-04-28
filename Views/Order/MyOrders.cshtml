@@ -47,7 +47,7 @@ else
                     <td>@order.OrderDateFormatted</td>
                     <td>#@order.OrderId</td>
                     <td>@order.PaymentType.GetDisplayName()</td>
-                    <td>@order.TotalAmountFormatted</td>
+                    <td class="text-nowrap">@order.TotalAmountFormatted</td>
                     <td>
                         <ul>
                             @foreach (var orderItem in order.OrderItems)

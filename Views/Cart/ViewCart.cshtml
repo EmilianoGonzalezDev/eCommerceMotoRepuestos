@@ -88,7 +88,7 @@
                              loading="lazy" style="width:100px" />
                     </td>
                     <td>@item.Name</td>
-                    <td>@item.Price.ToString("C")</td>
+                    <td class="text-nowrap">@item.Price.ToString("C")</td>
                     <td>
                         <form action="/Cart/UpdateItemQuantity" method="post" class="d-inline-block">
                             <input type="hidden" name="productId" value="@item.ProductId" />
@@ -109,7 +109,7 @@
                             <small class="text-danger d-block mt-1">@statusText</small>
                         }
                     </td>
-                    <td>@((item.Price * item.Quantity).ToString("C"))</td>
+                    <td class="text-nowrap">@((item.Price * item.Quantity).ToString("C"))</td>
 
 
                     <td style="width:120px">

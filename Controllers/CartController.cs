@@ -296,7 +296,9 @@ namespace eCommerceMotoRepuestos.Controllers
             }
 
             HttpContext.Session.Set("Cart", cart);
-            return cart;
+            return cart
+                .OrderBy(x => x.Name)
+                .ToList();
         }
 
         private List<CartItemViewModel> GetSessionCart()

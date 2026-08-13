@@ -19,7 +19,9 @@ public class CartService(CartRepository _cartRepository)
             Quantity = x.Quantity,
             Stock = x.Product?.Stock ?? 0,
             IsActive = x.Product?.IsActive ?? false
-        }).ToList();
+        })
+        .OrderBy(x => x.Name)
+        .ToList();
     }
 
     public async Task<int> GetDistinctItemsCountAsync(int userId)

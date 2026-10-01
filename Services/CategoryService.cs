@@ -20,35 +20,27 @@ public class CategoryService(
 
     public async Task<IEnumerable<CategoryViewModel>> GetAllAsync()
     {
-        var categories = await _categoryRepository.GetAllAsync();
-
-        var categoriesVieModel = categories.Select(item =>
+        var categoriesVieModel = await _categoryRepository.GetAllProjectedAsync(item =>
         new CategoryViewModel
         {
             CategoryId = item.CategoryId,
             Name = item.Name,
             IsActive = item.IsActive
-        }
-        ).OrderBy(c => c.Name).ToList();
+        });
 
-        return categoriesVieModel;
+        return categoriesVieModel.OrderBy(c => c.Name).ToList();
     }
 
     public async Task<IEnumerable<CategoryViewModel>> GetAllActiveAsync()
     {
-        var categories = await _categoryRepository.GetAllAsync(
-            conditions: [c => c.IsActive]);
-
-        var categoriesVieModel = categories.Select(item =>
+        return await _categoryRepository.GetAllProjectedAsync(item =>
         new CategoryViewModel
         {
             CategoryId = item.CategoryId,
             Name = item.Name,
             IsActive = item.IsActive
-        }
-        ).ToList();
-
-        return categoriesVieModel;
+        },
+        conditions: [c => c.IsActive]);
     }
 
     public async Task AddAsync(CategoryViewModel viewModel)
@@ -80,8 +72,7 @@ public class CategoryService(
 
     public async Task<bool> ExistsAsync(int id)
     {
-        var category = await _categoryRepository.GetByIdAsync(id);
-        return category != null;
+        return await _categoryRepository.AnyAsync([c => c.CategoryId == id]);
     }
 
     public async Task EditAsync(CategoryViewModel viewModel)
@@ -98,14 +89,11 @@ public class CategoryService(
         if (string.IsNullOrWhiteSpace(name)) return false;
 
         var normalizedName = NormalizeName(name);
-        var categories = await _categoryRepository.GetAllAsync(
-            conditions:
+        return await _categoryRepository.AnyAsync(
             [
                 c => c.Name.ToUpper() == normalizedName,
                 c => !excludedCategoryId.HasValue || c.CategoryId != excludedCategoryId.Value
             ]);
-
-        return categories.Any();
     }
 
     public async Task<bool> ToggleActiveAsync(int id)
@@ -115,10 +103,10 @@ public class CategoryService(
 
         if (category.IsActive)
         {
-            var productsInCategory = await _productRepository.GetAllAsync(
-                conditions: [p => p.CategoryId == id && p.IsActive]);
+            var hasActiveProducts = await _productRepository.AnyAsync(
+                [p => p.CategoryId == id && p.IsActive]);
 
-            if (productsInCategory.Any())
+            if (hasActiveProducts)
                 throw new InvalidOperationException("No se puede dar de baja la categoría porque tiene productos activos asociados.");
         }
 

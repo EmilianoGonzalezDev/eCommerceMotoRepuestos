@@ -6,7 +6,10 @@ using Microsoft.AspNetCore.Mvc;
 namespace eCommerceMotoRepuestos.Controllers;
 
 [Authorize(Roles = "Admin")]
-public class BackupController(DatabaseBackupService backupService, ILogger<BackupController> logger) : Controller
+public class BackupController(
+    DatabaseBackupService backupService,
+    AppSettingService appSettingService,
+    ILogger<BackupController> logger) : Controller
 {
     [HttpGet]
     public IActionResult Index()
@@ -39,6 +42,7 @@ public class BackupController(DatabaseBackupService backupService, ILogger<Backu
         try
         {
             await backupService.RestoreBackupAsync(cancellationToken);
+            appSettingService.InvalidateCache();
             TempData["SuccessMessage"] = "Base de datos restaurada correctamente desde el backup.";
         }
         catch (FileNotFoundException)

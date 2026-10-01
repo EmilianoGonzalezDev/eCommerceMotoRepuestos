@@ -223,38 +223,12 @@ public class AccountController(
             return;
         }
 
-        foreach (var sessionItem in sessionCart)
-        {
-            var product = await _productService.GetByIdAsync(sessionItem.ProductId);
+        var quantitiesByProduct = sessionCart
+            .GroupBy(x => x.ProductId)
+            .ToDictionary(g => g.Key, g => g.Sum(x => x.Quantity));
+        var products = await _productService.GetByIdsAsync(quantitiesByProduct.Keys);
 
-            if (product == null)
-            {
-                continue;
-            }
-
-            var currentQuantity = await _cartService.GetQuantityByUserAndProductAsync(userId, sessionItem.ProductId);
-            var totalQuantity = currentQuantity + sessionItem.Quantity;
-            var adjustedQuantity = sessionItem.Quantity;
-
-            if (totalQuantity > product.Stock)
-            {
-                adjustedQuantity = product.Stock - currentQuantity;
-                if (adjustedQuantity <= 0)
-                {
-                    continue;
-                }
-            }
-
-            var productViewModel = new ProductViewModel
-            {
-                ProductId = product.ProductId,
-                Name = product.Name,
-                Price = product.Price,
-                ImageName = product.ImageName
-            };
-
-            await _cartService.AddOrIncrementAsync(userId, productViewModel, adjustedQuantity);
-        }
+        await _cartService.MergeAsync(userId, products.Values, quantitiesByProduct);
 
         HttpContext.Session.Remove("Cart");
     }

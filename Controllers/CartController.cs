@@ -33,7 +33,8 @@ namespace eCommerceMotoRepuestos.Controllers
 
             if (userId is not null)
             {
-                var currentQuantity = await _cartService.GetQuantityByUserAndProductAsync(userId.Value, productId);
+                var existingItem = await _cartService.GetByUserAndProductAsync(userId.Value, productId);
+                var currentQuantity = existingItem?.Quantity ?? 0;
 
                 if (requestedQuantity + currentQuantity > product.Stock)
                 {
@@ -42,7 +43,7 @@ namespace eCommerceMotoRepuestos.Controllers
                     return RedirectToAction("ProductDetail", "Home", new { id = productId, returnUrl = safeReturnUrl });
                 }
 
-                await _cartService.AddOrIncrementAsync(userId.Value, product, requestedQuantity);
+                await _cartService.AddOrIncrementAsync(userId.Value, product, requestedQuantity, existingItem);
             }
             else
             {
@@ -163,7 +164,7 @@ namespace eCommerceMotoRepuestos.Controllers
                     return RedirectToAction("ViewCart", new { page });
                 }
 
-                await _cartService.UpdateQuantityAsync(userId.Value, productId, adjustedQuantity);
+                await _cartService.UpdateQuantityAsync(cartItem, adjustedQuantity);
             }
             else
             {
@@ -278,10 +279,11 @@ namespace eCommerceMotoRepuestos.Controllers
                 return cart;
             }
 
+            var products = await _productService.GetByIdsAsync(cart.Select(x => x.ProductId));
+
             foreach (var item in cart)
             {
-                var product = await _productService.GetByIdAsync(item.ProductId);
-                if (product.ProductId == 0)
+                if (!products.TryGetValue(item.ProductId, out var product))
                 {
                     item.Stock = 0;
                     item.IsActive = false;

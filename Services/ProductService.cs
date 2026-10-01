@@ -104,10 +104,39 @@ public class ProductService(
         };
     }
 
+    public async Task<Dictionary<int, ProductViewModel>> GetByIdsAsync(IEnumerable<int> ids)
+    {
+        var idList = ids.Distinct().ToList();
+        if (idList.Count == 0)
+        {
+            return new Dictionary<int, ProductViewModel>();
+        }
+
+        var products = await _productRepository.GetAllProjectedAsync(product => new ProductViewModel
+        {
+            ProductId = product.ProductId,
+            IsActive = product.IsActive,
+            Category = new CategoryViewModel
+            {
+                CategoryId = product.CategoryId
+            },
+            Name = product.Name,
+            Description = product.Description,
+            Price = product.Price,
+            Stock = product.Stock,
+            ImageName = product.ImageName
+        },
+        conditions: [p => idList.Contains(p.ProductId)]);
+
+        return products.ToDictionary(product => product.ProductId);
+    }
+
     public async Task PopulateCategoriesAsync(ProductViewModel productVM)
     {
-        var categories = await _categoryRepository.GetAllAsync(
-            conditions: [c => c.IsActive || c.CategoryId == productVM.Category.CategoryId]);
+        var selectedCategoryId = productVM.Category.CategoryId;
+        var categories = await _categoryRepository.GetAllProjectedAsync(
+            c => new { c.CategoryId, c.Name },
+            conditions: [c => c.IsActive || c.CategoryId == selectedCategoryId]);
         productVM.Categories = categories.Select(category => new SelectListItem
         {
             Value = category.CategoryId.ToString(),

@@ -43,7 +43,11 @@ public class CartService(CartRepository _cartRepository)
     public async Task AddOrIncrementAsync(int userId, ProductViewModel product, int quantity)
     {
         var existing = await _cartRepository.GetByUserAndProductAsync(userId, product.ProductId);
+        await AddOrIncrementAsync(userId, product, quantity, existing);
+    }
 
+    public async Task AddOrIncrementAsync(int userId, ProductViewModel product, int quantity, CartItem? existing)
+    {
         if (existing is null)
         {
             await _cartRepository.AddAsync(new CartItem
@@ -64,8 +68,47 @@ public class CartService(CartRepository _cartRepository)
         var existing = await _cartRepository.GetByUserAndProductAsync(userId, productId);
         if (existing is null) return;
 
+        await UpdateQuantityAsync(existing, quantity);
+    }
+
+    public async Task UpdateQuantityAsync(CartItem existing, int quantity)
+    {
         existing.Quantity = quantity;
         await _cartRepository.EditAsync(existing);
+    }
+
+    /// <summary>
+    /// Merges items (e.g. from a guest session cart) into the user's cart using a fixed number
+    /// of queries and a single save. Quantities are capped to the available stock.
+    /// </summary>
+    public async Task MergeAsync(int userId, IEnumerable<ProductViewModel> products, IReadOnlyDictionary<int, int> quantitiesByProduct)
+    {
+        var existingItems = (await _cartRepository.GetByUserAndProductsAsync(userId, quantitiesByProduct.Keys))
+            .ToDictionary(x => x.ProductId);
+        var newItems = new List<CartItem>();
+
+        foreach (var product in products)
+        {
+            existingItems.TryGetValue(product.ProductId, out var existing);
+            var currentQuantity = existing?.Quantity ?? 0;
+            var requested = quantitiesByProduct[product.ProductId];
+            var adjusted = currentQuantity + requested > product.Stock
+                ? product.Stock - currentQuantity
+                : requested;
+
+            if (adjusted <= 0) continue;
+
+            if (existing is null)
+            {
+                newItems.Add(new CartItem { UserId = userId, ProductId = product.ProductId, Quantity = adjusted });
+            }
+            else
+            {
+                existing.Quantity += adjusted;
+            }
+        }
+
+        await _cartRepository.AddRangeAndSaveAsync(newItems);
     }
 
     public async Task RemoveAsync(int userId, int productId)

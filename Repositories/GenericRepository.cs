@@ -27,6 +27,28 @@ public class GenericRepository<TEntity>(AppDbContext _dbContext) where TEntity :
         return await query.ToListAsync();
     }
 
+    public async Task<List<TResult>> GetAllProjectedAsync<TResult>(
+        Expression<Func<TEntity, TResult>> selector,
+        Expression<Func<TEntity, bool>>[]? conditions = null
+        )
+    {
+        IQueryable<TEntity> query = _dbContext.Set<TEntity>().AsNoTracking();
+
+        if (conditions is not null)
+            foreach (var condition in conditions) query = query.Where(condition);
+
+        return await query.Select(selector).ToListAsync();
+    }
+
+    public async Task<bool> AnyAsync(Expression<Func<TEntity, bool>>[] conditions)
+    {
+        IQueryable<TEntity> query = _dbContext.Set<TEntity>();
+
+        foreach (var condition in conditions) query = query.Where(condition);
+
+        return await query.AnyAsync();
+    }
+
     public virtual async Task AddAsync(TEntity entity)
     {
         await _dbContext.Set<TEntity>().AddAsync(entity);

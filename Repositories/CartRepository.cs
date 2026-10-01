@@ -20,6 +20,20 @@ public class CartRepository(AppDbContext _dbContext)
             .FirstOrDefaultAsync(x => x.UserId == userId && x.ProductId == productId);
     }
 
+    public async Task<List<CartItem>> GetByUserAndProductsAsync(int userId, IEnumerable<int> productIds)
+    {
+        var ids = productIds.Distinct().ToList();
+        return await _dbContext.CartItem
+            .Where(x => x.UserId == userId && ids.Contains(x.ProductId))
+            .ToListAsync();
+    }
+
+    public async Task AddRangeAndSaveAsync(IEnumerable<CartItem> newItems)
+    {
+        await _dbContext.CartItem.AddRangeAsync(newItems);
+        await _dbContext.SaveChangesAsync();
+    }
+
     public async Task<int> GetDistinctItemsCountByUserAsync(int userId)
     {
         return await _dbContext.CartItem.CountAsync(x => x.UserId == userId);
@@ -45,13 +59,8 @@ public class CartRepository(AppDbContext _dbContext)
 
     public async Task DeleteByUserAsync(int userId)
     {
-        var items = await _dbContext.CartItem
+        await _dbContext.CartItem
             .Where(x => x.UserId == userId)
-            .ToListAsync();
-
-        if (items.Count == 0) return;
-
-        _dbContext.CartItem.RemoveRange(items);
-        await _dbContext.SaveChangesAsync();
+            .ExecuteDeleteAsync();
     }
 }

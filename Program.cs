@@ -24,6 +24,7 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
 });
 
 builder.Services.AddSingleton<SqliteDatabasePathProvider>();
+builder.Services.AddMemoryCache();
 
 builder.Services.AddDbContext<AppDbContext>((serviceProvider, options) =>
 {

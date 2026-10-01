@@ -18,11 +18,14 @@ public class OrderRepository : GenericRepository<Order>
 
         try
         {
+            var productIds = order.OrderItems.Select(x => x.ProductId).Distinct().ToList();
+            var products = await _dbContext.Product
+                .Where(x => productIds.Contains(x.ProductId))
+                .ToDictionaryAsync(x => x.ProductId);
+
             foreach (var detail in order.OrderItems)
             {
-                var product = await _dbContext.Product.FindAsync(detail.ProductId);
-
-                if (product is null)
+                if (!products.TryGetValue(detail.ProductId, out var product))
                 {
                     throw new KeyNotFoundException();
                 }

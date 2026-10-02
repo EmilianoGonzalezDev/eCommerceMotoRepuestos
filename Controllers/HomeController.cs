@@ -15,8 +15,7 @@ namespace eCommerceMotoRepuestos.Controllers
         public async Task<IActionResult> Index(int page = 1)
         {
             var categories = await _categoryService.GetAllActiveAsync();
-            var products = await _productService.GetCatalogAsync();
-            var pagedProducts = PagedResult<ProductViewModel>.Create(products, page, PaginationSettings.CatalogPageSize);
+            var pagedProducts = await _productService.GetCatalogPagedAsync(page, PaginationSettings.CatalogPageSize);
             var catalog = new CatalogViewModel
             {
                 Categories = categories,
@@ -31,8 +30,7 @@ namespace eCommerceMotoRepuestos.Controllers
         public async Task<IActionResult> FilterByCategory(int id, string name, int page = 1)
         {
             var categories = await _categoryService.GetAllActiveAsync();
-            var products = await _productService.GetCatalogAsync(categoryId: id);
-            var pagedProducts = PagedResult<ProductViewModel>.Create(products, page, PaginationSettings.CatalogPageSize);
+            var pagedProducts = await _productService.GetCatalogPagedAsync(page, PaginationSettings.CatalogPageSize, categoryId: id);
             var catalog = new CatalogViewModel
             {
                 Categories = categories,
@@ -49,8 +47,7 @@ namespace eCommerceMotoRepuestos.Controllers
         {
             var searchValue = (value ?? string.Empty).Trim();
             var categories = await _categoryService.GetAllActiveAsync();
-            var products = await _productService.GetCatalogAsync(search: searchValue);
-            var pagedProducts = PagedResult<ProductViewModel>.Create(products, page, PaginationSettings.CatalogPageSize);
+            var pagedProducts = await _productService.GetCatalogPagedAsync(page, PaginationSettings.CatalogPageSize, search: searchValue);
             var catalog = new CatalogViewModel
             {
                 Categories = categories,
@@ -71,13 +68,8 @@ namespace eCommerceMotoRepuestos.Controllers
                 return Json(Array.Empty<object>());
             }
 
-            var products = await _productService.GetCatalogAsync(search: searchValue);
+            var products = await _productService.GetSearchSuggestionsAsync(searchValue, limit: 10);
             var suggestions = products
-                .OrderByDescending(p => p.Name.Equals(searchValue, StringComparison.OrdinalIgnoreCase))
-                .ThenByDescending(p => p.Name.StartsWith(searchValue, StringComparison.OrdinalIgnoreCase))
-                .ThenBy(p => p.Name.Length)
-                .ThenBy(p => p.Name)
-                .Take(10)
                 .Select(p => new
                 {
                     p.ProductId,

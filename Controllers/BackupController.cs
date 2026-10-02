@@ -1,3 +1,4 @@
+using eCommerceMotoRepuestos.Context;
 using eCommerceMotoRepuestos.Models;
 using eCommerceMotoRepuestos.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -9,6 +10,7 @@ namespace eCommerceMotoRepuestos.Controllers;
 public class BackupController(
     DatabaseBackupService backupService,
     AppSettingService appSettingService,
+    AppDbContext dbContext,
     ILogger<BackupController> logger) : Controller
 {
     [HttpGet]
@@ -42,6 +44,7 @@ public class BackupController(
         try
         {
             await backupService.RestoreBackupAsync(cancellationToken);
+            await DatabaseInitializer.InitializeAsync(dbContext, cancellationToken);
             appSettingService.InvalidateCache();
             TempData["SuccessMessage"] = "Base de datos restaurada correctamente desde el backup.";
         }

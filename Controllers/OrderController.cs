@@ -25,8 +25,7 @@ public class OrderController(OrderService _orderService) : Controller
     {
         var size = NormalizePageSize(pageSize, PaginationSettings.DefaultPageSize);
         var userId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
-        var ordersvm = await _orderService.GetAllByUserAsync(int.Parse(userId));
-        var pagedOrders = PagedResult<OrderViewModel>.Create(ordersvm, page, size);
+        var pagedOrders = await _orderService.GetPagedByUserAsync(int.Parse(userId), page, size);
         return View(pagedOrders);
     }
 
@@ -39,12 +38,7 @@ public class OrderController(OrderService _orderService) : Controller
             ? selectedStatuses ?? []
             : DefaultOrderFilters.ToList();
 
-        var ordersvm = await _orderService.GetAllAsync();
-        ordersvm = ordersvm
-            .Where(order => effectiveStatuses.Contains(order.Status))
-            .ToList();
-
-        var pagedOrders = PagedResult<OrderViewModel>.Create(ordersvm, page, size);
+        var pagedOrders = await _orderService.GetPagedAsync(effectiveStatuses, page, size);
         ViewBag.SelectedStatuses = effectiveStatuses.Select(status => (int)status).ToHashSet();
         return View(pagedOrders);
     }

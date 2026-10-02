@@ -1,10 +1,9 @@
 using eCommerceMotoRepuestos.Entities;
 using eCommerceMotoRepuestos.Models;
 using eCommerceMotoRepuestos.Repositories;
+using eCommerceMotoRepuestos.Utilities;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using System.Globalization;
-using System.Linq.Expressions;
-using System.Text;
+using Microsoft.EntityFrameworkCore;
 
 namespace eCommerceMotoRepuestos.Services;
 
@@ -14,32 +13,64 @@ public class ProductService(
     IWebHostEnvironment _webHostEnvironment
     )
 {
-    public async Task<IEnumerable<ProductViewModel>> GetAllAsync()
+    public async Task<PagedResult<ProductViewModel>> GetAdminPagedAsync(
+        int page,
+        int pageSize,
+        ProductSortBy sortBy,
+        SortDirection sortDir,
+        string search,
+        bool lowStockOnly,
+        int lowStockThreshold)
     {
-        var products = await _productRepository.GetAllAsync(
-                includes: [x => x.Category!]
-            );
+        var query = _productRepository.Query();
 
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var pattern = $"%{EscapeLikePattern(search)}%";
+            query = query.Where(x => EF.Functions.Like(x.Name, pattern, LikeEscapeChar));
+        }
 
-        var productsVM = products.Select(product =>
-            new ProductViewModel
+        if (lowStockOnly)
+        {
+            query = query.Where(x => x.Stock <= lowStockThreshold);
+        }
+
+        var isDesc = sortDir == SortDirection.Desc;
+        // SQLite cannot ORDER BY decimal columns, so Price is sorted as REAL.
+        query = sortBy switch
+        {
+            ProductSortBy.Category => isDesc
+                ? query.OrderByDescending(x => x.Category!.Name).ThenBy(x => x.Name)
+                : query.OrderBy(x => x.Category!.Name).ThenBy(x => x.Name),
+            ProductSortBy.Price => isDesc
+                ? query.OrderByDescending(x => (double)x.Price).ThenBy(x => x.Name)
+                : query.OrderBy(x => (double)x.Price).ThenBy(x => x.Name),
+            ProductSortBy.Stock => isDesc
+                ? query.OrderByDescending(x => x.Stock).ThenBy(x => x.Name)
+                : query.OrderBy(x => x.Stock).ThenBy(x => x.Name),
+            _ => isDesc
+                ? query.OrderByDescending(x => x.Name)
+                : query.OrderBy(x => x.Name)
+        };
+
+        var projected = query.Select(product => new ProductViewModel
+        {
+            ProductId = product.ProductId,
+            IsActive = product.IsActive,
+            Category = new CategoryViewModel
             {
-                ProductId = product.ProductId,
-                IsActive = product.IsActive,
-                Category = new CategoryViewModel
-                {
-                    CategoryId = product.Category!.CategoryId,
-                    Name = product.Category.Name,
-                    IsActive = product.Category.IsActive
-                },
-                Name = product.Name,
-                Description = product.Description,
-                Price = product.Price,
-                Stock = product.Stock,
-                ImageName = product.ImageName,
-            }).ToList();
+                CategoryId = product.Category!.CategoryId,
+                Name = product.Category.Name,
+                IsActive = product.Category.IsActive
+            },
+            Name = product.Name,
+            Description = product.Description,
+            Price = product.Price,
+            Stock = product.Stock,
+            ImageName = product.ImageName,
+        });
 
-        return productsVM;
+        return await PagedResult<ProductViewModel>.CreateAsync(projected, page, pageSize);
     }
 
     public async Task<ProductViewModel> GetAddViewModelAsync()
@@ -167,7 +198,8 @@ public class ProductService(
             Description = viewModel.Description,
             Price = viewModel.Price,
             Stock = viewModel.Stock,
-            ImageName = viewModel.ImageName
+            ImageName = viewModel.ImageName,
+            SearchText = SearchTextNormalizer.ForProduct(viewModel.Name, viewModel.Description)
         };
 
         await _productRepository.AddAsync(entity);
@@ -213,6 +245,7 @@ public class ProductService(
         product.Price = viewModel.Price;
         product.Stock = viewModel.Stock;
         product.ImageName = viewModel.ImageName;
+        product.SearchText = SearchTextNormalizer.ForProduct(viewModel.Name, viewModel.Description);
 
         await _productRepository.EditAsync(product);
 
@@ -228,29 +261,11 @@ public class ProductService(
         return product.IsActive;
     }
 
-    public async Task<IEnumerable<ProductViewModel>> GetCatalogAsync(int categoryId = 0, string search = "")
+    public async Task<PagedResult<ProductViewModel>> GetCatalogPagedAsync(int page, int pageSize, int categoryId = 0, string search = "")
     {
-
-        var conditions = new List<Expression<Func<Product, bool>>>
-            {
-                x => x.Stock > 0,
-                x => x.IsActive,
-                x => x.Category != null && x.Category.IsActive
-            };
-
-        if (categoryId != 0) conditions.Add(x => x.CategoryId == categoryId);
-        var products = await _productRepository.GetAllAsync(conditions: conditions.ToArray());
-
-        var searchValue = (search ?? string.Empty).Trim();
-        var normalizedSearch = NormalizeSearch(searchValue);
-        var searchTerms = normalizedSearch
-            .Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-
-        var productsVM = products
+        var query = BuildCatalogQuery(categoryId, search)
             .OrderByDescending(item => item.ProductId)
-            .Where(item => MatchesSearch(item, normalizedSearch, searchTerms))
-            .Select(item =>
-            new ProductViewModel
+            .Select(item => new ProductViewModel
             {
                 ProductId = item.ProductId,
                 IsActive = item.IsActive,
@@ -259,38 +274,61 @@ public class ProductService(
                 Price = item.Price,
                 Stock = item.Stock,
                 ImageName = item.ImageName,
-            }).ToList();
+            });
 
-        return productsVM;
+        return await PagedResult<ProductViewModel>.CreateAsync(query, page, pageSize);
     }
 
-    private static bool MatchesSearch(Product product, string normalizedSearch, string[] searchTerms)
+    /// <summary>
+    /// Returns the best <paramref name="limit"/> catalog matches for the search box, ranked by
+    /// exact match, prefix match, then shorter names. Only id, name and price are read.
+    /// </summary>
+    public async Task<List<ProductViewModel>> GetSearchSuggestionsAsync(string search, int limit)
     {
-        if (string.IsNullOrWhiteSpace(normalizedSearch)) return true;
+        var searchValue = (search ?? string.Empty).Trim();
+        if (string.IsNullOrWhiteSpace(searchValue)) return [];
 
-        var normalizedName = NormalizeSearch(product.Name);
-        var normalizedDescription = NormalizeSearch(product.Description);
+        var matches = await BuildCatalogQuery(0, searchValue)
+            .Select(x => new { x.ProductId, x.Name, x.Price })
+            .ToListAsync();
 
-        return searchTerms.All(term =>
-            normalizedName.Contains(term, StringComparison.Ordinal) ||
-            normalizedDescription.Contains(term, StringComparison.Ordinal));
-    }
-
-    private static string NormalizeSearch(string value)
-    {
-        if (string.IsNullOrWhiteSpace(value)) return string.Empty;
-
-        var normalized = value.Trim().ToLowerInvariant().Normalize(NormalizationForm.FormD);
-        var sb = new StringBuilder(normalized.Length);
-
-        foreach (var c in normalized)
-        {
-            if (CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
+        return matches
+            .OrderByDescending(p => p.Name.Equals(searchValue, StringComparison.OrdinalIgnoreCase))
+            .ThenByDescending(p => p.Name.StartsWith(searchValue, StringComparison.OrdinalIgnoreCase))
+            .ThenBy(p => p.Name.Length)
+            .ThenBy(p => p.Name)
+            .Take(limit)
+            .Select(p => new ProductViewModel
             {
-                sb.Append(c);
-            }
+                ProductId = p.ProductId,
+                Name = p.Name,
+                Price = p.Price
+            })
+            .ToList();
+    }
+
+    private IQueryable<Product> BuildCatalogQuery(int categoryId, string? search)
+    {
+        var query = _productRepository.Query()
+            .Where(x => x.Stock > 0 && x.IsActive && x.Category != null && x.Category.IsActive);
+
+        if (categoryId != 0) query = query.Where(x => x.CategoryId == categoryId);
+
+        foreach (var term in SearchTextNormalizer.SplitTerms(search))
+        {
+            query = query.Where(x => x.SearchText.Contains(term));
         }
 
-        return sb.ToString().Normalize(NormalizationForm.FormC);
+        return query;
+    }
+
+    private const string LikeEscapeChar = "\\";
+
+    private static string EscapeLikePattern(string value)
+    {
+        return value.Trim()
+            .Replace(LikeEscapeChar, LikeEscapeChar + LikeEscapeChar)
+            .Replace("%", LikeEscapeChar + "%")
+            .Replace("_", LikeEscapeChar + "_");
     }
 }

@@ -8,51 +8,53 @@ namespace eCommerceMotoRepuestos.Services;
 
 public class OrderService(OrderRepository _orderRepository)
 {
-    public async Task<List<OrderViewModel>> GetAllAsync()
+    public async Task<PagedResult<OrderViewModel>> GetPagedAsync(IReadOnlyCollection<OrderStatus> statuses, int page, int pageSize)
     {
-        var orders = await _orderRepository.GetAllWithDetailAsync();
-
-        var ordersVM = orders.Select(o => new OrderViewModel
-        {
-            OrderDate = o.OrderDate,
-            OrderId = o.OrderId,
-            CustomerName = o.User?.FullName,
-            TotalAmount = o.TotalAmount,
-            PaymentType = o.PaymentType,
-            Status = o.Status,
-            OrderItems = o.OrderItems.Select(oi => new OrderItemViewModel
+        var query = _orderRepository.Query()
+            .Where(o => statuses.Contains(o.Status))
+            .OrderByDescending(o => o.OrderDate)
+            .Select(o => new OrderViewModel
             {
-                ProductId = oi.ProductId,
-                ProductName = oi.Product.Name,
-                Quantity = oi.Quantity,
-                Price = oi.Price
-            }).ToList()
-        }).ToList();
+                OrderDate = o.OrderDate,
+                OrderId = o.OrderId,
+                CustomerName = o.User!.FullName,
+                TotalAmount = o.TotalAmount,
+                PaymentType = o.PaymentType,
+                Status = o.Status,
+                OrderItems = o.OrderItems.Select(oi => new OrderItemViewModel
+                {
+                    ProductId = oi.ProductId,
+                    ProductName = oi.Product.Name,
+                    Quantity = oi.Quantity,
+                    Price = oi.Price
+                }).ToList()
+            });
 
-        return ordersVM;
+        return await PagedResult<OrderViewModel>.CreateAsync(query, page, pageSize);
     }
 
-    public async Task<List<OrderViewModel>> GetAllByUserAsync(int userId)
+    public async Task<PagedResult<OrderViewModel>> GetPagedByUserAsync(int userId, int page, int pageSize)
     {
-        var orders = await _orderRepository.GetAllWithDetailAsync(userId);
-
-        var ordersVM = orders.Select(x => new OrderViewModel
-        {
-            OrderDate = x.OrderDate,
-            OrderId = x.OrderId,
-            TotalAmount = x.TotalAmount,
-            PaymentType = x.PaymentType,
-            Status = x.Status,
-            OrderItems = x.OrderItems.Select(x => new OrderItemViewModel
+        var query = _orderRepository.Query()
+            .Where(o => o.UserId == userId)
+            .OrderByDescending(o => o.OrderDate)
+            .Select(o => new OrderViewModel
             {
-                ProductId = x.ProductId,
-                ProductName = x.Product.Name,
-                Quantity = x.Quantity,
-                Price = x.Price
-            }).ToList()
-        }).ToList();
+                OrderDate = o.OrderDate,
+                OrderId = o.OrderId,
+                TotalAmount = o.TotalAmount,
+                PaymentType = o.PaymentType,
+                Status = o.Status,
+                OrderItems = o.OrderItems.Select(oi => new OrderItemViewModel
+                {
+                    ProductId = oi.ProductId,
+                    ProductName = oi.Product.Name,
+                    Quantity = oi.Quantity,
+                    Price = oi.Price
+                }).ToList()
+            });
 
-        return ordersVM;
+        return await PagedResult<OrderViewModel>.CreateAsync(query, page, pageSize);
     }
 
     public async Task<bool> UpdateStatusAsync(int orderId, OrderStatus status)

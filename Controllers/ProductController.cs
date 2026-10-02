@@ -31,10 +31,8 @@ public class ProductController(
         var normalizedSearch = NormalizeSearch(search);
         var lowStockThreshold = await _appSettingService.GetLowStockThresholdAsync();
 
-        var products = await _productService.GetAllAsync();
-        var filteredProducts = FilterProducts(products, normalizedSearch, lowStockOnly, lowStockThreshold);
-        var sortedProducts = SortProducts(filteredProducts, normalizedSortBy, normalizedSortDir);
-        var pagedProducts = PagedResult<ProductViewModel>.Create(sortedProducts, page, size);
+        var pagedProducts = await _productService.GetAdminPagedAsync(
+            page, size, normalizedSortBy, normalizedSortDir, normalizedSearch, lowStockOnly, lowStockThreshold);
 
         var viewModel = new ProductIndexViewModel
         {
@@ -62,53 +60,6 @@ public class ProductController(
     private static string NormalizeSearch(string? search)
     {
         return string.IsNullOrWhiteSpace(search) ? string.Empty : search.Trim();
-    }
-
-    private static IEnumerable<ProductViewModel> FilterProducts(
-        IEnumerable<ProductViewModel> products,
-        string search,
-        bool lowStockOnly,
-        int lowStockThreshold)
-    {
-        var filtered = products;
-
-        if (!string.IsNullOrWhiteSpace(search))
-        {
-            filtered = filtered.Where(x =>
-                !string.IsNullOrWhiteSpace(x.Name) &&
-                x.Name.Contains(search, StringComparison.OrdinalIgnoreCase));
-        }
-
-        if (lowStockOnly)
-        {
-            filtered = filtered.Where(x => x.Stock <= lowStockThreshold);
-        }
-
-        return filtered;
-    }
-
-    private static IEnumerable<ProductViewModel> SortProducts(
-        IEnumerable<ProductViewModel> products,
-        ProductSortBy sortBy,
-        SortDirection sortDir)
-    {
-        var isDesc = sortDir == SortDirection.Desc;
-
-        return sortBy switch
-        {
-            ProductSortBy.Category => isDesc
-                ? products.OrderByDescending(x => x.Category.Name).ThenBy(x => x.Name)
-                : products.OrderBy(x => x.Category.Name).ThenBy(x => x.Name),
-            ProductSortBy.Price => isDesc
-                ? products.OrderByDescending(x => x.Price).ThenBy(x => x.Name)
-                : products.OrderBy(x => x.Price).ThenBy(x => x.Name),
-            ProductSortBy.Stock => isDesc
-                ? products.OrderByDescending(x => x.Stock).ThenBy(x => x.Name)
-                : products.OrderBy(x => x.Stock).ThenBy(x => x.Name),
-            _ => isDesc
-                ? products.OrderByDescending(x => x.Name)
-                : products.OrderBy(x => x.Name)
-        };
     }
 
     [HttpGet]

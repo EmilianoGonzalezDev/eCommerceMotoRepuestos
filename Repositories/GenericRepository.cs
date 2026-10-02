@@ -27,6 +27,14 @@ public class GenericRepository<TEntity>(AppDbContext _dbContext) where TEntity :
         return await query.ToListAsync();
     }
 
+    /// <summary>
+    /// Read-only query to compose filters, sorting, projection and paging in SQL.
+    /// </summary>
+    public IQueryable<TEntity> Query()
+    {
+        return _dbContext.Set<TEntity>().AsNoTracking();
+    }
+
     public async Task<List<TResult>> GetAllProjectedAsync<TResult>(
         Expression<Func<TEntity, TResult>> selector,
         Expression<Func<TEntity, bool>>[]? conditions = null

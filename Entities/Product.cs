@@ -13,6 +13,11 @@ public class Product
     public decimal Price { get; set; }
     public int Stock { get; set; }
     public string? ImageName { get; set; } = null;
+    /// <summary>
+    /// Name and description lowercased and without accents, used for catalog search.
+    /// Kept in sync by ProductService on add/edit.
+    /// </summary>
+    public string SearchText { get; set; } = string.Empty;
 
     public Category? Category { get; set; }
 }

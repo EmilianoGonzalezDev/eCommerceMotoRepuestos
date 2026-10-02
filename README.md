@@ -30,8 +30,8 @@ La aplicación permite:
 Responsable de la navegación principal de la tienda.
 
 - `HomeController`: listado de productos, filtro por categoría, búsqueda, sugerencias de búsqueda y detalle.
-- `ProductService.GetCatalogAsync(...)`: devuelve solo productos activos, con stock y dentro de categorías activas.
-- La búsqueda se normaliza para tolerar diferencias de mayúsculas, acentos y espacios.
+- `ProductService.GetCatalogPagedAsync(...)`: devuelve solo productos activos, con stock y dentro de categorías activas; filtra y pagina en la base de datos.
+- La búsqueda se normaliza para tolerar diferencias de mayúsculas, acentos y espacios. Se hace sobre la columna `Product.SearchText` (nombre y descripción normalizados), que se calcula al crear o editar un producto y se completa al iniciar la app para los productos que no la tengan.
 
 ### 2. Cuentas y autenticación
 

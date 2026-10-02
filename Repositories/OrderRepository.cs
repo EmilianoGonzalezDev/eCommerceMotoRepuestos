@@ -51,28 +51,6 @@ public class OrderRepository : GenericRepository<Order>
 
     }
 
-    public async Task<IEnumerable<Order>> GetAllWithDetailAsync(int userId)
-    {
-        var orders = await _dbContext.Order
-                            .Where(x => x.UserId == userId)
-                            .Include(x => x.OrderItems)
-                            .ThenInclude(x => x.Product)
-                            .OrderByDescending(x => x.OrderDate)
-                            .ToListAsync();
-        return orders;
-    }
-
-    public async Task<IEnumerable<Order>> GetAllWithDetailAsync()
-    {
-        var orders = await _dbContext.Order
-                            .Include(x => x.User)
-                            .Include(x => x.OrderItems)
-                            .ThenInclude(x => x.Product)
-                            .OrderByDescending(x => x.OrderDate)
-                            .ToListAsync();
-        return orders;
-    }
-
     public async Task<bool> UpdateStatusAsync(int orderId, OrderStatus status)
     {
         var order = await _dbContext.Order.FindAsync(orderId);

@@ -3,6 +3,7 @@ using eCommerceMotoRepuestos.Services;
 using eCommerceMotoRepuestos.Utilities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace eCommerceMotoRepuestos.Controllers;
 
@@ -31,6 +32,7 @@ public class CategoryController(CategoryService _categoryService) : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [EnableRateLimiting(RateLimitPolicies.Writes)]
     public async Task<IActionResult> Add(CategoryViewModel viewModel)
     {
         viewModel.Name = (viewModel.Name ?? string.Empty).Trim();
@@ -57,6 +59,7 @@ public class CategoryController(CategoryService _categoryService) : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [EnableRateLimiting(RateLimitPolicies.Writes)]
     public async Task<IActionResult> Edit(CategoryViewModel viewModel)
     {
         viewModel.Name = (viewModel.Name ?? string.Empty).Trim();
@@ -81,6 +84,7 @@ public class CategoryController(CategoryService _categoryService) : Controller
     }
 
     [HttpPost]
+    [EnableRateLimiting(RateLimitPolicies.Writes)]
     public async Task<IActionResult> ToggleStatus(int id)
     {
         try

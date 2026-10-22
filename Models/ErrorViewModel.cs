@@ -15,6 +15,8 @@ namespace eCommerceMotoRepuestos.Models
                 400 => "Solicitud Inválida",
                 404 => "Página No Encontrada",
                 403 => "Acceso Denegado",
+                413 => "Archivo Demasiado Grande",
+                429 => "Demasiadas Solicitudes",
                 500 => "Error del Servidor",
                 503 => "Servicio No Disponible",
                 _ => "Error"
@@ -33,6 +35,8 @@ namespace eCommerceMotoRepuestos.Models
                 400 => "La solicitud no pudo procesarse. Revisa los datos e intenta nuevamente.",
                 404 => "Lo sentimos, la página que buscas no existe.",
                 403 => "No tienes permiso para acceder a esta página.",
+                413 => "El archivo enviado supera el tamaño permitido.",
+                429 => "Realizaste demasiadas solicitudes en poco tiempo. Espera un minuto e intenta nuevamente.",
                 500 => "Algo salió mal en nuestro servidor. Estamos trabajando en solucionarlo.",
                 503 => "El servidor está en mantenimiento. Por favor, intenta más tarde.",
                 _ => "Se produjo un error inesperado. Por favor, intenta de nuevo."
@@ -46,6 +50,8 @@ namespace eCommerceMotoRepuestos.Models
                 400 => "❕",
                 404 => "🏍️",
                 403 => "🔒",
+                413 => "📦",
+                429 => "⏳",
                 500 => "⚙️",
                 503 => "🔄",
                 _ => "❌"

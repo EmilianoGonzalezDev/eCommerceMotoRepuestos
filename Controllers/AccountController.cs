@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using System.Security.Claims;
 
 namespace eCommerceMotoRepuestos.Controllers;
@@ -27,6 +28,7 @@ public class AccountController(
     }
 
     [HttpPost]
+    [EnableRateLimiting(RateLimitPolicies.Auth)]
     public async Task<IActionResult> Login(LoginViewModel viewmodel)
     {
 
@@ -83,6 +85,7 @@ public class AccountController(
     }
 
     [HttpPost]
+    [EnableRateLimiting(RateLimitPolicies.Auth)]
     public async Task<IActionResult> Register(UserViewModel viewmodel)
     {
         viewmodel.Type = "Client";
@@ -123,6 +126,7 @@ public class AccountController(
 
     [HttpPost]
     [Authorize]
+    [EnableRateLimiting(RateLimitPolicies.Writes)]
     public async Task<IActionResult> EditProfile(EditProfileViewModel viewmodel)
     {
         var userId = GetAuthenticatedUserId();
@@ -172,6 +176,7 @@ public class AccountController(
 
     [HttpPost]
     [Authorize(Roles = "SuperAdmin")]
+    [EnableRateLimiting(RateLimitPolicies.Auth)]
     public async Task<IActionResult> CreateAdmin(UserViewModel viewmodel)
     {
         viewmodel.Type = "Admin";

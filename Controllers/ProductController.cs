@@ -3,6 +3,7 @@ using eCommerceMotoRepuestos.Services;
 using eCommerceMotoRepuestos.Utilities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace eCommerceMotoRepuestos.Controllers;
 
@@ -75,6 +76,7 @@ public class ProductController(
     [HttpPost]
     [ValidateAntiForgeryToken]
     [RequestSizeLimit(MaxRequestBytes)]
+    [EnableRateLimiting(RateLimitPolicies.Writes)]
     public async Task<IActionResult> Add(ProductViewModel entityVM)
     {
         ModelState.Remove("Categories");
@@ -104,6 +106,7 @@ public class ProductController(
     [HttpPost]
     [ValidateAntiForgeryToken]
     [RequestSizeLimit(MaxRequestBytes)]
+    [EnableRateLimiting(RateLimitPolicies.Writes)]
     public async Task<IActionResult> Edit(ProductViewModel entityVM)
     {
         ModelState.Remove("Categories");
@@ -128,6 +131,7 @@ public class ProductController(
     }
 
     [HttpPost]
+    [EnableRateLimiting(RateLimitPolicies.Writes)]
     public async Task<IActionResult> ToggleStatus(int id)
     {
         try

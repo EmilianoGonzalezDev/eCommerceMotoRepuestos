@@ -2,6 +2,7 @@ using eCommerceMotoRepuestos.Context;
 using eCommerceMotoRepuestos.Entities;
 using eCommerceMotoRepuestos.Repositories;
 using eCommerceMotoRepuestos.Services;
+using eCommerceMotoRepuestos.Utilities;
 using Ganss.Xss;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
@@ -51,6 +52,8 @@ builder.Services.AddScoped<DatabaseBackupService>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 builder.Services.AddSingleton<IHtmlSanitizer, HtmlSanitizer>();
 
+builder.Services.AddAppRateLimiting();
+
 builder.Services.AddSession(options => { options.IdleTimeout = TimeSpan.FromMinutes(30); });
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(
@@ -93,6 +96,7 @@ app.UseStatusCodePagesWithReExecute("/Home/Error", "?statusCode={0}");
 app.UseStaticFiles();
 app.UseHttpsRedirection();
 app.UseRouting();
+app.UseRateLimiter();
 
 app.UseAuthentication();
 app.UseAuthorization();

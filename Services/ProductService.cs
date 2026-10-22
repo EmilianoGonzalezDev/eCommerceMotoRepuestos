@@ -2,6 +2,7 @@ using eCommerceMotoRepuestos.Entities;
 using eCommerceMotoRepuestos.Models;
 using eCommerceMotoRepuestos.Repositories;
 using eCommerceMotoRepuestos.Utilities;
+using Ganss.Xss;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,7 +11,8 @@ namespace eCommerceMotoRepuestos.Services;
 public class ProductService(
     GenericRepository<Category> _categoryRepository,
     GenericRepository<Product> _productRepository,
-    IWebHostEnvironment _webHostEnvironment
+    IWebHostEnvironment _webHostEnvironment,
+    IHtmlSanitizer _htmlSanitizer
     )
 {
     public async Task<PagedResult<ProductViewModel>> GetAdminPagedAsync(
@@ -177,6 +179,8 @@ public class ProductService(
 
     public async Task AddAsync(ProductViewModel viewModel)
     {
+        // The description is rich text rendered with Html.Raw, so it must never keep scripts or event handlers.
+        viewModel.Description = _htmlSanitizer.Sanitize(viewModel.Description);
 
         if (viewModel.ImageFile != null)
         {
@@ -204,10 +208,12 @@ public class ProductService(
         var product = await _productRepository.GetByIdAsync(viewModel.ProductId);
 
         if (product == null)
-        { 
+        {
             return false;
         }
-        
+
+        viewModel.Description = _htmlSanitizer.Sanitize(viewModel.Description);
+
         if (viewModel.ImageFile != null)
         {
             var uniqueFileName = await SaveImageAsync(viewModel.ImageFile);

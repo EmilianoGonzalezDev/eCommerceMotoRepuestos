@@ -100,7 +100,7 @@ Módulo para resguardar y restaurar la información.
 
 - `BackupController`: creación y restauración de backups.
 - `DatabaseBackupService`: copia y restaura la base de datos SQLite usando `SqliteConnection.BackupDatabase`.
-- Los backups se almacenan en la carpeta `Backups/`.
+- Los backups se almacenan en la carpeta `Backups/`, junto al archivo de la base.
 
 ## Arquitectura del proyecto
 
@@ -120,8 +120,9 @@ La solución sigue una separación por capas simple y clara:
 
 ## Persistencia y datos
 
-- La base principal es `app.db`.
-- Al iniciar la aplicación se ejecuta `Database.Migrate()`, por lo que las migraciones pendientes se aplican automáticamente.
+- La base principal es `app.db`. Su ubicación se define con la cadena de conexión `SqlString` (relativa a la carpeta de la app o absoluta).
+- Si al iniciar la base no existe, `DemoSeeder` copia la semilla versionada `SeedData/seed.db` y restaura en `wwwroot/images` las imágenes de `SeedData/images` que falten.
+- Al iniciar la aplicación se ejecuta `Database.Migrate()`, por lo que las migraciones pendientes se aplican automáticamente (también sobre la semilla).
 - `AppDbContext` define relaciones entre usuarios, productos, categorías, pedidos, items de pedido, carrito y configuraciones.
 - Se siembra un registro inicial de configuración para stock bajo y un usuario `SuperAdmin`.
 
@@ -139,17 +140,41 @@ La solución sigue una separación por capas simple y clara:
 
 3. Abrir la URL indicada por ASP.NET Core en la consola.
 
+## Despliegue en Azure App Service
+
+El workflow [`.github/workflows/deploy-azure.yml`](.github/workflows/deploy-azure.yml) publica la app en un App Service Linux en cada push a `main` (o manualmente con *Run workflow*), autenticándose por OIDC.
+
+La base SQLite vive en `/home/data`, que es almacenamiento persistente de App Service: sobrevive a redeploys y reinicios. En el primer arranque se crea a partir de la semilla.
+
+### Configuración inicial (una sola vez)
+
+1. **Web App**: Publish *Code*, runtime *.NET 10 (LTS)*, sistema operativo *Linux*, plan *Free F1*. Dejar el despliegue continuo deshabilitado.
+2. **Web App → Settings → Environment variables**: agregar `ConnectionStrings__SqlString` = `Data Source=/home/data/app.db`.
+3. **Web App → Configuration → General settings**: *HTTPS Only* = On.
+4. **Managed Identity** (user-assigned), por ejemplo `id-motorepuestos-github`:
+   - *Federated credentials* → *GitHub Actions deploying Azure resources*: organización `EmilianoGonzalezDev`, repositorio `eCommerceMotoRepuestos`, entidad *Branch*, rama `main`.
+   - En la Web App → *Access control (IAM)* → asignar el rol **Website Contributor** a la identidad.
+5. **GitHub → Settings → Secrets and variables → Actions**:
+   - Secrets: `AZURE_CLIENT_ID` (client ID de la identidad), `AZURE_TENANT_ID`, `AZURE_SUBSCRIPTION_ID`.
+   - Variable: `AZURE_WEBAPP_NAME` (nombre de la Web App).
+
+### Regenerar la semilla
+
+`SeedData/seed.db` es una copia compacta (`VACUUM INTO`) de una base local curada, con `journal_mode=DELETE` (WAL no funciona bien sobre el almacenamiento de red de `/home`). `SeedData/images` contiene solo las imágenes referenciadas por sus productos. Para que Azure tome una semilla nueva hay que borrar `/home/data/app.db` (desde Kudu/SSH) y reiniciar la app.
+
 
 ## Estructura resumida
 
 ```text
-Context/         DbContext y configuración EF Core
+.github/         Workflow de despliegue a Azure
+Context/         DbContext, inicialización y semilla demo
 Controllers/     Controladores MVC
 Entities/        Entidades de dominio
 Enums/           Estados y tipos
 Migrations/      Migraciones de base de datos
 Models/          ViewModels y paginación
 Repositories/    Acceso a datos
+SeedData/        Base e imágenes demo para el primer arranque
 Services/        Lógica de negocio
 Utilities/       Helpers y constantes
 Views/           Vistas Razor

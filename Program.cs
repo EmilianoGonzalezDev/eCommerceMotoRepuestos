@@ -59,6 +59,10 @@ var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
+    DemoSeeder.EnsureSeeded(
+        scope.ServiceProvider.GetRequiredService<SqliteDatabasePathProvider>(),
+        app.Environment);
+
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     await DatabaseInitializer.InitializeAsync(db);
 }

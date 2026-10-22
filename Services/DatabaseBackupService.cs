@@ -9,7 +9,8 @@ public class DatabaseBackupService(SqliteDatabasePathProvider databasePathProvid
 
     public string GetBackupFilePath()
     {
-        var backupDirectory = Path.Combine(databasePathProvider.BaseDirectory, BackupDirectoryName);
+        var databaseDirectory = Path.GetDirectoryName(GetDatabaseFilePath())!;
+        var backupDirectory = Path.Combine(databaseDirectory, BackupDirectoryName);
         return Path.Combine(backupDirectory, BackupFileName);
     }
 

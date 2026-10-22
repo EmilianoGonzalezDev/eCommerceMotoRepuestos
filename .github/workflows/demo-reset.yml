@@ -1,0 +1,28 @@
+# Reset the public demo data to the seed every night (03:00 Argentina time), or on demand with Run workflow.
+# Requires repo secret DEMO_RESET_TOKEN (same value as the Web App setting Demo__ResetToken)
+# and repo variable DEMO_APP_URL (e.g. https://<app>.azurewebsites.net).
+# Scheduled workflows only run from the default branch.
+
+name: Reset demo data
+
+on:
+  schedule:
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  reset:
+    runs-on: ubuntu-latest
+
+    steps:
+      # The Free plan unloads the app when idle, so the first request may need a cold start.
+      - name: Reset demo data
+        run: |
+          curl --fail --silent --show-error \
+            --retry 3 --retry-delay 30 --retry-all-errors --max-time 180 \
+            -X POST \
+            -H "X-Demo-Reset-Token: ${{ secrets.DEMO_RESET_TOKEN }}" \
+            "${{ vars.DEMO_APP_URL }}/demo/reset"

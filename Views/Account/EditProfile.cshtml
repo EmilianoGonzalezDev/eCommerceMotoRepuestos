@@ -1,6 +1,7 @@
 @model EditProfileViewModel;
 @{
     ViewData["Title"] = "Editar Perfil";
+    var isDemoAccount = (ViewData["IsDemoAccount"] as bool?) ?? false;
 }
 
 <div class="row justify-content-center mt-4">
@@ -17,8 +18,17 @@
                     </div>
                 }
 
+                @if (isDemoAccount)
+                {
+                    <div class="alert alert-info" role="alert">
+                        Esta es una cuenta demo compartida: sus datos no pueden modificarse.
+                        Registrá una cuenta propia para probar la edición de perfil.
+                    </div>
+                }
+
                 <form asp-action="EditProfile" asp-controller="Account" method="post">
                     <input type="hidden" asp-for="UserId" />
+                    <fieldset disabled="@isDemoAccount">
 
                     <div class="mb-3">
                         <label class="form-label">Nombre y Apellido</label>
@@ -44,9 +54,10 @@
                         <input class="form-control" type="password" asp-for="RepeatPassword" maxlength="150" />
                         <span asp-validation-for="RepeatPassword" class="text-danger"></span>
                     </div>
+                    </fieldset>
 
                     <div class="d-grid gap-2">
-                        <button class="btn btn-primary" type="submit">Guardar Cambios</button>
+                        <button class="btn btn-primary" type="submit" disabled="@isDemoAccount">Guardar Cambios</button>
                         <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary btn-sm">Cancelar</a>
                     </div>
                 </form>

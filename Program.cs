@@ -1,5 +1,6 @@
 using eCommerceMotoRepuestos.Context;
 using eCommerceMotoRepuestos.Entities;
+using eCommerceMotoRepuestos.Models;
 using eCommerceMotoRepuestos.Repositories;
 using eCommerceMotoRepuestos.Services;
 using eCommerceMotoRepuestos.Utilities;
@@ -30,6 +31,7 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
     options.SupportedUICultures = [supportedCulture];
 });
 
+builder.Services.Configure<DemoOptions>(builder.Configuration.GetSection(DemoOptions.SectionName));
 builder.Services.AddSingleton<SqliteDatabasePathProvider>();
 builder.Services.AddMemoryCache();
 

@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.Extensions.Options;
 using System.Security.Claims;
 
 namespace eCommerceMotoRepuestos.Controllers;
@@ -13,8 +14,11 @@ namespace eCommerceMotoRepuestos.Controllers;
 public class AccountController(
     UserService _userService,
     CartService _cartService,
-    ProductService _productService) : Controller
+    ProductService _productService,
+    IOptions<DemoOptions> _demoOptions) : Controller
 {
+    private const string DemoAccountReadOnlyMessage = "Las cuentas demo no pueden modificarse. Registrá una cuenta propia para probar la edición de datos.";
+
     public IActionResult Login()
     {
         if (User.Identity?.IsAuthenticated == true)
@@ -121,6 +125,7 @@ public class AccountController(
         }
 
         var userModel = await _userService.GetProfileForEditAsync(userId.Value);
+        ViewData["IsDemoAccount"] = IsDemoAccount();
         return View("EditProfile", userModel);
     }
 
@@ -138,6 +143,12 @@ public class AccountController(
 
         if (viewmodel.UserId != userId.Value)
         {
+            return RedirectToAction("EditProfile");
+        }
+
+        if (IsDemoAccount())
+        {
+            TempData["ErrorMessage"] = DemoAccountReadOnlyMessage;
             return RedirectToAction("EditProfile");
         }
 
@@ -248,6 +259,12 @@ public class AccountController(
 
         var claim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         return int.TryParse(claim, out var userId) ? userId : null;
+    }
+
+    // Demo credentials are shared by every visitor, so nobody may change them.
+    private bool IsDemoAccount()
+    {
+        return _demoOptions.Value.IsDemoAccount(HttpContext.User.FindFirst(ClaimTypes.Email)?.Value);
     }
 
     private async Task RefreshSignInAsync(UserViewModel user)

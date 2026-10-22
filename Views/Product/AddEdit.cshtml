@@ -57,7 +57,9 @@
 
             <div class="mb-3">
                 <label class="form-label">Subir Imagen</label>
-                <input type="file" class="form-control" asp-for="ImageFile" id="imageFileInput" accept="image/*">
+                <input type="file" class="form-control" asp-for="ImageFile" id="imageFileInput" accept="@AllowedImageAttribute.AcceptedExtensions">
+                <small class="text-muted">JPG, PNG o WEBP, hasta 2 MB.</small>
+                <span asp-validation-for="ImageFile" class="text-danger d-block"></span>
             </div>
 
             <div class="mb-3 d-md-none">

@@ -11,6 +11,9 @@ public class ProductController(
     ProductService _productService,
     AppSettingService _appSettingService) : Controller
 {
+    // Image limit plus room for the other form fields.
+    private const long MaxRequestBytes = AllowedImageAttribute.MaxBytes + 1024 * 1024;
+
     private static int NormalizePageSize(int? pageSize, int defaultSize)
     {
         if (pageSize is null) return defaultSize;
@@ -71,6 +74,7 @@ public class ProductController(
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [RequestSizeLimit(MaxRequestBytes)]
     public async Task<IActionResult> Add(ProductViewModel entityVM)
     {
         ModelState.Remove("Categories");
@@ -99,6 +103,7 @@ public class ProductController(
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [RequestSizeLimit(MaxRequestBytes)]
     public async Task<IActionResult> Edit(ProductViewModel entityVM)
     {
         ModelState.Remove("Categories");

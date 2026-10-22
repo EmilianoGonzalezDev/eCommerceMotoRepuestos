@@ -1,3 +1,4 @@
+using eCommerceMotoRepuestos.Utilities;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
 
@@ -27,5 +28,6 @@ public class ProductViewModel
     public int Stock { get; set; }
 
     public string? ImageName { get; set; }
+    [AllowedImage]
     public IFormFile? ImageFile { get; set; }
 }

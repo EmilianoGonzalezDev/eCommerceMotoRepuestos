@@ -180,14 +180,7 @@ public class ProductService(
 
         if (viewModel.ImageFile != null)
         {
-            string uploadFolder = Path.Combine(_webHostEnvironment.WebRootPath, "images");
-            string uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(viewModel.ImageFile.FileName);
-            string filePath = Path.Combine(uploadFolder, uniqueFileName);
-
-            using (var fileStream = new FileStream(filePath, FileMode.Create))
-                await viewModel.ImageFile.CopyToAsync(fileStream);
-
-            viewModel.ImageName = uniqueFileName;
+            viewModel.ImageName = await SaveImageAsync(viewModel.ImageFile);
         }
 
         var entity = new Product
@@ -217,17 +210,11 @@ public class ProductService(
         
         if (viewModel.ImageFile != null)
         {
-
-            string uploadFolder = Path.Combine(_webHostEnvironment.WebRootPath, "images");
-            string uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(viewModel.ImageFile.FileName);
-            string filePath = Path.Combine(uploadFolder, uniqueFileName);
-
-            using (var fileStream = new FileStream(filePath, FileMode.Create))
-                await viewModel.ImageFile.CopyToAsync(fileStream);
+            var uniqueFileName = await SaveImageAsync(viewModel.ImageFile);
 
             if (product.ImageName is string previousImage)
             {
-                string deleteFilePath = Path.Combine(uploadFolder, previousImage);
+                string deleteFilePath = Path.Combine(ImagesFolder, Path.GetFileName(previousImage));
 
                 if (File.Exists(deleteFilePath)) File.Delete(deleteFilePath);
             }
@@ -251,6 +238,23 @@ public class ProductService(
 
         return true;
     }
+
+    private string ImagesFolder => Path.Combine(_webHostEnvironment.WebRootPath, "images");
+
+    /// <summary>
+    /// Stores the upload under a random name, keeping only its (already validated) extension.
+    /// </summary>
+    private async Task<string> SaveImageAsync(IFormFile imageFile)
+    {
+        string uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(imageFile.FileName).ToLowerInvariant();
+        string filePath = Path.Combine(ImagesFolder, uniqueFileName);
+
+        using (var fileStream = new FileStream(filePath, FileMode.Create))
+            await imageFile.CopyToAsync(fileStream);
+
+        return uniqueFileName;
+    }
+
     public async Task<bool> ToggleActiveAsync(int id)
     {
         var product = await _productRepository.GetByIdAsync(id);

@@ -98,6 +98,7 @@ namespace eCommerceMotoRepuestos.Controllers
             return View(pagedCart);
         }
 
+        [HttpPost]
         public async Task<IActionResult> RemoveItemToCart(int productId, int page = 1)
         {
             var userId = GetAuthenticatedUserId();

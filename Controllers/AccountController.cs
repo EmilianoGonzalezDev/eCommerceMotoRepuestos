@@ -208,6 +208,7 @@ public class AccountController(
         return View();
     }
 
+    [HttpPost]
     public async Task<IActionResult> Logout()
     {
         await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);

@@ -127,7 +127,7 @@ public class ProductController(
         return RedirectToAction("Index");
     }
 
-
+    [HttpPost]
     public async Task<IActionResult> ToggleStatus(int id)
     {
         try

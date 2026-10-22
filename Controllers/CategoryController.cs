@@ -80,6 +80,7 @@ public class CategoryController(CategoryService _categoryService) : Controller
         return Json(!exists);
     }
 
+    [HttpPost]
     public async Task<IActionResult> ToggleStatus(int id)
     {
         try

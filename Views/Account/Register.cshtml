@@ -33,6 +33,7 @@
                         }
 
                         <form action="@formAction" method="post">
+                            @Html.AntiForgeryToken()
                             <div class="mb-3">
                                 <label class="form-label">Nombre y Apellido</label>
                                 <input class="form-control" type="text" asp-for="FullName" maxlength="150" />
@@ -57,17 +58,20 @@
 
                             <div class="d-grid gap-2">
                                 <button class="btn btn-primary" type="submit">Continuar</button>
-                                @if (showLogoutButton)
-                                {
-                                    <a href="/Account/Logout" class="btn btn-outline-secondary btn-sm">Salir</a>
-                                }
-                                else
+                                @if (!showLogoutButton)
                                 {
                                     <a href="javascript:history.back()" class="btn btn-outline-secondary btn-sm">Volver</a>
                                 }
                             </div>
 
                         </form>
+
+                        @if (showLogoutButton)
+                        {
+                            <form asp-controller="Account" asp-action="Logout" method="post" class="d-grid mt-2">
+                                <button type="submit" class="btn btn-outline-secondary btn-sm">Salir</button>
+                            </form>
+                        }
                     </div>
                 </div>
             </div>

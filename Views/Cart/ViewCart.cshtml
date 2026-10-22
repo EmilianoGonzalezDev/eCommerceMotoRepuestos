@@ -96,7 +96,7 @@
                     <td>@item.Name</td>
                     <td class="text-nowrap">@item.Price.ToString("C")</td>
                     <td>
-                        <form action="/Cart/UpdateItemQuantity" method="post" class="d-inline-block">
+                        <form asp-controller="Cart" asp-action="UpdateItemQuantity" method="post" class="d-inline-block">
                             <input type="hidden" name="productId" value="@item.ProductId" />
                             <input type="hidden" name="page" value="@Model.PageNumber" />
                             <input
@@ -119,9 +119,13 @@
 
 
                     <td style="width:120px">
-                        <a href="/Cart/RemoveItemToCart?productId=@item.ProductId&page=@Model.PageNumber" class="btn btn-sm btn-danger">
-                            <i class="fa-solid fa-trash-can"></i>
-                        </a>
+                        <form asp-controller="Cart" asp-action="RemoveItemToCart" method="post">
+                            <input type="hidden" name="productId" value="@item.ProductId" />
+                            <input type="hidden" name="page" value="@Model.PageNumber" />
+                            <button type="submit" class="btn btn-sm btn-danger" aria-label="Quitar del carrito">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </form>
                     </td>
                 </tr>
             }
@@ -174,7 +178,7 @@
                 </button>
                 <small class="text-muted d-block mb-3 mt-1 text-center">Dispones de 10 días para retirar tu compra.</small>
 
-                <form action="/Cart/CompletePurchase" method="post">
+                <form asp-controller="Cart" asp-action="CompletePurchase" method="post">
                     <input type="hidden" name="paymentType" value="@((int)PaymentType.Store)" />
                     <button type="submit" class="btn btn-outline-primary btn-lg w-100 mt-2">
                         <i class="fa-solid fa-store"></i>
@@ -192,7 +196,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
 
-            <form id="cardPaymentForm" action="/Cart/CompletePurchase" method="post">
+            <form id="cardPaymentForm" asp-controller="Cart" asp-action="CompletePurchase" method="post">
                 <input type="hidden" name="paymentType" value="@((int)PaymentType.Card)" />
                 <div class="modal-header">
                     <h1 class="modal-title fs-5" id="paymentDetailsModalLabel">Datos de Tarjeta</h1>

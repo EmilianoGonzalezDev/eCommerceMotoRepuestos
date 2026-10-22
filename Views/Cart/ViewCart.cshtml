@@ -203,21 +203,27 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
+                    <div class="alert alert-info small py-2" role="note">
+                        <strong>Pago simulado:</strong> no se realiza ningún cobro y los datos de la tarjeta no se envían al servidor.
+                        No ingreses datos reales.
+                        <button type="button" class="btn btn-link btn-sm p-0 align-baseline" id="fillTestCardButton">Completar con tarjeta de prueba</button>
+                    </div>
+                    @* The card inputs have no name attribute on purpose: they are only validated in the browser and never posted. *@
                     <div class="row g-3">
                         <div class="col-12">
-                            <input type="text" class="form-control" id="cardHolderName" name="cardHolderName" placeholder="Nombre del titular" required minlength="3" maxlength="100" />
+                            <input type="text" class="form-control" id="cardHolderName" placeholder="Nombre del titular" required minlength="3" maxlength="100" autocomplete="off" />
                         </div>
                         <div class="col-12">
-                            <input type="text" class="form-control" id="cardNumber" name="cardNumber" placeholder="Número de tarjeta" required inputmode="numeric" pattern="[0-9]{4} [0-9]{4} [0-9]{4} [0-9]{4}" maxlength="19" title="Número no válido" />
+                            <input type="text" class="form-control" id="cardNumber" placeholder="Número de tarjeta" required inputmode="numeric" pattern="[0-9]{4} [0-9]{4} [0-9]{4} [0-9]{4}" maxlength="19" title="Número no válido" autocomplete="off" />
                         </div>
                         <div class="col-3">
-                            <input type="number" class="form-control" id="expirationMonth" name="expirationMonth" placeholder="MM" required min="1" max="12" />
+                            <input type="number" class="form-control" id="expirationMonth" placeholder="MM" required min="1" max="12" autocomplete="off" />
                         </div>
                         <div class="col-3">
-                            <input type="number" class="form-control" id="expirationYear" name="expirationYear" placeholder="AAAA" required min="2022" max="2100" />
+                            <input type="number" class="form-control" id="expirationYear" placeholder="AAAA" required min="2022" max="2100" autocomplete="off" />
                         </div>
                         <div class="col-6">
-                            <input type="text" class="form-control" id="cvv" name="cvv" placeholder="CVV" required inputmode="numeric" pattern="[0-9]{3,4}" minlength="3" maxlength="4" title="Ingresa 3 o 4 dígitos" />
+                            <input type="text" class="form-control" id="cvv" placeholder="CVV" required inputmode="numeric" pattern="[0-9]{3,4}" minlength="3" maxlength="4" title="Ingresa 3 o 4 dígitos" autocomplete="off" />
                         </div>
                     </div>
                 </div>
@@ -320,5 +326,13 @@
       let value = e.target.value.replace(/\D/g, ""); // Remove everything that is not a number.
       let formattedValue = value.match(/.{1,4}/g)?.join(" ") || ""; // Separate into groups of 4 characters
       e.target.value = formattedValue;
+    });
+
+    document.getElementById("fillTestCardButton").addEventListener("click", function () {
+      document.getElementById("cardHolderName").value = "Juan Pérez";
+      document.getElementById("cardNumber").value = "4242 4242 4242 4242";
+      document.getElementById("expirationMonth").value = 12;
+      document.getElementById("expirationYear").value = new Date().getFullYear() + 2;
+      document.getElementById("cvv").value = "123";
     });
 </script>

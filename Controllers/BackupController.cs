@@ -29,7 +29,7 @@ public class BackupController(
         try
         {
             var filePath = await backupService.CreateBackupAsync(cancellationToken);
-            TempData["SuccessMessage"] = $"Backup generado correctamente en: {filePath}";
+            TempData["SuccessMessage"] = $"Backup generado correctamente: {Path.GetFileName(filePath)}";
         }
         catch (Exception ex)
         {

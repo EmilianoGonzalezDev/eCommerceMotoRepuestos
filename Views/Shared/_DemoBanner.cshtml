@@ -1,0 +1,50 @@
+@using Microsoft.Extensions.Options
+@using eCommerceMotoRepuestos.Services
+@inject IOptions<DemoOptions> DemoOptions
+@inject AppSettingService AppSettingService
+
+@if (DemoOptions.Value.Enabled)
+{
+    var lastResetUtc = await AppSettingService.GetLastDemoResetAsync();
+    var argentinaTimeZone = TimeZoneInfo.TryFindSystemTimeZoneById("America/Argentina/Buenos_Aires", out var timeZone)
+        ? timeZone
+        : TimeZoneInfo.CreateCustomTimeZone("ART", TimeSpan.FromHours(-3), "ART", "ART");
+    var canReset = User.IsInRole("Admin") || User.IsInRole("SuperAdmin");
+
+    <div class="alert alert-warning rounded-0 border-0 border-bottom mb-0 py-2 small d-flex flex-wrap align-items-center justify-content-center gap-2" role="status">
+        <span><strong>Sitio de demostración:</strong> los datos son ficticios y se restablecen todos los días.</span>
+        @if (lastResetUtc is DateTime lastReset)
+        {
+            <span class="text-body-secondary">
+                Último reinicio: @TimeZoneInfo.ConvertTimeFromUtc(DateTime.SpecifyKind(lastReset, DateTimeKind.Utc), argentinaTimeZone).ToString("dd/MM/yyyy HH:mm") (hora de Argentina)
+            </span>
+        }
+        @if (canReset)
+        {
+            <form asp-controller="Demo" asp-action="ResetNow" method="post" class="d-inline demo-reset-form">
+                <button type="submit" class="btn btn-outline-dark btn-sm py-0">Restablecer datos demo</button>
+            </form>
+            <script>
+                document.querySelectorAll(".demo-reset-form").forEach(form => {
+                    form.addEventListener("submit", function (event) {
+                        event.preventDefault();
+                        Swal.fire({
+                            title: "Restablecer datos demo?",
+                            text: "Se descartan todos los cambios y vuelven los datos iniciales para todos los visitantes.",
+                            icon: "warning",
+                            showCancelButton: true,
+                            confirmButtonColor: "#3085d6",
+                            cancelButtonColor: "#d33",
+                            confirmButtonText: "Si, restablecer",
+                            cancelButtonText: "Cancelar"
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                form.submit();
+                            }
+                        });
+                    });
+                });
+            </script>
+        }
+    </div>
+}

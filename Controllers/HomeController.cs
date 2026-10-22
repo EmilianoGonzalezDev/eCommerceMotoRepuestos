@@ -90,6 +90,8 @@ namespace eCommerceMotoRepuestos.Controllers
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        // Status code pages re-execute failed POSTs here with the original method, which may carry no token.
+        [IgnoreAntiforgeryToken]
         public IActionResult Error(int? statusCode = null, string? errorMessage = null)
         {
             var status = statusCode ?? HttpContext.Response.StatusCode;

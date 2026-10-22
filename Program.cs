@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -51,6 +52,7 @@ builder.Services.AddScoped<CartService>();
 builder.Services.AddScoped<OrderService>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<DatabaseBackupService>();
+builder.Services.AddScoped<DemoResetService>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 builder.Services.AddSingleton<IHtmlSanitizer, HtmlSanitizer>();
 
@@ -64,6 +66,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.LoginPath = "/Account/Login";
         options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
         options.AccessDeniedPath = "/Home/AccessDenied";
+        options.Events.OnValidatePrincipal = DemoSession.ValidatePrincipalAsync;
     }
     );
 
@@ -77,6 +80,11 @@ using (var scope = app.Services.CreateScope())
 
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     await DatabaseInitializer.InitializeAsync(db);
+
+    if (app.Services.GetRequiredService<IOptions<DemoOptions>>().Value.Enabled)
+    {
+        await scope.ServiceProvider.GetRequiredService<DemoResetService>().InitializeAsync();
+    }
 }
 
 app.UseSession();

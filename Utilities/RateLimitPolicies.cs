@@ -11,6 +11,7 @@ public static class RateLimitPolicies
 {
     public const string Auth = "auth";
     public const string Writes = "writes";
+    public const string DemoReset = "demo-reset";
 
     public static IServiceCollection AddAppRateLimiting(this IServiceCollection services)
     {
@@ -23,6 +24,7 @@ public static class RateLimitPolicies
 
             options.AddPolicy(Auth, context => FixedWindowPerIp(context, permitLimit: 10));
             options.AddPolicy(Writes, context => FixedWindowPerIp(context, permitLimit: 30));
+            options.AddPolicy(DemoReset, context => FixedWindowPerIp(context, permitLimit: 2));
         });
     }
 

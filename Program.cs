@@ -1,17 +1,26 @@
 using eCommerceMotoRepuestos.Context;
 using eCommerceMotoRepuestos.Entities;
+using eCommerceMotoRepuestos.Models;
 using eCommerceMotoRepuestos.Repositories;
 using eCommerceMotoRepuestos.Services;
+using eCommerceMotoRepuestos.Utilities;
+using Ganss.Xss;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews(options =>
+{
+    // Every POST must carry an antiforgery token, not only the actions marked with [ValidateAntiForgeryToken].
+    options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
+});
 builder.Services.AddLocalization();
 
 var supportedCulture = new CultureInfo("es-AR");
@@ -23,6 +32,7 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
     options.SupportedUICultures = [supportedCulture];
 });
 
+builder.Services.Configure<DemoOptions>(builder.Configuration.GetSection(DemoOptions.SectionName));
 builder.Services.AddSingleton<SqliteDatabasePathProvider>();
 builder.Services.AddMemoryCache();
 
@@ -42,7 +52,11 @@ builder.Services.AddScoped<CartService>();
 builder.Services.AddScoped<OrderService>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<DatabaseBackupService>();
+builder.Services.AddScoped<DemoResetService>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
+builder.Services.AddSingleton<IHtmlSanitizer, HtmlSanitizer>();
+
+builder.Services.AddAppRateLimiting();
 
 builder.Services.AddSession(options => { options.IdleTimeout = TimeSpan.FromMinutes(30); });
 
@@ -52,6 +66,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.LoginPath = "/Account/Login";
         options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
         options.AccessDeniedPath = "/Home/AccessDenied";
+        options.Events.OnValidatePrincipal = DemoSession.ValidatePrincipalAsync;
     }
     );
 
@@ -59,8 +74,17 @@ var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
+    DemoSeeder.EnsureSeeded(
+        scope.ServiceProvider.GetRequiredService<SqliteDatabasePathProvider>(),
+        app.Environment);
+
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     await DatabaseInitializer.InitializeAsync(db);
+
+    if (app.Services.GetRequiredService<IOptions<DemoOptions>>().Value.Enabled)
+    {
+        await scope.ServiceProvider.GetRequiredService<DemoResetService>().InitializeAsync();
+    }
 }
 
 app.UseSession();
@@ -82,6 +106,7 @@ app.UseStatusCodePagesWithReExecute("/Home/Error", "?statusCode={0}");
 app.UseStaticFiles();
 app.UseHttpsRedirection();
 app.UseRouting();
+app.UseRateLimiter();
 
 app.UseAuthentication();
 app.UseAuthorization();

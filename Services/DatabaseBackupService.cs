@@ -9,7 +9,8 @@ public class DatabaseBackupService(SqliteDatabasePathProvider databasePathProvid
 
     public string GetBackupFilePath()
     {
-        var backupDirectory = Path.Combine(databasePathProvider.BaseDirectory, BackupDirectoryName);
+        var databaseDirectory = Path.GetDirectoryName(GetDatabaseFilePath())!;
+        var backupDirectory = Path.Combine(databaseDirectory, BackupDirectoryName);
         return Path.Combine(backupDirectory, BackupFileName);
     }
 
@@ -54,17 +55,26 @@ public class DatabaseBackupService(SqliteDatabasePathProvider databasePathProvid
             throw new FileNotFoundException("No se encontro un backup para restaurar.", backupFilePath);
         }
 
+        await RestoreFromFileAsync(backupFilePath, cancellationToken);
+    }
+
+    /// <summary>
+    /// Replaces the contents of the application database with the given SQLite file (left untouched).
+    /// </summary>
+    public async Task RestoreFromFileAsync(string sourceFilePath, CancellationToken cancellationToken = default)
+    {
         var databaseFilePath = GetDatabaseFilePath();
         Directory.CreateDirectory(Path.GetDirectoryName(databaseFilePath)!);
 
         SqliteConnection.ClearAllPools();
 
-        var backupConnectionString = new SqliteConnectionStringBuilder
+        var sourceConnectionString = new SqliteConnectionStringBuilder
         {
-            DataSource = backupFilePath
+            DataSource = sourceFilePath,
+            Mode = SqliteOpenMode.ReadOnly
         }.ToString();
 
-        await using var connection = new SqliteConnection(backupConnectionString);
+        await using var connection = new SqliteConnection(sourceConnectionString);
         await connection.OpenAsync(cancellationToken);
 
         await using var destinationConnection = new SqliteConnection(databasePathProvider.ConnectionString);

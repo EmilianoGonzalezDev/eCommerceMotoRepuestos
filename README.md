@@ -2,6 +2,22 @@
 
 Aplicación web ASP.NET Core MVC para la gestión y venta de moto repuestos. El proyecto combina un catálogo público con un backoffice administrativo para productos, categorías, pedidos, configuración y backup.
 
+## Demo online
+
+La aplicación está publicada como demo en Azure App Service, con datos ficticios.
+
+| Rol | Email | Contraseña |
+| --- | --- | --- |
+| Cliente (con pedidos) | `juanperez@gmail.com` | `Demo1234` |
+| Admin | `admin1@admin` | `Demo1234` |
+| SuperAdmin | `superadmin@admin` | `Demo1234` |
+
+- En la pantalla de login hay botones para ingresar con cada cuenta en un clic.
+- Los datos se restablecen todos los días a las 03:00 (hora de Argentina). Los admins también pueden restablecerlos desde el banner superior.
+- Las cuentas demo no pueden editar su perfil. Para probar esa función, registrá una cuenta propia (se elimina en el próximo reinicio).
+- El pago con tarjeta es simulado: no se cobra nada y los datos de la tarjeta no se envían al servidor.
+- La app corre en el plan gratuito, que la suspende cuando no hay tráfico: la primera carga puede tardar entre 10 y 30 segundos.
+
 ## Stack técnico
 
 - .NET 10
@@ -94,13 +110,33 @@ Parámetros simples del sistema persistidos en base de datos.
 - `AppSettingService`: lectura y escritura de configuraciones.
 - Las claves se centralizan en `Utilities/AppSettingsKeys.cs`.
 
-### 8. Backups de base de datos
+### 8. Modo demo
+
+Pensado para publicar la aplicación con cuentas compartidas. Se configura en la sección `Demo` de `appsettings.json` (`Enabled`, `ResetToken`, `Accounts`) y está desactivado por defecto.
+
+- `DemoResetService`: restaura `SeedData/seed.db` sobre la base, aplica migraciones, fija las contraseñas de las cuentas demo, vuelve las imágenes de `wwwroot/images` a las de la semilla y registra la fecha del reinicio.
+- `DemoController`:
+  - `POST /demo/reset`: reinicio programado, autenticado con el header `X-Demo-Reset-Token`.
+  - `POST /demo/reset-now`: botón del banner, solo para Admin y SuperAdmin.
+- Las cookies de sesión llevan la fecha del último reinicio (`Utilities/DemoSession.cs`); las emitidas antes de un reinicio se invalidan, porque sus usuarios pueden no existir más.
+- Las cuentas demo no pueden modificar su perfil.
+
+### Medidas de seguridad
+
+Como las credenciales de admin son públicas, la aplicación asume que cualquier visitante puede ser administrador:
+
+- Validación de imágenes subidas: solo JPG, PNG o WEBP, hasta 2 MB, verificando la firma del archivo.
+- Sanitización del HTML de las descripciones de producto (`HtmlSanitizer`), que se muestran con `Html.Raw`.
+- Token antiforgery obligatorio en todos los POST; las acciones que modifican datos no aceptan GET.
+- Rate limiting por IP (`Utilities/RateLimitPolicies.cs`): límite general, uno estricto para login y registro, otro para operaciones de escritura y otro para el reinicio de la demo.
+
+### 9. Backups de base de datos
 
 Módulo para resguardar y restaurar la información.
 
 - `BackupController`: creación y restauración de backups.
 - `DatabaseBackupService`: copia y restaura la base de datos SQLite usando `SqliteConnection.BackupDatabase`.
-- Los backups se almacenan en la carpeta `Backups/`.
+- Los backups se almacenan en la carpeta `Backups/`, junto al archivo de la base.
 
 ## Arquitectura del proyecto
 
@@ -120,8 +156,9 @@ La solución sigue una separación por capas simple y clara:
 
 ## Persistencia y datos
 
-- La base principal es `app.db`.
-- Al iniciar la aplicación se ejecuta `Database.Migrate()`, por lo que las migraciones pendientes se aplican automáticamente.
+- La base principal es `app.db`. Su ubicación se define con la cadena de conexión `SqlString` (relativa a la carpeta de la app o absoluta).
+- Si al iniciar la base no existe, `DemoSeeder` copia la semilla versionada `SeedData/seed.db` y restaura en `wwwroot/images` las imágenes de `SeedData/images` que falten.
+- Al iniciar la aplicación se ejecuta `Database.Migrate()`, por lo que las migraciones pendientes se aplican automáticamente (también sobre la semilla).
 - `AppDbContext` define relaciones entre usuarios, productos, categorías, pedidos, items de pedido, carrito y configuraciones.
 - Se siembra un registro inicial de configuración para stock bajo y un usuario `SuperAdmin`.
 
@@ -139,17 +176,61 @@ La solución sigue una separación por capas simple y clara:
 
 3. Abrir la URL indicada por ASP.NET Core en la consola.
 
+## Despliegue en Azure App Service
+
+El workflow [`.github/workflows/deploy-azure.yml`](.github/workflows/deploy-azure.yml) publica la app en un App Service Linux en cada push a `main` (o manualmente con *Run workflow*), autenticándose por OIDC.
+
+La base SQLite vive en `/home/data`, que es almacenamiento persistente de App Service: sobrevive a redeploys y reinicios. En el primer arranque se crea a partir de la semilla.
+
+### Configuración inicial (una sola vez)
+
+1. **Web App**: Publish *Code*, runtime *.NET 10 (LTS)*, sistema operativo *Linux*, plan *Free F1*. Dejar el despliegue continuo deshabilitado.
+2. **Web App → Settings → Environment variables**: agregar `ConnectionStrings__SqlString` = `Data Source=/home/data/app.db`.
+3. **Web App → Configuration → General settings**: *HTTPS Only* = On.
+4. **Managed Identity** (user-assigned), por ejemplo `id-motorepuestos-github`:
+   - *Federated credentials* → *GitHub Actions deploying Azure resources*: organización `EmilianoGonzalezDev`, repositorio `eCommerceMotoRepuestos`, entidad *Branch*, rama `main`.
+   - En la Web App → *Access control (IAM)* → asignar el rol **Website Contributor** a la identidad.
+5. **GitHub → Settings → Secrets and variables → Actions**:
+   - Secrets: `AZURE_CLIENT_ID` (client ID de la identidad), `AZURE_TENANT_ID`, `AZURE_SUBSCRIPTION_ID`.
+   - Variable: `AZURE_WEBAPP_NAME` (nombre de la Web App).
+6. **Modo demo**:
+   - Generar un token aleatorio, por ejemplo con `openssl rand -hex 32`.
+   - En la Web App → *Environment variables*: `Demo__Enabled` = `true` y `Demo__ResetToken` = el token.
+   - En GitHub: secret `DEMO_RESET_TOKEN` con el mismo token y variable `DEMO_APP_URL` con la URL de la app (`https://<app>.azurewebsites.net`).
+
+### Reinicio de la demo
+
+El workflow [`.github/workflows/demo-reset.yml`](.github/workflows/demo-reset.yml) llama a `POST /demo/reset` todas las noches a las 03:00 (hora de Argentina) y también se puede ejecutar a mano con *Run workflow*. Tener en cuenta que:
+
+- los workflows programados solo corren desde la rama por defecto del repositorio;
+- GitHub los desactiva tras 60 días sin actividad en el repositorio, y hay que volver a habilitarlos desde la pestaña *Actions*.
+
+### Evitar costos en Azure
+
+El plan *Free F1* no tiene costo y no escala solo: si se agota su cuota diaria, la app se detiene hasta el día siguiente. Los costos suelen venir de recursos creados alrededor:
+
+- **Application Insights / Log Analytics**: el portal los propone al crear la Web App. Desactivarlos, o eliminarlos si ya se crearon.
+- **Presupuesto**: en *Cost Management → Budgets*, crear uno de USD 1 con alertas al 50% y al 100% (real y pronosticado). Solo avisa, no detiene nada.
+- **Azure Policy** (opcional): restringir los tipos de recursos y SKUs permitidos en el resource group.
+- No crear deployment slots, Storage Accounts, Azure SQL ni dominios con certificado propio; la base SQLite en `/home/data` alcanza.
+
+### Regenerar la semilla
+
+`SeedData/seed.db` es una copia compacta (`VACUUM INTO`) de una base local curada, con `journal_mode=DELETE` (WAL no funciona bien sobre el almacenamiento de red de `/home`). `SeedData/images` contiene solo las imágenes referenciadas por sus productos. Para que Azure tome una semilla nueva, después del deploy alcanza con ejecutar el workflow de reinicio de la demo (o, con el modo demo apagado, borrar `/home/data/app.db` desde Kudu/SSH y reiniciar la app).
+
 
 ## Estructura resumida
 
 ```text
-Context/         DbContext y configuración EF Core
+.github/         Workflows de despliegue a Azure y reinicio de la demo
+Context/         DbContext, inicialización y semilla demo
 Controllers/     Controladores MVC
 Entities/        Entidades de dominio
 Enums/           Estados y tipos
 Migrations/      Migraciones de base de datos
 Models/          ViewModels y paginación
 Repositories/    Acceso a datos
+SeedData/        Base e imágenes demo para el primer arranque
 Services/        Lógica de negocio
 Utilities/       Helpers y constantes
 Views/           Vistas Razor

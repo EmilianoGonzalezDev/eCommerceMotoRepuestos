@@ -31,7 +31,8 @@
 <div class="card">
     <div class="card-body">
         <p class="mb-2"><strong>Archivo de backup:</strong></p>
-        <p class="text-muted mb-3"><code>@Model.BackupFilePath</code></p>
+        @* Only the file name: the full path would expose the server's directory layout. *@
+        <p class="text-muted mb-3"><code>@System.IO.Path.GetFileName(Model.BackupFilePath)</code></p>
 
         @if (Model.BackupExists)
         {

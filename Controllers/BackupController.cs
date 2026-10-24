@@ -1,8 +1,10 @@
 using eCommerceMotoRepuestos.Context;
 using eCommerceMotoRepuestos.Models;
 using eCommerceMotoRepuestos.Services;
+using eCommerceMotoRepuestos.Utilities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace eCommerceMotoRepuestos.Controllers;
 
@@ -21,12 +23,13 @@ public class BackupController(
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [EnableRateLimiting(RateLimitPolicies.Writes)]
     public async Task<IActionResult> Create(CancellationToken cancellationToken)
     {
         try
         {
             var filePath = await backupService.CreateBackupAsync(cancellationToken);
-            TempData["SuccessMessage"] = $"Backup generado correctamente en: {filePath}";
+            TempData["SuccessMessage"] = $"Backup generado correctamente: {Path.GetFileName(filePath)}";
         }
         catch (Exception ex)
         {
@@ -39,6 +42,7 @@ public class BackupController(
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [EnableRateLimiting(RateLimitPolicies.Writes)]
     public async Task<IActionResult> Restore(CancellationToken cancellationToken)
     {
         try

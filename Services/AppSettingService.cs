@@ -2,6 +2,7 @@ using eCommerceMotoRepuestos.Entities;
 using eCommerceMotoRepuestos.Repositories;
 using eCommerceMotoRepuestos.Utilities;
 using Microsoft.Extensions.Caching.Memory;
+using System.Globalization;
 
 namespace eCommerceMotoRepuestos.Services;
 
@@ -10,6 +11,7 @@ public class AppSettingService(GenericRepository<AppSetting> _appSettingReposito
     public const string LowStockThresholdKey = AppSettingsKeys.LowStockThreshold;
     private const int DefaultLowStockThreshold = 5;
     private const string LowStockThresholdCacheKey = "AppSetting:" + LowStockThresholdKey;
+    private const string LastDemoResetCacheKey = "AppSetting:" + AppSettingsKeys.LastDemoReset;
 
     public async Task<int> GetLowStockThresholdAsync()
     {
@@ -30,23 +32,34 @@ public class AppSettingService(GenericRepository<AppSetting> _appSettingReposito
 
     public async Task SetLowStockThresholdAsync(int threshold)
     {
+        await SetValueAsync(LowStockThresholdKey, threshold.ToString());
+        InvalidateCache();
+    }
+
+    /// <summary>
+    /// UTC time of the last demo data reset, or null if the data was never reset.
+    /// </summary>
+    public async Task<DateTime?> GetLastDemoResetAsync()
+    {
+        if (_cache.TryGetValue(LastDemoResetCacheKey, out DateTime? cachedValue))
+        {
+            return cachedValue;
+        }
+
         var setting = await _appSettingRepository.GetByFilter(
-            [x => x.Key == LowStockThresholdKey]);
+            [x => x.Key == AppSettingsKeys.LastDemoReset]);
 
-        if (setting is null)
-        {
-            await _appSettingRepository.AddAsync(new AppSetting
-            {
-                Key = LowStockThresholdKey,
-                Value = threshold.ToString()
-            });
-        }
-        else
-        {
-            setting.Value = threshold.ToString();
-            await _appSettingRepository.EditAsync(setting);
-        }
+        DateTime? result = DateTime.TryParse(setting?.Value, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out var lastReset)
+            ? lastReset
+            : null;
 
+        _cache.Set(LastDemoResetCacheKey, result);
+        return result;
+    }
+
+    public async Task SetLastDemoResetAsync(DateTime resetAtUtc)
+    {
+        await SetValueAsync(AppSettingsKeys.LastDemoReset, resetAtUtc.ToString("O", CultureInfo.InvariantCulture));
         InvalidateCache();
     }
 
@@ -56,5 +69,26 @@ public class AppSettingService(GenericRepository<AppSetting> _appSettingReposito
     public void InvalidateCache()
     {
         _cache.Remove(LowStockThresholdCacheKey);
+        _cache.Remove(LastDemoResetCacheKey);
+    }
+
+    private async Task SetValueAsync(string key, string value)
+    {
+        var setting = await _appSettingRepository.GetByFilter(
+            [x => x.Key == key]);
+
+        if (setting is null)
+        {
+            await _appSettingRepository.AddAsync(new AppSetting
+            {
+                Key = key,
+                Value = value
+            });
+        }
+        else
+        {
+            setting.Value = value;
+            await _appSettingRepository.EditAsync(setting);
+        }
     }
 }

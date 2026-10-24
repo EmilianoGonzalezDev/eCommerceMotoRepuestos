@@ -4,6 +4,7 @@ using eCommerceMotoRepuestos.Services;
 using eCommerceMotoRepuestos.Utilities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using System.Security.Claims;
 
 namespace eCommerceMotoRepuestos.Controllers
@@ -17,6 +18,7 @@ namespace eCommerceMotoRepuestos.Controllers
         private const int CartPageSize = 10;
 
         [HttpPost]
+        [EnableRateLimiting(RateLimitPolicies.Writes)]
         public async Task<IActionResult> AddItemToCart(int productId, int quantity, string? returnUrl = null)
         {
             var product = await _productService.GetByIdAsync(productId);
@@ -98,6 +100,8 @@ namespace eCommerceMotoRepuestos.Controllers
             return View(pagedCart);
         }
 
+        [HttpPost]
+        [EnableRateLimiting(RateLimitPolicies.Writes)]
         public async Task<IActionResult> RemoveItemToCart(int productId, int page = 1)
         {
             var userId = GetAuthenticatedUserId();
@@ -121,6 +125,7 @@ namespace eCommerceMotoRepuestos.Controllers
         }
 
         [HttpPost]
+        [EnableRateLimiting(RateLimitPolicies.Writes)]
         public async Task<IActionResult> UpdateItemQuantity(int productId, int quantity, int page = 1)
         {
             var userId = GetAuthenticatedUserId();
@@ -186,6 +191,7 @@ namespace eCommerceMotoRepuestos.Controllers
 
         [HttpPost]
         [Authorize]
+        [EnableRateLimiting(RateLimitPolicies.Writes)]
         public async Task<IActionResult> CompletePurchase(PaymentType paymentType)
         {
             var userId = GetAuthenticatedUserId();

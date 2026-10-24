@@ -150,6 +150,8 @@
     </ul>
 </nav>
 
+<form id="toggleStatusForm" asp-controller="Product" asp-action="ToggleStatus" method="post" class="d-none"></form>
+
 @section Scripts {
     <script>
         function toggleItem(id, isActive)
@@ -167,7 +169,9 @@
                 cancelButtonText: "No, Regresar"
             }).then((result) => {
                 if (result.isConfirmed) {
-                    window.location.href = `/Product/ToggleStatus/${id}`;
+                    const form = document.getElementById("toggleStatusForm");
+                    form.action = `/Product/ToggleStatus/${id}`;
+                    form.submit();
                 }
             });
         }

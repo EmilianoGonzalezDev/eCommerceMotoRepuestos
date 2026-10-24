@@ -1,7 +1,9 @@
 using eCommerceMotoRepuestos.Models;
 using eCommerceMotoRepuestos.Services;
+using eCommerceMotoRepuestos.Utilities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace eCommerceMotoRepuestos.Controllers;
 
@@ -21,6 +23,7 @@ public class SettingsController(AppSettingService _appSettingService) : Controll
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [EnableRateLimiting(RateLimitPolicies.Writes)]
     public async Task<IActionResult> Index(StockSettingsViewModel viewModel)
     {
         if (!ModelState.IsValid)

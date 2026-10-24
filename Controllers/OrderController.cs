@@ -4,6 +4,7 @@ using eCommerceMotoRepuestos.Services;
 using eCommerceMotoRepuestos.Utilities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using System.Security.Claims;
 
 namespace eCommerceMotoRepuestos.Controllers;
@@ -46,6 +47,7 @@ public class OrderController(OrderService _orderService) : Controller
     [HttpPost("UpdateStatus")]
     [Authorize(Roles = "Admin")]
     [ValidateAntiForgeryToken]
+    [EnableRateLimiting(RateLimitPolicies.Writes)]
     public async Task<IActionResult> UpdateStatus(
         int orderId,
         OrderStatus status,

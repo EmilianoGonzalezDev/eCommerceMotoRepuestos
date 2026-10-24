@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.Extensions.Options;
 using System.Security.Claims;
 
 namespace eCommerceMotoRepuestos.Controllers;
@@ -12,8 +14,12 @@ namespace eCommerceMotoRepuestos.Controllers;
 public class AccountController(
     UserService _userService,
     CartService _cartService,
-    ProductService _productService) : Controller
+    ProductService _productService,
+    AppSettingService _appSettingService,
+    IOptions<DemoOptions> _demoOptions) : Controller
 {
+    private const string DemoAccountReadOnlyMessage = "Las cuentas demo no pueden modificarse. Registrá una cuenta propia para probar la edición de datos.";
+
     public IActionResult Login()
     {
         if (User.Identity?.IsAuthenticated == true)
@@ -27,6 +33,7 @@ public class AccountController(
     }
 
     [HttpPost]
+    [EnableRateLimiting(RateLimitPolicies.Auth)]
     public async Task<IActionResult> Login(LoginViewModel viewmodel)
     {
 
@@ -41,20 +48,7 @@ public class AccountController(
         }
         else
         {
-            List<Claim> claims = new List<Claim>() {
-                    new Claim(ClaimTypes.NameIdentifier,found.UserId.ToString()),
-                    new Claim(ClaimTypes.Name,found.FullName),
-                    new Claim(ClaimTypes.Email,found.Email),
-                    new Claim(ClaimTypes.Role,found.Type)
-                };
-
-            ClaimsIdentity claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-
-            await HttpContext.SignInAsync(
-                CookieAuthenticationDefaults.AuthenticationScheme,
-                new ClaimsPrincipal(claimsIdentity),
-                new AuthenticationProperties() { AllowRefresh = true }
-                );
+            await SignInUserAsync(found);
 
             await MergeSessionCartAsync(found.UserId);
 
@@ -83,6 +77,7 @@ public class AccountController(
     }
 
     [HttpPost]
+    [EnableRateLimiting(RateLimitPolicies.Auth)]
     public async Task<IActionResult> Register(UserViewModel viewmodel)
     {
         viewmodel.Type = "Client";
@@ -118,11 +113,13 @@ public class AccountController(
         }
 
         var userModel = await _userService.GetProfileForEditAsync(userId.Value);
+        ViewData["IsDemoAccount"] = IsDemoAccount();
         return View("EditProfile", userModel);
     }
 
     [HttpPost]
     [Authorize]
+    [EnableRateLimiting(RateLimitPolicies.Writes)]
     public async Task<IActionResult> EditProfile(EditProfileViewModel viewmodel)
     {
         var userId = GetAuthenticatedUserId();
@@ -137,12 +134,18 @@ public class AccountController(
             return RedirectToAction("EditProfile");
         }
 
+        if (IsDemoAccount())
+        {
+            TempData["ErrorMessage"] = DemoAccountReadOnlyMessage;
+            return RedirectToAction("EditProfile");
+        }
+
         if (!ModelState.IsValid) return View("EditProfile", viewmodel);
 
         try
         {
             var updatedUser = await _userService.UpdateProfileAsync(viewmodel);
-            await RefreshSignInAsync(updatedUser);
+            await SignInUserAsync(updatedUser);
             TempData["SuccessMessage"] = "Tus datos fueron actualizados.";
             return RedirectToAction("Index", "Home");
         }
@@ -172,6 +175,7 @@ public class AccountController(
 
     [HttpPost]
     [Authorize(Roles = "SuperAdmin")]
+    [EnableRateLimiting(RateLimitPolicies.Auth)]
     public async Task<IActionResult> CreateAdmin(UserViewModel viewmodel)
     {
         viewmodel.Type = "Admin";
@@ -208,6 +212,7 @@ public class AccountController(
         return View();
     }
 
+    [HttpPost]
     public async Task<IActionResult> Logout()
     {
         await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
@@ -244,14 +249,21 @@ public class AccountController(
         return int.TryParse(claim, out var userId) ? userId : null;
     }
 
-    private async Task RefreshSignInAsync(UserViewModel user)
+    // Demo credentials are shared by every visitor, so nobody may change them.
+    private bool IsDemoAccount()
+    {
+        return _demoOptions.Value.IsDemoAccount(HttpContext.User.FindFirst(ClaimTypes.Email)?.Value);
+    }
+
+    private async Task SignInUserAsync(UserViewModel user)
     {
         var claims = new List<Claim>
         {
             new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
             new Claim(ClaimTypes.Name, user.FullName),
             new Claim(ClaimTypes.Email, user.Email),
-            new Claim(ClaimTypes.Role, user.Type)
+            new Claim(ClaimTypes.Role, user.Type),
+            await DemoSession.CreateEpochClaimAsync(_appSettingService)
         };
 
         var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);

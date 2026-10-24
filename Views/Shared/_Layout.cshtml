@@ -13,6 +13,7 @@
     @await RenderSectionAsync("Styles", required: false)
 </head>
 <body>
+    <partial name="_DemoBanner" />
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
@@ -72,7 +73,11 @@
                 <ul class="dropdown-menu dropdown-menu-end">
                     <li><a class="dropdown-item text-dark" href="/Account/EditProfile">Editar datos</a></li>
                     <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item text-dark" href="/Account/Logout">Salir</a></li>
+                    <li>
+                        <form asp-controller="Account" asp-action="Logout" method="post">
+                            <button type="submit" class="dropdown-item text-dark">Salir</button>
+                        </form>
+                    </li>
                 </ul>
             </div>
         }

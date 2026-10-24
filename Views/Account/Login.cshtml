@@ -1,6 +1,9 @@
 @model LoginViewModel;
+@using Microsoft.Extensions.Options
+@inject IOptions<DemoOptions> DemoOptions
 @{
     Layout = null;
+    var demo = DemoOptions.Value;
 }
 
 <!DOCTYPE html>
@@ -12,6 +15,7 @@
     <title>@ViewData["Title"] - MotoRepuestos!</title>
 </head>
 <body class="bg-body-secondary">
+    <partial name="_DemoBanner" />
 
     <div class="container">
         <div class="row justify-content-center align-items-center vh-100">
@@ -28,7 +32,7 @@
                             </div>
                         }
 
-                        <form action="/Account/Login" method="post">
+                        <form asp-controller="Account" asp-action="Login" method="post" id="loginForm">
 
                             <div class="mb-3">
                                 <label class="form-label">Email</label>
@@ -57,6 +61,23 @@
                             </div>
 
                         </form>
+
+                        @if (demo.Enabled && demo.Accounts.Count > 0)
+                        {
+                            <hr />
+                            <h6 class="text-center mb-1">Cuentas de prueba</h6>
+                            <p class="text-muted small text-center mb-2">Hacé clic en una cuenta para ingresar.</p>
+                            <div class="d-grid gap-2">
+                                @foreach (var account in demo.Accounts)
+                                {
+                                    <button type="button" class="btn btn-outline-primary btn-sm demo-login"
+                                            data-email="@account.Email" data-password="@account.Password">
+                                        <strong>@account.Label</strong><br />
+                                        <span class="small">@account.Email · @account.Password</span>
+                                    </button>
+                                }
+                            </div>
+                        }
                     </div>
                 </div>
             </div>
@@ -66,5 +87,15 @@
     </div>
 
 <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Demo quick login: fill the form with the selected account and submit it.
+    document.querySelectorAll(".demo-login").forEach(button => {
+        button.addEventListener("click", function () {
+            document.getElementById("Email").value = button.dataset.email;
+            document.getElementById("Password").value = button.dataset.password;
+            document.getElementById("loginForm").submit();
+        });
+    });
+</script>
 </body>
 </html>

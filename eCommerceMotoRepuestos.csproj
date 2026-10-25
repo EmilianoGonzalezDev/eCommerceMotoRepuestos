@@ -22,7 +22,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="app.db">
+    <!-- app.db is not versioned (CI and fresh clones start from SeedData), so only copy it when present. -->
+    <Content Include="app.db" Condition="Exists('app.db')">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <CopyToPublishDirectory>Never</CopyToPublishDirectory>
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>

@@ -6,7 +6,7 @@ Fue pensada para un negocio de repuestos, pero la base sirve para cualquier come
 
 ## Demo online
 
-**[motorepuestos-hzd4ffe5hwa9e6br.chilecentral-01.azurewebsites.net](https://motorepuestos-hzd4ffe5hwa9e6br.chilecentral-01.azurewebsites.net)**
+**[motorepuestos-mvc.azurewebsites.net](https://motorepuestos-mvc.azurewebsites.net)**
 
 Los datos son ficticios. Podés ingresar con cualquiera de estas cuentas, o usar los botones de acceso rápido de la pantalla de login:
 
